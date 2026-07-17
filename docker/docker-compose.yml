@@ -1,0 +1,101 @@
+version: "3.8"
+
+services:
+  typeuz-frontend:
+    container_name: typeuz-frontend
+    image: monkeytype/typeuz-frontend:latest
+    ports:
+      - "${HTTP_PORT:-8080}:80"
+    restart: on-failure
+    depends_on:
+      typeuz-backend:
+        condition: service_healthy
+    env_file:
+      - path: ./.env
+        required: true
+    environment:
+      - FIREBASE_APIKEY=${FIREBASE_APIKEY:-}
+      - FIREBASE_AUTHDOMAIN=${FIREBASE_AUTHDOMAIN:-}
+      - FIREBASE_PROJECTID=${FIREBASE_PROJECTID:-}
+      - FIREBASE_STORAGEBUCKET=${FIREBASE_STORAGEBUCKET:-}
+      - FIREBASE_MESSAGINGSENDERID=${FIREBASE_MESSAGINGSENDERID:-}
+      - FIREBASE_APPID=${FIREBASE_APPID:-}
+      - MONKEYTYPE_BACKENDURL=${MONKEYTYPE_BACKENDURL}
+      - RECAPTCHA_SITE_KEY=${RECAPTCHA_SITE_KEY:-}
+
+  typeuz-backend:
+    container_name: typeuz-backend
+    image: monkeytype/typeuz-backend:latest
+    ports:
+      - "${BACKEND_PORT:-5005}:5005"
+    restart: on-failure
+    environment:
+      - DB_NAME=monkeytype
+      - DB_URI=mongodb://typeuz-mongodb:27017
+      - REDIS_URI=redis://typeuz-redis:6379
+      - FRONTEND_URL=${MONKEYTYPE_FRONTENDURL}
+      - RECAPTCHA_SECRET=${RECAPTCHA_SECRET:-}
+      - EMAIL_HOST=${EMAIL_HOST:-}
+      - EMAIL_PORT=${EMAIL_PORT:-}
+      - EMAIL_USER=${EMAIL_USER:-}
+      - EMAIL_PASS=${EMAIL_PASS:-}
+      - EMAIL_FROM=${EMAIL_FROM:-}
+    volumes:
+      #uncomment to enable the account system, check the SELF_HOSTING.md file
+      #- type: bind
+      #  source: ./serviceAccountKey.json
+      #  target: /app/backend/src/credentials/serviceAccountKey.json
+      #  read_only: true
+      - type: bind
+        source: ./backend-configuration.json
+        target: /app/backend/dist/backend-configuration.json
+        read_only: true
+    depends_on:
+      typeuz-redis:
+        condition: service_healthy
+      typeuz-mongodb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "nc", "-z", "-v", "localhost", "5005"]
+      interval: 5s
+      timeout: 10s
+      retries: 15
+      start_period: 5s
+
+  typeuz-redis:
+    container_name: typeuz-redis
+    image: redis:6.2.6
+    #uncomment if you want to expose the redis server
+    #ports:
+    #  - "${REDIS_PORT:-6379}:6379"
+    restart: on-failure
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 5s
+      timeout: 10s
+      retries: 15
+      start_period: 10s
+
+  typeuz-mongodb:
+    container_name: typeuz-mongodb
+    image: mongo:5.0.13
+    restart: on-failure
+    volumes:
+      - mongo-data:/data/db
+    #uncomment if you want to expose the mongodb server
+    #ports:
+    #  - "${MONGO_PORT:-27017}:27017"
+    healthcheck:
+      test: echo 'db.stats().ok' | mongo localhost:27017/test --quiet
+      interval: 5s
+      timeout: 10s
+      retries: 15
+      start_period: 10s
+
+volumes:
+  mongo-data:
+    name: monkeytype_mongo_data
+  redis-data:
+    name: monkeytype_redis_data

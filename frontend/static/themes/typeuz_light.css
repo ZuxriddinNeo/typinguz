@@ -1,0 +1,42 @@
+kbd {
+  color: var(--sub-color);
+  background-color: var(--main-color);
+}
+
+[data-nav-item] {
+  color: var(--main-color);
+}
+
+[data-nav-item="test"] {
+  color: var(--main-color);
+}
+
+[data-nav-item="alerts"] {
+  color: var(--sub-color);
+}
+
+[data-nav-item="account"] {
+  --themable-button-text: var(--main-color);
+}
+
+[data-nav-item="settings"] {
+  color: var(--caret-color);
+}
+
+.pageAbout .typeuz-gradient {
+  background: linear-gradient(135deg, #ff5a1f, #ffb088);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.typeuz-btn-primary {
+  background: linear-gradient(135deg, #ff5a1f, #ffb088) !important;
+  color: white !important;
+  border: none !important;
+}
+
+.typeuz-btn-primary:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}

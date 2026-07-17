@@ -1,0 +1,5 @@
+Contact: mailto:contact@typeuz.uz
+Expires: 2026-12-31T23:59:59.999Z
+Preferred-Languages: uz
+Canonical: https://typeuz.uz/.well-known/security.txt
+Policy: https://typeuz.uz/security-policy

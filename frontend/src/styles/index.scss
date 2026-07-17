@@ -1,0 +1,37 @@
+@layer hidden {
+  // custom layer to hide elements without using !important
+  // (as long as this layer is higher than custom-styles)
+  // this is to fix issues with tailwinds hidden class
+  // while still working for scss files
+  .hidden {
+    display: none;
+  }
+
+  // same for invisible
+  .invisible {
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+  }
+}
+
+@layer custom-styles {
+  @import "buttons", "ads", "test-activity", "animations", "caret",
+    "commandline", "core", "fonts", "inputs", "popups", "scroll", "test",
+    "loading", "media-queries";
+
+  .chartCanvas {
+    width: 100% !important;
+  }
+
+  .customBackground {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image: linear-gradient(var(--sub-color) 1px, transparent 1px),
+      linear-gradient(90deg, var(--sub-color) 1px, transparent 1px);
+    background-size: 64px 64px;
+    opacity: 0.03;
+  }
+}
