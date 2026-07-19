@@ -95,10 +95,6 @@ const routes: Route[] = [
   {
     path: "/login",
     load: async (_params, options) => {
-      if (!isAuthAvailable() && !isDevEnvironment()) {
-        await navigate("/", options);
-        return;
-      }
       if (isAuthenticated()) {
         await navigate("/onboarding", options);
         return;
