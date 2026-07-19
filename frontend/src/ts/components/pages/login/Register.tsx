@@ -1,5 +1,5 @@
-import { Gender, UserEmailSchema, UserNameSchema } from "@typeuz/schemas/users";
 import { createForm } from "@tanstack/solid-form";
+import { Gender, UserEmailSchema, UserNameSchema } from "@typeuz/schemas/users";
 import { For, JSXElement, createSignal } from "solid-js";
 import { envConfig } from "virtual:env-config";
 
@@ -16,14 +16,13 @@ import {
   showNoticeNotification,
 } from "../../../states/notifications";
 import { remoteValidationForm } from "../../../utils/remote-validation";
-import { H3 } from "../../common/Headers";
 import { Fa } from "../../common/Fa";
+import { H3 } from "../../common/Headers";
 import { showRegisterCaptchaModal } from "../../modals/RegisterCaptchaModal";
 import { InputField } from "../../ui/form/InputField";
 import { SelectField } from "../../ui/form/SelectField";
 import { SubmitButton } from "../../ui/form/SubmitButton";
 import {
-  allFieldsMandatory,
   fromSchema,
   handleResult,
   ValidationResult,
@@ -143,18 +142,12 @@ export function Register(): JSXElement {
     onSubmitInvalid: () => {
       showNoticeNotification("Iltimos, barcha maydonlarni to'ldiring");
     },
-    validators: {
-      onChange: allFieldsMandatory(),
-    },
+    validators: {},
   }));
 
   return (
     <div class="grid w-full grid-cols-1 justify-center gap-4 sm:w-96">
-      <H3
-        text="ro'yxatdan o'tish"
-        fa={{ icon: "fa-user-plus" }}
-        class="p-0"
-      />
+      <H3 text="ro'yxatdan o'tish" fa={{ icon: "fa-user-plus" }} class="p-0" />
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -182,8 +175,12 @@ export function Register(): JSXElement {
           name="firstName"
           validators={{
             onChange: (field) => {
-              if (field.value.length === 0) { return "Ism kiritish majburiy"; }
-              if (field.value.length > 50) { return "Ism 50 belgidan oshmasligi kerak"; }
+              if (field.value.length === 0) {
+                return "Ism kiritish majburiy";
+              }
+              if (field.value.length > 50) {
+                return "Ism 50 belgidan oshmasligi kerak";
+              }
               return undefined;
             },
           }}
@@ -200,8 +197,12 @@ export function Register(): JSXElement {
           name="lastName"
           validators={{
             onChange: (field) => {
-              if (field.value.length === 0) { return "Familiya kiritish majburiy"; }
-              if (field.value.length > 50) { return "Familiya 50 belgidan oshmasligi kerak"; }
+              if (field.value.length === 0) {
+                return "Familiya kiritish majburiy";
+              }
+              if (field.value.length > 50) {
+                return "Familiya 50 belgidan oshmasligi kerak";
+              }
               return undefined;
             },
           }}
@@ -266,6 +267,7 @@ export function Register(): JSXElement {
           validators={{
             onChangeListenTo: ["email"],
             onChange: (field) =>
+              field.value === "" ||
               field.value === field.fieldApi.form.getFieldValue("email")
                 ? undefined
                 : "email tasdiqlash mos kelmadi",
@@ -299,6 +301,7 @@ export function Register(): JSXElement {
           validators={{
             onChangeListenTo: ["password"],
             onChange: (field) =>
+              field.value === "" ||
               field.value === field.fieldApi.form.getFieldValue("password")
                 ? undefined
                 : "parol tasdiqlash mos kelmadi",
@@ -349,9 +352,7 @@ export function Register(): JSXElement {
                 <button
                   type="button"
                   onClick={() =>
-                    setSelectedAvatar(
-                      selectedAvatar() === icon ? "" : icon,
-                    )
+                    setSelectedAvatar(selectedAvatar() === icon ? "" : icon)
                   }
                   disabled={!getLoginPageInputsEnabled()}
                   class={`flex items-center justify-center rounded-xl p-2 text-lg transition-all ${
@@ -374,18 +375,27 @@ export function Register(): JSXElement {
         />
         <p class="text-center text-sm text-sub">
           Ro&apos;yxatdan o&apos;tish orqali siz{" "}
-          <a href="/privacy-policy" class="text-main underline hover:no-underline">
+          <a
+            href="/privacy-policy"
+            class="text-main underline hover:no-underline"
+          >
             Maxfiylik siyosati
           </a>
           ,{" "}
-          <a href="/terms-of-service" class="text-main underline hover:no-underline">
+          <a
+            href="/terms-of-service"
+            class="text-main underline hover:no-underline"
+          >
             Foydalanish shartlari
           </a>{" "}
           va{" "}
-          <a href="/security-policy" class="text-main underline hover:no-underline">
+          <a
+            href="/security-policy"
+            class="text-main underline hover:no-underline"
+          >
             Xavfsizlik siyosati
-          </a>
-          {" "}ni qabul qilasiz.
+          </a>{" "}
+          ni qabul qilasiz.
         </p>
       </form>
     </div>
