@@ -1,6 +1,6 @@
-import { ResultFilters } from "@monkeytype/schemas/users";
+import { ResultFilters } from "@typeuz/schemas/users";
 import { LanguageList } from "./languages";
-import { getFunboxNames } from "@monkeytype/funbox";
+import { getFunboxNames } from "@typeuz/funbox";
 
 const object: ResultFilters = {
   _id: "default",

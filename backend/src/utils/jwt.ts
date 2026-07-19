@@ -1,10 +1,10 @@
 import jwt from "jsonwebtoken";
-import MonkeyError from "./error";
+import TypeUZError from "./error";
 
 const getSecret = (): string => {
   const secret = process.env["JWT_SECRET"];
-  if (!secret) {
-    throw new MonkeyError(500, "JWT_SECRET not configured");
+  if (secret === undefined || secret === null || secret === "") {
+    throw new TypeUZError(500, "JWT_SECRET not configured");
   }
   return secret;
 };
@@ -12,6 +12,7 @@ const getSecret = (): string => {
 export type JwtPayload = {
   uid: string;
   email: string;
+  admin?: boolean;
 };
 
 export function signToken(payload: JwtPayload): string {
@@ -22,6 +23,6 @@ export function verifyToken(token: string): JwtPayload {
   try {
     return jwt.verify(token, getSecret()) as JwtPayload;
   } catch {
-    throw new MonkeyError(401, "Invalid or expired token");
+    throw new TypeUZError(401, "Invalid or expired token");
   }
 }

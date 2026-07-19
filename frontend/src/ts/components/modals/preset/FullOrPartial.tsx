@@ -1,5 +1,5 @@
-import { ConfigGroupNameSchema } from "@monkeytype/schemas/configs";
-import { PresetType } from "@monkeytype/schemas/presets";
+import { ConfigGroupNameSchema } from "@typeuz/schemas/configs";
+import { PresetType } from "@typeuz/schemas/presets";
 import { For, JSXElement, Show } from "solid-js";
 
 import { camelCaseToWords } from "../../../utils/strings";

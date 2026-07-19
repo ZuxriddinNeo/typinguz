@@ -1,34 +1,34 @@
-import { PartialConfig } from "@monkeytype/schemas/configs";
+import { PartialConfig } from "@typeuz/schemas/configs";
 import * as ConfigDAL from "../../dal/config";
-import { MonkeyResponse } from "../../utils/monkey-response";
-import { GetConfigResponse } from "@monkeytype/contracts/configs";
-import { MonkeyRequest } from "../types";
+import { TypeUZResponse } from "../../utils/typeuz-response";
+import { GetConfigResponse } from "@typeuz/contracts/configs";
+import { TypeUZRequest } from "../types";
 
 export async function getConfig(
-  req: MonkeyRequest,
+  req: TypeUZRequest,
 ): Promise<GetConfigResponse> {
   const { uid } = req.ctx.decodedToken;
   const data = (await ConfigDAL.getConfig(uid))?.config ?? null;
 
-  return new MonkeyResponse("Configuration retrieved", data);
+  return new TypeUZResponse("Configuration retrieved", data);
 }
 
 export async function saveConfig(
-  req: MonkeyRequest<undefined, PartialConfig>,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest<undefined, PartialConfig>,
+): Promise<TypeUZResponse> {
   const config = req.body;
   const { uid } = req.ctx.decodedToken;
 
   await ConfigDAL.saveConfig(uid, config);
 
-  return new MonkeyResponse("Config updated", null);
+  return new TypeUZResponse("Config updated", null);
 }
 
 export async function deleteConfig(
-  req: MonkeyRequest,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest,
+): Promise<TypeUZResponse> {
   const { uid } = req.ctx.decodedToken;
 
   await ConfigDAL.deleteConfig(uid);
-  return new MonkeyResponse("Config deleted", null);
+  return new TypeUZResponse("Config deleted", null);
 }

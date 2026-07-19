@@ -1,9 +1,6 @@
 import { createForm } from "@tanstack/solid-form";
 import { JSXElement } from "solid-js";
 
-import { signIn } from "../../../auth";
-import { signOut } from "../../../firebase";
-import Ape from "../../../ape";
 import {
   disableLoginPageInputs,
   enableLoginPageInputs,
@@ -13,39 +10,44 @@ import {
   showErrorNotification,
   showNoticeNotification,
 } from "../../../states/notifications";
+import { setStoredToken, clearStoredToken } from "../../../utils/custom-auth";
 import { Button } from "../../common/Button";
 import { Fa } from "../../common/Fa";
 import { InputField } from "../../ui/form/InputField";
 import { SubmitButton } from "../../ui/form/SubmitButton";
 import { allFieldsMandatory } from "../../ui/form/utils";
 import { cn } from "../../../utils/cn";
+import { envConfig } from "virtual:env-config";
 
 export function AdminLogin(): JSXElement {
   const handleAdminSignIn = async (
-    email: string,
+    username: string,
     password: string,
-    rememberMe: boolean,
   ): Promise<void> => {
     disableLoginPageInputs();
     try {
-      const result = await signIn(email, password, rememberMe);
-      if (!result.success) {
+      const res = await fetch(`${envConfig.backendUrl}/auth/admin/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+      const json = (await res.json()) as {
+        message: string;
+        data?: { token: string };
+      };
+      if (!res.ok) {
         showErrorNotification(
-          `Admin kirish muvaffaqiyatsiz: ${result.message}`,
+          `Kirish muvaffaqiyatsiz: ${json.message}`,
         );
         return;
       }
-      const resp = await Ape.admin.test();
-      if (resp.status !== 200) {
-        await signOut();
-        showErrorNotification("Bu sahifa faqat adminlar uchun");
-        return;
+      if (json.data) {
+        clearStoredToken();
+        setStoredToken(json.data.token);
+        window.location.href = "/admin/dashboard";
       }
-      window.location.href = "/admin/dashboard";
-      return;
     } catch {
-      await signOut();
-      showErrorNotification("Admin tekshiruvi muvaffaqiyatsiz");
+      showErrorNotification("Admin serveriga ulanishda xatolik");
     } finally {
       enableLoginPageInputs();
     }
@@ -53,11 +55,11 @@ export function AdminLogin(): JSXElement {
 
   const form = createForm(() => ({
     defaultValues: {
-      email: "",
+      username: "",
       password: "",
     },
     onSubmit: async ({ value }) => {
-      await handleAdminSignIn(value.email, value.password, true);
+      await handleAdminSignIn(value.username, value.password);
     },
     onSubmitInvalid: () => {
       showNoticeNotification("Iltimos, barcha maydonlarni to'ldiring");
@@ -101,26 +103,38 @@ export function AdminLogin(): JSXElement {
         }}
       >
         <form.Field
-          name="email"
+          name="username"
           children={(field) => (
-            <InputField
-              field={field}
-              placeholder="email"
-              autocomplete="current-email"
-              disabled={!getLoginPageInputsEnabled()}
-            />
+            <div class="relative">
+              <div class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sub">
+                <Fa icon="fa-user" size={1.1} />
+              </div>
+              <InputField
+                field={field}
+                placeholder="admin username"
+                autocomplete="username"
+                disabled={!getLoginPageInputsEnabled()}
+                class="pl-[2.4em]"
+              />
+            </div>
           )}
         />
         <form.Field
           name="password"
           children={(field) => (
-            <InputField
-              field={field}
-              placeholder="parol"
-              type="password"
-              autocomplete="current-password"
-              disabled={!getLoginPageInputsEnabled()}
-            />
+            <div class="relative">
+              <div class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sub">
+                <Fa icon="fa-lock" size={1.1} />
+              </div>
+              <InputField
+                field={field}
+                placeholder="parol"
+                type="password"
+                autocomplete="current-password"
+                disabled={!getLoginPageInputsEnabled()}
+                class="pl-[2.4em]"
+              />
+            </div>
           )}
         />
 

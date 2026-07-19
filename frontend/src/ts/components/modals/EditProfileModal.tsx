@@ -3,7 +3,7 @@ import {
   TwitterProfileSchema,
   UserProfileDetailsSchema,
   WebsiteSchema,
-} from "@monkeytype/schemas/users";
+} from "@typeuz/schemas/users";
 import { createForm } from "@tanstack/solid-form";
 import { For } from "solid-js";
 

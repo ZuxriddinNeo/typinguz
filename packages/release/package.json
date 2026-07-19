@@ -1,8 +1,8 @@
 {
-  "name": "@monkeytype/release",
+  "name": "@typeuz/release",
   "private": true,
   "bin": {
-    "monkeytype-release": "./src/index.js"
+    "typeuz-release": "./src/index.js"
   },
   "type": "module",
   "scripts": {

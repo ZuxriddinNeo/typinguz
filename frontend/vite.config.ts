@@ -23,7 +23,7 @@ import Inspect from "vite-plugin-inspect";
 import { ViteMinifyPlugin } from "vite-plugin-minify";
 import { VitePWA } from "vite-plugin-pwa";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
-import { KnownFontName } from "@monkeytype/schemas/fonts";
+import { KnownFontName } from "@typeuz/schemas/fonts";
 import solidPlugin from "vite-plugin-solid";
 import devtools from "solid-devtools/vite";
 import tailwindcss from "@tailwindcss/vite";
@@ -158,7 +158,14 @@ function getPlugins({
         runtimeCaching: [
           {
             urlPattern: (options) => {
-              const isApi = options.url.hostname === "api.typeuz.uz";
+              const backendHostname = (() => {
+                try {
+                  return new URL(env["BACKEND_URL"] ?? "").hostname;
+                } catch {
+                  return "";
+                }
+              })();
+              const isApi = backendHostname !== "" && options.url.hostname === backendHostname;
               return options.sameOrigin && !isApi;
             },
             handler: "NetworkFirst",
@@ -333,11 +340,9 @@ export default defineConfig(({ mode }): UserConfig => {
   const isDevelopment = mode !== "production";
 
   if (!isDevelopment) {
-    if (env["RECAPTCHA_SITE_KEY"] === undefined) {
-      throw new Error(`${mode}: RECAPTCHA_SITE_KEY is not defined`);
-    }
-    if (useSentry && env["SENTRY_AUTH_TOKEN"] === undefined) {
-      throw new Error(`${mode}: SENTRY_AUTH_TOKEN is not defined`);
+    if (env["RECAPTCHA_SITE_KEY"] === undefined || env["RECAPTCHA_SITE_KEY"] === "") {
+      console.warn(`${mode}: RECAPTCHA_SITE_KEY not set — CAPTCHA disabled`);
+      env["RECAPTCHA_SITE_KEY"] = "";
     }
   }
 
@@ -359,11 +364,11 @@ export default defineConfig(({ mode }): UserConfig => {
       alias: isDevelopment
         ? [
             {
-              find: /^@monkeytype\/(util|schemas|contracts|funbox|challenges)$/,
+              find: /^@typeuz\/(util|schemas|contracts|funbox|challenges)$/,
               replacement: path.resolve(__dirname, "../packages/$1/src/index.ts"),
             },
             {
-              find: /^@monkeytype\/(util|schemas|contracts|funbox|challenges)\/(.+)$/,
+              find: /^@typeuz\/(util|schemas|contracts|funbox|challenges)\/(.+)$/,
               replacement: path.resolve(__dirname, "../packages/$1/src/$2.ts"),
             },
           ]

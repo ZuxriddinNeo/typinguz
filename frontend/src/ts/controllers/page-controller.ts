@@ -27,6 +27,7 @@ import { configurationPromise as serverConfigurationPromise } from "../ape/serve
 import { getSnapshot } from "../db";
 import * as TodayTracker from "../test/today-tracker";
 import { isResultsReady, waitForResultsReady } from "../collections/results";
+import { updateSeo } from "../constants/seo";
 
 
 type ChangeOptions = {
@@ -100,29 +101,16 @@ const pages = {
   }),
 };
 
-function updateOpenGraphUrl(): void {
-  const ogUrlTag = document.querySelector('meta[property="og:url"]');
-  const currentUrl = window.location.href;
-
-  if (ogUrlTag) {
-    // Update existing tag
-    ogUrlTag.setAttribute("content", currentUrl);
+function updateSeoForPage(nextPage: { id: string; display?: string }, params?: Record<string, string>): void {
+  const pageName = nextPage.id as PageName;
+  if (pageName === "test") {
+    updateSeo("test");
   } else {
-    // Create and append new tag if it doesn't exist
-    const newOgUrlTag = document.createElement("meta");
-    newOgUrlTag.setAttribute("property", "og:url");
-    newOgUrlTag.content = currentUrl;
-    document.head.appendChild(newOgUrlTag);
-  }
-}
-
-function updateTitle(nextPage: { id: string; display?: string }): void {
-  if (nextPage.id === "test") {
-    Misc.updateTitle();
-  } else {
-    const titleString =
-      nextPage.display ?? Strings.capitalizeFirstLetterOfEachWord(nextPage.id);
-      Misc.updateTitle(`${titleString} | TypeUZ`);
+    const display = nextPage.display;
+    if (display !== undefined && display !== "") {
+      document.title = `${display} | TypeUZ`;
+    }
+    updateSeo(pageName, params);
   }
 }
 
@@ -318,9 +306,8 @@ export async function change(
   }
 
   //between
-  updateTitle(nextPage);
   setActivePage(nextPage.id);
-  updateOpenGraphUrl();
+  updateSeoForPage(nextPage, options.params);
   Focus.set(false);
 
   //next page

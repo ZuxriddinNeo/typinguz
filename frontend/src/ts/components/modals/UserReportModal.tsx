@@ -1,5 +1,5 @@
-import { ReportUserCommentSchema } from "@monkeytype/contracts/users";
-import { ReportUserReason } from "@monkeytype/schemas/users";
+import { ReportUserCommentSchema } from "@typeuz/contracts/users";
+import { ReportUserReason } from "@typeuz/schemas/users";
 import { createForm } from "@tanstack/solid-form";
 
 import Ape from "../../ape";

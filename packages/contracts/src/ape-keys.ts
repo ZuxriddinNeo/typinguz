@@ -3,15 +3,15 @@ import { z } from "zod";
 import {
   CommonResponses,
   meta,
-  MonkeyResponseSchema,
+  TypeUZResponseSchema,
   responseWithData,
 } from "./util/api";
 import {
   ApeKeySchema,
   ApeKeysSchema,
   ApeKeyUserDefinedSchema,
-} from "@monkeytype/schemas/ape-keys";
-import { IdSchema } from "@monkeytype/schemas/util";
+} from "@typeuz/schemas/ape-keys";
+import { IdSchema } from "@typeuz/schemas/util";
 
 export const GetApeKeyResponseSchema = responseWithData(ApeKeysSchema);
 export type GetApeKeyResponse = z.infer<typeof GetApeKeyResponseSchema>;
@@ -72,7 +72,7 @@ export const apeKeysContract = c.router(
       pathParams: ApeKeyParamsSchema,
       body: EditApeKeyRequestSchema.strict(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         rateLimit: "apeKeysGenerate",
@@ -86,7 +86,7 @@ export const apeKeysContract = c.router(
       pathParams: ApeKeyParamsSchema,
       body: c.noBody(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         rateLimit: "apeKeysGenerate",

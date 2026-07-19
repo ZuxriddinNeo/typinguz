@@ -21,7 +21,7 @@ import * as Hangul from "hangul-js";
 import * as ResultWordHighlight from "../elements/result-word-highlight";
 import { getActivePage } from "../states/core";
 import Format from "../singletons/format";
-import { TimerColor, TimerOpacity } from "@monkeytype/schemas/configs";
+import { TimerColor, TimerOpacity } from "@typeuz/schemas/configs";
 import { convertRemToPixels } from "../utils/numbers";
 import { findSingleActiveFunboxWithFunction } from "./funbox/list";
 import * as TestState from "./test-state";
@@ -31,7 +31,7 @@ import {
   requestDebouncedAnimationFrame,
 } from "../utils/debounced-animation-frame";
 import * as SoundController from "../controllers/sound-controller";
-import * as Numbers from "@monkeytype/util/numbers";
+import * as Numbers from "@typeuz/util/numbers";
 import { highlight } from "../events/keymap";
 import * as LiveAcc from "./live-acc";
 import * as Focus from "../test/focus";
@@ -641,7 +641,7 @@ export function updateWordsWrapperHeight(force = false): void {
       let wordIndex = 0;
       let wrapperHeight = 0;
 
-      while (lines < 3) {
+      while (lines < 4) {
         const word = wordElements[wordIndex];
         if (!word) break;
         const top = word.getOffsetTop();
@@ -652,14 +652,14 @@ export function updateWordsWrapperHeight(force = false): void {
         }
         wordIndex++;
       }
-      if (lines < 3) wrapperHeight = wrapperHeight * (3 / lines);
+      if (lines < 4) wrapperHeight = wrapperHeight * (4 / lines);
 
-      //limit to 3 lines
+      //limit to 4 lines
       wordsWrapperEl.setStyle({ height: `${wrapperHeight}px` });
     } else {
-      //show 3 lines if tape mode is on and has newlines, otherwise use words height (because of indicate typos: below)
+      //show 4 lines if tape mode is on and has newlines, otherwise use words height (because of indicate typos: below)
       if (wordsHaveNewline()) {
-        wordsWrapperEl.setStyle({ height: `${wordHeight * 3}px` });
+        wordsWrapperEl.setStyle({ height: `${wordHeight * 4}px` });
       } else {
         const wordsHeight = wordsEl.getOffsetHeight() ?? wordHeight;
         wordsWrapperEl.setStyle({ height: `${wordsHeight}px` });
@@ -667,7 +667,7 @@ export function updateWordsWrapperHeight(force = false): void {
     }
   }
 
-  outOfFocusEl.style.maxHeight = `${wordHeight * 3}px`;
+  outOfFocusEl.style.maxHeight = `${wordHeight * 4}px`;
 }
 
 function updateWordsMargin(): void {

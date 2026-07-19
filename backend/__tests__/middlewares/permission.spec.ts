@@ -1,4 +1,4 @@
-import { EndpointMetadata } from "@monkeytype/contracts/util/api";
+import { EndpointMetadata } from "@typeuz/contracts/util/api";
 import { Response } from "express";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { TsRestRequestWithContext } from "../../src/api/types";
@@ -6,9 +6,9 @@ import * as AdminUids from "../../src/dal/admin-uids";
 import * as UserDal from "../../src/dal/user";
 import { DecodedToken } from "../../src/middlewares/auth";
 import { verifyPermissions } from "../../src/middlewares/permission";
-import MonkeyError from "../../src/utils/error";
+import TypeUZError from "../../src/utils/error";
 import * as Misc from "../../src/utils/misc";
-import { enableMonkeyErrorExpects } from "../__testData__/monkey-error";
+import { enableMonkeyErrorExpects } from "../__testData__/typeuz-error";
 
 enableMonkeyErrorExpects();
 const uid = "123456789";
@@ -65,7 +65,7 @@ describe("permission middleware", () => {
       //THEN
       expect(next).toHaveBeenCalledWith(
         expect.toMatchMonkeyError(
-          new MonkeyError(403, "You don't have permission to do this."),
+          new TypeUZError(403, "You don't have permission to do this."),
         ),
       );
     });
@@ -100,7 +100,7 @@ describe("permission middleware", () => {
       //THEN
       expect(next).toHaveBeenCalledWith(
         expect.toMatchMonkeyError(
-          new MonkeyError(403, "You don't have permission to do this."),
+          new TypeUZError(403, "You don't have permission to do this."),
         ),
       );
     });
@@ -114,7 +114,7 @@ describe("permission middleware", () => {
       //THEN
       expect(next).toHaveBeenCalledWith(
         expect.toMatchMonkeyError(
-          new MonkeyError(403, "You don't have permission to do this."),
+          new TypeUZError(403, "You don't have permission to do this."),
         ),
       );
       expect(isAdminMock).toHaveBeenCalledWith(uid);
@@ -153,7 +153,7 @@ describe("permission middleware", () => {
       //THEN
       expect(next).toHaveBeenCalledWith(
         expect.toMatchMonkeyError(
-          new MonkeyError(
+          new TypeUZError(
             403,
             "Failed to check permissions, authentication required.",
           ),
@@ -209,7 +209,7 @@ describe("permission middleware", () => {
       //THEN
       expect(next).toHaveBeenCalledWith(
         expect.toMatchMonkeyError(
-          new MonkeyError(403, "You don't have permission to do this."),
+          new TypeUZError(403, "You don't have permission to do this."),
         ),
       );
     });
@@ -224,7 +224,7 @@ describe("permission middleware", () => {
       //THEN
       expect(next).toHaveBeenCalledWith(
         expect.toMatchMonkeyError(
-          new MonkeyError(403, "You don't have permission to do this."),
+          new TypeUZError(403, "You don't have permission to do this."),
         ),
       );
     });
@@ -245,7 +245,7 @@ describe("permission middleware", () => {
       //THEN
       expect(next).toHaveBeenCalledWith(
         expect.toMatchMonkeyError(
-          new MonkeyError(403, "You don't have permission to do this."),
+          new TypeUZError(403, "You don't have permission to do this."),
         ),
       );
       expect(getPartialUserMock).toHaveBeenCalledWith(
@@ -293,7 +293,7 @@ describe("permission middleware", () => {
       //THEN
       expect(next).toHaveBeenCalledWith(
         expect.toMatchMonkeyError(
-          new MonkeyError(
+          new TypeUZError(
             403,
             "You have lost access to ape keys, please contact support",
           ),

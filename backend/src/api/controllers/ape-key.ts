@@ -1,8 +1,8 @@
 import { randomBytes } from "crypto";
 import { hash } from "bcrypt";
 import * as ApeKeysDAL from "../../dal/ape-keys";
-import MonkeyError from "../../utils/error";
-import { MonkeyResponse } from "../../utils/monkey-response";
+import TypeUZError from "../../utils/error";
+import { TypeUZResponse } from "../../utils/typeuz-response";
 import { base64UrlEncode, omit } from "../../utils/misc";
 import { ObjectId } from "mongodb";
 
@@ -12,16 +12,16 @@ import {
   ApeKeyParams,
   EditApeKeyRequest,
   GetApeKeyResponse,
-} from "@monkeytype/contracts/ape-keys";
-import { ApeKey } from "@monkeytype/schemas/ape-keys";
-import { MonkeyRequest } from "../types";
+} from "@typeuz/contracts/ape-keys";
+import { ApeKey } from "@typeuz/schemas/ape-keys";
+import { TypeUZRequest } from "../types";
 
 function cleanApeKey(apeKey: ApeKeysDAL.DBApeKey): ApeKey {
   return omit(apeKey, ["hash", "_id", "uid", "useCount"]);
 }
 
 export async function getApeKeys(
-  req: MonkeyRequest,
+  req: TypeUZRequest,
 ): Promise<GetApeKeyResponse> {
   const { uid } = req.ctx.decodedToken;
 
@@ -30,11 +30,11 @@ export async function getApeKeys(
     apeKeys.map((item) => [item._id.toHexString(), cleanApeKey(item)]),
   );
 
-  return new MonkeyResponse("ApeKeys retrieved", cleanedKeys);
+  return new TypeUZResponse("ApeKeys retrieved", cleanedKeys);
 }
 
 export async function generateApeKey(
-  req: MonkeyRequest<undefined, AddApeKeyRequest>,
+  req: TypeUZRequest<undefined, AddApeKeyRequest>,
 ): Promise<AddApeKeyResponse> {
   const { name, enabled } = req.body;
   const { uid } = req.ctx.decodedToken;
@@ -44,7 +44,7 @@ export async function generateApeKey(
   const currentNumberOfApeKeys = await ApeKeysDAL.countApeKeysForUser(uid);
 
   if (currentNumberOfApeKeys >= maxKeysPerUser) {
-    throw new MonkeyError(409, "Maximum number of ApeKeys have been generated");
+    throw new TypeUZError(409, "Maximum number of ApeKeys have been generated");
   }
 
   const apiKey = randomBytes(apeKeyBytes).toString("base64url");
@@ -64,7 +64,7 @@ export async function generateApeKey(
 
   const apeKeyId = await ApeKeysDAL.addApeKey(apeKey);
 
-  return new MonkeyResponse("ApeKey generated", {
+  return new TypeUZResponse("ApeKey generated", {
     apeKey: base64UrlEncode(`${apeKeyId}.${apiKey}`),
     apeKeyId,
     apeKeyDetails: cleanApeKey(apeKey),
@@ -72,24 +72,24 @@ export async function generateApeKey(
 }
 
 export async function editApeKey(
-  req: MonkeyRequest<undefined, EditApeKeyRequest, ApeKeyParams>,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest<undefined, EditApeKeyRequest, ApeKeyParams>,
+): Promise<TypeUZResponse> {
   const { apeKeyId } = req.params;
   const { name, enabled } = req.body;
   const { uid } = req.ctx.decodedToken;
 
   await ApeKeysDAL.editApeKey(uid, apeKeyId, name, enabled);
 
-  return new MonkeyResponse("ApeKey updated", null);
+  return new TypeUZResponse("ApeKey updated", null);
 }
 
 export async function deleteApeKey(
-  req: MonkeyRequest<undefined, undefined, ApeKeyParams>,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest<undefined, undefined, ApeKeyParams>,
+): Promise<TypeUZResponse> {
   const { apeKeyId } = req.params;
   const { uid } = req.ctx.decodedToken;
 
   await ApeKeysDAL.deleteApeKey(uid, apeKeyId);
 
-  return new MonkeyResponse("ApeKey deleted", null);
+  return new TypeUZResponse("ApeKey deleted", null);
 }

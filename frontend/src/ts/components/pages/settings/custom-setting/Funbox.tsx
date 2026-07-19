@@ -1,4 +1,4 @@
-import { checkCompatibility, getAllFunboxes } from "@monkeytype/funbox";
+import { checkCompatibility, getAllFunboxes } from "@typeuz/funbox";
 import { For, JSXElement, type JSX } from "solid-js";
 
 // import { canSetFunboxWithConfig } from "../../../../config/funbox-validation";

@@ -1,4 +1,4 @@
-import { TestActivity } from "@monkeytype/schemas/users";
+import { TestActivity } from "@typeuz/schemas/users";
 import { createEffect, createSignal, JSXElement, Show } from "solid-js";
 
 import { get as getSeverConfiguration } from "../../../ape/server-configuration";

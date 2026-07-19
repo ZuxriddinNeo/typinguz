@@ -68,14 +68,14 @@ const sections = [
     ),
   },
   {
-    icon: "fa-file-shield",
+    icon: "fa-shield-alt",
     title: "6. Maxfiylik siyosati",
     content: (
       <p class="text-base leading-relaxed text-sub">Xizmatlarimizdan foydalanish orqali siz <a href="/privacy-policy" class="text-main underline hover:no-underline" router-link>Maxfiylik siyosatimiz</a> shartlarini ham qabul qilasiz. Ma'lumotlaringiz qanday yig'ilishi, saqlanishi va himoya qilinishi haqida batafsil ma'lumot olish uchun Maxfiylik siyosatimizni o'qing.</p>
     ),
   },
   {
-    icon: "fa-triangle-exclamation",
+    icon: "fa-exclamation-triangle",
     title: "7. Kafolatlar rad etilishi",
     content: (
       <p class="text-base leading-relaxed text-sub">TYPEUZ XIZMATLARNI "MAVJUD HOLATDA" TAQDIM ETADI. QONUN TOMONIDAN RUXSAT ETILGAN MAKSIMAL DARAJADA, TYPEUZ HAR QANDAY KAFOLATLARNI, SHU JUMLADAN SOTISHGA YAROQLILIK VA MUAYYAN MAQSADGA MUVOFIQLIK KAFOLATLARINI RAD ETADI. USHBU RAD ETISH O'ZBEKISTON RESPUBLIKASI FUQAROLIK KODEKSIGA MUVOFIQ AMALGA OSHIRILADI.</p>
@@ -89,7 +89,7 @@ const sections = [
     ),
   },
   {
-    icon: "fa-pen-to-square",
+    icon: "fa-edit",
     title: "9. O'zgartirishlar",
     content: (
       <p class="text-base leading-relaxed text-sub">TypeUZ ushbu Foydalanish shartlarini O'zbekiston Respublikasi qonunchiligidagi o'zgarishlarga muvofiq yangilab boradi. Muhim o'zgarishlar haqida foydalanuvchilar email orqali xabardor qilinadi.</p>

@@ -3,10 +3,10 @@ import { z } from "zod";
 import {
   CommonResponses,
   meta,
-  MonkeyResponseSchema,
+  TypeUZResponseSchema,
   responseWithData,
 } from "./util/api";
-import { IdSchema } from "@monkeytype/schemas/util";
+import { IdSchema } from "@typeuz/schemas/util";
 
 export const GenerateDataRequestSchema = z.object({
   username: z.string(),
@@ -58,7 +58,7 @@ export const devContract = c.router(
       path: "/addDebugInboxItem",
       body: AddDebugInboxItemRequestSchema.strict(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         openApiTags: "development",

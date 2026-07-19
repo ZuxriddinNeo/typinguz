@@ -1,4 +1,4 @@
-import { Layout as LayoutSchema } from "@monkeytype/schemas/configs";
+import { Layout as LayoutSchema } from "@typeuz/schemas/configs";
 import { JSXElement } from "solid-js";
 
 import { configMetadata } from "../../../../config/metadata";

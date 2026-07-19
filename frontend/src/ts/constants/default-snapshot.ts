@@ -1,13 +1,13 @@
-import { User, UserProfileDetails } from "@monkeytype/schemas/users";
+import { User, UserProfileDetails } from "@typeuz/schemas/users";
 import { getDefaultConfig } from "./default-config";
-import { Mode } from "@monkeytype/schemas/shared";
-import { Result } from "@monkeytype/schemas/results";
-import { Difficulty, FunboxName } from "@monkeytype/schemas/configs";
+import { Mode } from "@typeuz/schemas/shared";
+import { Result } from "@typeuz/schemas/results";
+import { Difficulty, FunboxName } from "@typeuz/schemas/configs";
 import {
   ModifiableTestActivityCalendar,
   TestActivityCalendar,
 } from "../elements/test-activity-calendar";
-import { Language } from "@monkeytype/schemas/languages";
+import { Language } from "@typeuz/schemas/languages";
 
 export type SnapshotResult<M extends Mode> = Omit<
   Result<M>,

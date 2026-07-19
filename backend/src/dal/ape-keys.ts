@@ -6,8 +6,8 @@ import {
   ObjectId,
   Collection,
 } from "mongodb";
-import MonkeyError from "../utils/error";
-import { ApeKey } from "@monkeytype/schemas/ape-keys";
+import TypeUZError from "../utils/error";
+import { ApeKey } from "@typeuz/schemas/ape-keys";
 
 export type DBApeKey = ApeKey & {
   _id: ObjectId;
@@ -61,7 +61,7 @@ async function updateApeKey(
   );
 
   if (updateResult.modifiedCount === 0) {
-    throw new MonkeyError(404, "ApeKey not found");
+    throw new TypeUZError(404, "ApeKey not found");
   }
 }
 
@@ -99,7 +99,7 @@ export async function deleteApeKey(uid: string, keyId: string): Promise<void> {
   );
 
   if (deletionResult.deletedCount === 0) {
-    throw new MonkeyError(404, "ApeKey not found");
+    throw new TypeUZError(404, "ApeKey not found");
   }
 }
 

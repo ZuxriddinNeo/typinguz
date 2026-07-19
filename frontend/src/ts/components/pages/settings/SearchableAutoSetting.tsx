@@ -1,4 +1,4 @@
-import { Config, ConfigKey, ConfigSchema } from "@monkeytype/schemas/configs";
+import { Config, ConfigKey, ConfigSchema } from "@typeuz/schemas/configs";
 import { createForm } from "@tanstack/solid-form";
 import { For, JSXElement } from "solid-js";
 import { z } from "zod";
@@ -53,10 +53,12 @@ export function SearchableAutoSetting<T extends ConfigKey>(props: {
             }}
           >
             <form.Field
-              // @ts-expect-error: dynamic key lookup, schema union too complex
-              name={props.key}
+              // oxlint-disable-next-line typescript/no-unnecessary-type-assertion
+              name={props.key as never}
               validators={{
+                // oxlint-disable-next-line typescript/no-unnecessary-type-assertion
                 onChange: fromSchema(
+                  // oxlint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
                   ConfigSchema.shape[props.key] as z.ZodNumber,
                 ),
                 onBlur: () => {
@@ -66,7 +68,7 @@ export function SearchableAutoSetting<T extends ConfigKey>(props: {
               children={(field) => (
                 <div class="relative">
                   <InputField
-                    field={field}
+                    field={field as never}
                     schema={ConfigSchema.shape[props.key]}
                     placeholder={
                       configMetadata[props.key].displayString ?? props.key

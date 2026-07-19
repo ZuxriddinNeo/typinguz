@@ -1,4 +1,4 @@
-import { publicContract } from "@monkeytype/contracts/public";
+import { publicContract } from "@typeuz/contracts/public";
 import { initServer } from "@ts-rest/express";
 import * as PublicController from "../controllers/public";
 import { callController } from "../ts-rest-adapter";
@@ -10,5 +10,11 @@ export default s.router(publicContract, {
   },
   getTypingStats: {
     handler: async (r) => callController(PublicController.getTypingStats)(r),
+  },
+  getAdConfig: {
+    handler: async (r) => callController(PublicController.getPublicAdConfig)(r),
+  },
+  getSiteContent: {
+    handler: async (r) => callController(PublicController.getSiteContent)(r),
   },
 });

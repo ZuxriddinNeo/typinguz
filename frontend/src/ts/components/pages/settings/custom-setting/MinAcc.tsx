@@ -1,4 +1,4 @@
-import { MinimumAccuracyCustomSchema } from "@monkeytype/schemas/configs";
+import { MinimumAccuracyCustomSchema } from "@typeuz/schemas/configs";
 import { createForm } from "@tanstack/solid-form";
 import { JSXElement } from "solid-js";
 

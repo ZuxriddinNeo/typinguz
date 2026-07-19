@@ -1,5 +1,5 @@
 {
-  "name": "@monkeytype/frontend-storybook",
+  "name": "@typeuz/frontend-storybook",
   "version": "0.0.0",
   "private": true,
   "imports": {

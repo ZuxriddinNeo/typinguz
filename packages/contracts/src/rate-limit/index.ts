@@ -386,6 +386,39 @@ export const limits = {
     window: "hour",
     max: 60,
   },
+  // Admin analytics
+  adminAnalyticsGet: {
+    window: "minute",
+    max: 30,
+  },
+  adminSearchUsers: {
+    window: "minute",
+    max: 30,
+  },
+  adminActivityGet: {
+    window: "minute",
+    max: 30,
+  },
+  adminSendNotification: {
+    window: "hour",
+    max: 30,
+  },
+  adminAdConfigGet: {
+    window: "minute",
+    max: 30,
+  },
+  adminAdConfigUpdate: {
+    window: "hour",
+    max: 10,
+  },
+  adminAddCreative: {
+    window: "hour",
+    max: 10,
+  },
+  adminDeleteCreative: {
+    window: "hour",
+    max: 10,
+  },
 } satisfies Record<string, RateLimitOptions>;
 
 export type RateLimiterId = keyof typeof limits;

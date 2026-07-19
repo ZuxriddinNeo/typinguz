@@ -3,8 +3,8 @@ import { z } from "zod";
 import {
   CommonResponses,
   meta,
-  MonkeyClientError,
-  MonkeyResponseSchema,
+  TypeUZClientError,
+  TypeUZResponseSchema,
   responseWithData,
 } from "./util/api";
 import {
@@ -12,8 +12,8 @@ import {
   PostResultResponseSchema,
   ResultMinifiedSchema,
   ResultSchema,
-} from "@monkeytype/schemas/results";
-import { IdSchema } from "@monkeytype/schemas/util";
+} from "@typeuz/schemas/results";
+import { IdSchema } from "@typeuz/schemas/util";
 
 export const GetResultsQuerySchema = z.object({
   onOrAfterTimestamp: z
@@ -132,13 +132,13 @@ export const resultsContract = c.router(
       body: AddResultRequestSchema.strict(),
       responses: {
         200: AddResultResponseSchema,
-        460: MonkeyClientError.describe("Test too short"),
-        461: MonkeyClientError.describe("Result hash invalid"),
-        462: MonkeyClientError.describe("Result spacing invalid"),
-        463: MonkeyClientError.describe("Result data invalid"),
-        464: MonkeyClientError.describe("Missing key data"),
-        465: MonkeyClientError.describe("Bot detected"),
-        466: MonkeyClientError.describe("Duplicate result"),
+        460: TypeUZClientError.describe("Test too short"),
+        461: TypeUZClientError.describe("Result hash invalid"),
+        462: TypeUZClientError.describe("Result spacing invalid"),
+        463: TypeUZClientError.describe("Result data invalid"),
+        464: TypeUZClientError.describe("Missing key data"),
+        465: TypeUZClientError.describe("Bot detected"),
+        466: TypeUZClientError.describe("Duplicate result"),
       },
       metadata: meta({
         rateLimit: "resultsAdd",
@@ -168,7 +168,7 @@ export const resultsContract = c.router(
       path: "",
       body: c.noBody(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         authenticationOptions: {

@@ -1,4 +1,4 @@
-import { MonkeyResponse } from "../../utils/monkey-response";
+import { TypeUZResponse } from "../../utils/typeuz-response";
 import * as UserDal from "../../dal/user";
 import FirebaseAdmin from "../../init/firebase-admin";
 import Logger from "../../utils/logger";
@@ -7,20 +7,20 @@ import { UTCDate } from "@date-fns/utc";
 import * as ResultDal from "../../dal/result";
 import { ObjectId } from "mongodb";
 import * as LeaderboardDal from "../../dal/leaderboards";
-import MonkeyError from "../../utils/error";
+import TypeUZError from "../../utils/error";
 
-import { Mode, PersonalBest, PersonalBests } from "@monkeytype/schemas/shared";
+import { Mode, PersonalBest, PersonalBests } from "@typeuz/schemas/shared";
 import {
   AddDebugInboxItemRequest,
   GenerateDataRequest,
   GenerateDataResponse,
-} from "@monkeytype/contracts/dev";
+} from "@typeuz/contracts/dev";
 import { buildMonkeyMail } from "../../utils/monkey-mail";
-import { roundTo2 } from "@monkeytype/util/numbers";
-import { MonkeyRequest } from "../types";
+import { roundTo2 } from "@typeuz/util/numbers";
+import { TypeUZRequest } from "../types";
 import { DBResult } from "../../utils/result";
 import { LbPersonalBests } from "../../utils/pb";
-import { Language } from "@monkeytype/schemas/languages";
+import { Language } from "@typeuz/schemas/languages";
 
 const CREATE_RESULT_DEFAULT_OPTIONS = {
   firstTestTimestamp: DateUtils.startOfDay(new UTCDate(Date.now())).valueOf(),
@@ -30,7 +30,7 @@ const CREATE_RESULT_DEFAULT_OPTIONS = {
 };
 
 export async function createTestData(
-  req: MonkeyRequest<undefined, GenerateDataRequest>,
+  req: TypeUZRequest<undefined, GenerateDataRequest>,
 ): Promise<GenerateDataResponse> {
   const { username, createUser } = req.body;
   const user = await getOrCreateUser(username, "password", createUser);
@@ -41,12 +41,12 @@ export async function createTestData(
   await updateUser(uid);
   await updateLeaderboard();
 
-  return new MonkeyResponse("test data created", { uid, email });
+  return new TypeUZResponse("test data created", { uid, email });
 }
 
 export async function addDebugInboxItem(
-  req: MonkeyRequest<undefined, AddDebugInboxItemRequest>,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest<undefined, AddDebugInboxItemRequest>,
+): Promise<TypeUZResponse> {
   const { uid } = req.ctx.decodedToken;
   const { rewardType } = req.body;
   const inboxConfig = req.ctx.configuration.users.inbox;
@@ -72,7 +72,7 @@ export async function addDebugInboxItem(
   });
 
   await UserDal.addToInbox(uid, [mail], inboxConfig);
-  return new MonkeyResponse("Debug inbox item added", null);
+  return new TypeUZResponse("Debug inbox item added", null);
 }
 
 async function getOrCreateUser(
@@ -85,7 +85,7 @@ async function getOrCreateUser(
   if (existingUser !== undefined && existingUser !== null) {
     return existingUser;
   } else if (!createUser) {
-    throw new MonkeyError(404, `User ${username} does not exist.`);
+    throw new TypeUZError(404, `User ${username} does not exist.`);
   }
 
   const email = `${username}@example.com`;

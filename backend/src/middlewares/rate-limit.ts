@@ -1,4 +1,4 @@
-import MonkeyError from "../utils/error";
+import TypeUZError from "../utils/error";
 import type { Response, NextFunction, Request } from "express";
 import { RateLimiterMemory } from "rate-limiter-flexible";
 import {
@@ -14,7 +14,7 @@ import {
   RateLimiterId,
   RateLimitOptions,
   Window,
-} from "@monkeytype/contracts/rate-limit/index";
+} from "@typeuz/contracts/rate-limit/index";
 import statuses from "../constants/monkey-status-codes";
 import { getMetadata } from "./utility";
 import {
@@ -32,12 +32,12 @@ export const customHandler = (
   _options: Options,
 ): void => {
   if (req.ctx.decodedToken.type === "ApeKey") {
-    throw new MonkeyError(
+    throw new TypeUZError(
       statuses.APE_KEY_RATE_LIMIT_EXCEEDED.code,
       statuses.APE_KEY_RATE_LIMIT_EXCEEDED.message,
     );
   }
-  throw new MonkeyError(429, "Request limit reached, please try again later.");
+  throw new TypeUZError(429, "Request limit reached, please try again later.");
 };
 
 const getKey = (req: Request, _res: Response): string => {
@@ -126,7 +126,7 @@ export function rateLimitRequest<
     const rateLimiter = requestLimiters[rateLimiterId];
     if (rateLimiter === undefined) {
       next(
-        new MonkeyError(
+        new TypeUZError(
           500,
           `Unknown rateLimiterId '${rateLimiterId}', how did you manage to do this?`,
         ),
@@ -143,7 +143,7 @@ export const rootRateLimiter = rateLimit({
   max: 1000 * REQUEST_MULTIPLIER,
   keyGenerator: getKey,
   handler: (_req, _res, _next, _options): void => {
-    throw new MonkeyError(
+    throw new TypeUZError(
       429,
       "Maximum API request (root) limit reached. Please try again later.",
     );
@@ -173,7 +173,7 @@ export async function badAuthRateLimiterHandler(
     const rateLimitStatus = await badAuthRateLimiter.get(key);
 
     if (rateLimitStatus !== null && rateLimitStatus?.remainingPoints <= 0) {
-      throw new MonkeyError(
+      throw new TypeUZError(
         429,
         "Too many bad authentication attempts, please try again later.",
       );

@@ -1,8 +1,8 @@
-import { PersonalBest, PersonalBests } from "@monkeytype/schemas/shared";
+import { PersonalBest, PersonalBests } from "@typeuz/schemas/shared";
 import {
   RankAndCount,
   UserProfile as UserProfileType,
-} from "@monkeytype/schemas/users";
+} from "@typeuz/schemas/users";
 import { formatDate } from "date-fns/format";
 import {
   createMemo,
@@ -20,6 +20,42 @@ import { Button } from "../../common/Button";
 import { Fa } from "../../common/Fa";
 import { ActivityCalendar } from "./ActivityCalendar";
 import { UserDetails } from "./UserDetails";
+
+function StatsOverview(props: {
+  profile: UserProfileType;
+}): JSXElement {
+  const totalTimeHours = () => Math.round((props.profile.typingStats?.timeTyping ?? 0) / 3600 * 10) / 10;
+  const totalTests = () => props.profile.typingStats?.completedTests ?? 0;
+
+  return (
+    <div class="grid grid-cols-2 gap-3 rounded bg-sub-alt p-4 sm:grid-cols-4">
+      <div class="flex flex-col items-center gap-1">
+        <Fa icon="fa-keyboard" class="text-base text-main" />
+        <span class="text-lg font-bold text-text">{totalTests()}</span>
+        <span class="text-xs text-sub">Testlar</span>
+      </div>
+      <div class="flex flex-col items-center gap-1">
+        <Fa icon="fa-clock" class="text-base text-main" />
+        <span class="text-lg font-bold text-text">{totalTimeHours()}h</span>
+        <span class="text-xs text-sub">Vaqt</span>
+      </div>
+      <div class="flex flex-col items-center gap-1">
+        <Fa icon="fa-star" class="text-base text-main" />
+        <span class="text-lg font-bold text-text">{props.profile.xp ?? 0}</span>
+        <span class="text-xs text-sub">XP</span>
+      </div>
+      <div class="flex flex-col items-center gap-1">
+        <Fa icon="fa-fire" class="text-base text-main" />
+        <span class="text-lg font-bold text-text">
+          {props.profile.streak ?? 0}
+        </span>
+        <span class="text-xs text-sub">
+          Streak
+        </span>
+      </div>
+    </div>
+  );
+}
 
 function WeeklyAnalysis(): JSXElement {
   const [analysis] = createResource(
@@ -152,6 +188,7 @@ export function UserProfile(props: {
         profile={props.profile}
         isAccountPage={props.isAccountPage}
       />
+      <StatsOverview profile={props.profile} />
       <Show when={!props.profile.banned && !props.profile.lbOptOut}>
         <LeaderboardPosition
           top15={props.profile.allTimeLbs?.time?.["15"]?.["english"]}

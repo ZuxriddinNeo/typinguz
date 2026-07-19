@@ -5,11 +5,11 @@ import {
   ObjectId,
   type UpdateResult,
 } from "mongodb";
-import MonkeyError from "../utils/error";
+import TypeUZError from "../utils/error";
 import * as db from "../init/db";
 import { getUser, getTags } from "./user";
 import { DBResult, replaceLegacyValues } from "../utils/result";
-import { tryCatch } from "@monkeytype/util/trycatch";
+import { tryCatch } from "@typeuz/util/trycatch";
 
 export const getResultCollection = (): Collection<DBResult> =>
   db.collection<DBResult>("results");
@@ -20,7 +20,7 @@ export async function addResult(
 ): Promise<{ insertedId: ObjectId }> {
   const { data: user } = await tryCatch(getUser(uid, "add result"));
 
-  if (!user) throw new MonkeyError(404, "User not found", "add result");
+  if (!user) throw new TypeUZError(404, "User not found", "add result");
   result.uid ??= uid;
   // result.ir = true;
   const res = await getResultCollection().insertOne(result);
@@ -42,7 +42,7 @@ export async function updateTags(
     _id: new ObjectId(resultId),
     uid,
   });
-  if (!result) throw new MonkeyError(404, "Result not found");
+  if (!result) throw new TypeUZError(404, "Result not found");
   const userTags = await getTags(uid);
   const userTagIds = new Set(userTags.map((tag) => tag._id.toString()));
   let validTags = true;
@@ -50,7 +50,7 @@ export async function updateTags(
     if (!userTagIds.has(tagId)) validTags = false;
   });
   if (!validTags) {
-    throw new MonkeyError(422, "One of the tag id's is not valid");
+    throw new TypeUZError(422, "One of the tag id's is not valid");
   }
   return await getResultCollection().updateOne(
     { _id: new ObjectId(resultId), uid },
@@ -64,7 +64,7 @@ export async function getResult(uid: string, id: string): Promise<DBResult> {
     uid,
   });
 
-  if (!result) throw new MonkeyError(404, "Result not found");
+  if (!result) throw new TypeUZError(404, "Result not found");
   return replaceLegacyValues(result);
 }
 
@@ -74,7 +74,7 @@ export async function getLastResult(uid: string): Promise<DBResult> {
     { sort: { timestamp: -1 } },
   );
 
-  if (lastResult === null) throw new MonkeyError(404, "No last result found");
+  if (lastResult === null) throw new TypeUZError(404, "No last result found");
   return replaceLegacyValues(lastResult);
 }
 
@@ -87,7 +87,7 @@ export async function getLastResultTimestamp(uid: string): Promise<number> {
     },
   );
 
-  if (lastResult === null) throw new MonkeyError(404, "No last result found");
+  if (lastResult === null) throw new TypeUZError(404, "No last result found");
   return lastResult.timestamp;
 }
 
@@ -140,6 +140,6 @@ export async function getResults(
   }
 
   const results = await query.toArray();
-  if (results === undefined) throw new MonkeyError(404, "Result not found");
+  if (results === undefined) throw new TypeUZError(404, "Result not found");
   return results.map(replaceLegacyValues);
 }

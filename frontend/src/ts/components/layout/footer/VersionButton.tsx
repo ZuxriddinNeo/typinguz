@@ -1,4 +1,4 @@
-import { COMPATIBILITY_CHECK } from "@monkeytype/contracts";
+import { COMPATIBILITY_CHECK } from "@typeuz/contracts";
 import { JSXElement, Show, createSignal } from "solid-js";
 import { envConfig } from "virtual:env-config";
 

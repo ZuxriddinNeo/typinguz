@@ -1,4 +1,4 @@
-import { UserTag } from "@monkeytype/schemas/users";
+import { UserTag } from "@typeuz/schemas/users";
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import {
   createCollection,
@@ -12,16 +12,16 @@ import Ape from "../ape";
 import { queryClient } from "../queries";
 import { baseKey } from "../queries/utils/keys";
 import { LocalStorageWithSchema } from "../utils/local-storage-with-schema";
-import { IdSchema } from "@monkeytype/schemas/util";
+import { IdSchema } from "@typeuz/schemas/util";
 import { SnapshotResult } from "../constants/default-snapshot";
 import {
   Mode,
   Mode2,
   PersonalBest,
   PersonalBests,
-} from "@monkeytype/schemas/shared";
-import { Difficulty } from "@monkeytype/schemas/configs";
-import { Language } from "@monkeytype/schemas/languages";
+} from "@typeuz/schemas/shared";
+import { Difficulty } from "@typeuz/schemas/configs";
+import { Language } from "@typeuz/schemas/languages";
 import { applyIdWorkaround, isTempId, tempId } from "./utils/misc";
 import { fetchUserFromApi } from "../ape/user";
 import { updateTagsInFilterStorage } from "../states/result-filters";

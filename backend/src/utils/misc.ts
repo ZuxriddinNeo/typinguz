@@ -1,8 +1,8 @@
-import { MILLISECONDS_IN_DAY } from "@monkeytype/util/date-and-time";
-import { roundTo2 } from "@monkeytype/util/numbers";
-export { sanitizeString } from "@monkeytype/util/strings";
+import { MILLISECONDS_IN_DAY } from "@typeuz/util/date-and-time";
+import { roundTo2 } from "@typeuz/util/numbers";
+export { sanitizeString } from "@typeuz/util/strings";
 import uaparser from "ua-parser-js";
-import { MonkeyRequest } from "../api/types";
+import { TypeUZRequest } from "../api/types";
 import { ObjectId } from "mongodb";
 
 //todo split this file into smaller util files (grouped by functionality)
@@ -28,7 +28,7 @@ type AgentLog = {
   device?: string;
 };
 
-export function buildAgentLog(req: MonkeyRequest): AgentLog {
+export function buildAgentLog(req: TypeUZRequest): AgentLog {
   const agent = uaparser(req.raw.headers["user-agent"]);
 
   const agentLog: AgentLog = {
@@ -182,9 +182,7 @@ export function isDevEnvironment(): boolean {
 }
 
 export function getFrontendUrl(): string {
-  return isDevEnvironment()
-    ? "http://localhost:3000"
-    : (process.env["FRONTEND_URL"] ?? "https://typeuz.uz");
+  return process.env["FRONTEND_URL"] ?? "https://typeuz.uz";
 }
 
 /**

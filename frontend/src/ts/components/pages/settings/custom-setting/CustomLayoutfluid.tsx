@@ -1,4 +1,4 @@
-import { CustomLayoutFluid } from "@monkeytype/schemas/configs";
+import { CustomLayoutFluid } from "@typeuz/schemas/configs";
 import { JSXElement } from "solid-js";
 
 import { configMetadata } from "../../../../config/metadata";

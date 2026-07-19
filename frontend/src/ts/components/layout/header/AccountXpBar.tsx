@@ -1,5 +1,5 @@
-import { XpBreakdown } from "@monkeytype/schemas/results";
-import { isSafeNumber } from "@monkeytype/util/numbers";
+import { XpBreakdown } from "@typeuz/schemas/results";
+import { isSafeNumber } from "@typeuz/util/numbers";
 import {
   createSignal,
   For,

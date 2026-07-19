@@ -1,7 +1,7 @@
 // oxlint-disable typescript/consistent-type-definitions
 import type { Assertion, AsymmetricMatchersContaining } from "vitest";
 import type { Test as SuperTest } from "supertest";
-import MonkeyError from "../src/utils/error";
+import TypeUZError from "../src/utils/error";
 
 type ExpectedRateLimit = {
   /** max calls */

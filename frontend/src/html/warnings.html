@@ -38,7 +38,7 @@
 <div
   id="nocss"
   style="
-    background: #333;
+    background: #0d0d0d;
     width: 100vw;
     height: 100vh;
     left: 0;
@@ -47,135 +47,96 @@
     display: grid;
     justify-content: center;
     align-content: center;
-    color: #646669;
+    color: #9ca3af;
     font-size: 1rem;
-    font-family: Arial Rounded MT Bold;
+    font-family: system-ui, -apple-system, sans-serif;
     z-index: 99999;
-    padding: 6rem;
+    padding: 2rem;
     box-sizing: border-box;
-    overflow-y: scroll;
+    overflow-y: auto;
   "
   data-nosnippet
 >
   <style>
-    .noCssReinstallServiceWorker {
-      margin-top: 1rem;
-      padding: 1rem;
-      display: inline-block;
-      border-radius: 1rem;
-      background: #1a1a1a;
-      transition: 0.125s;
-    }
-    .noCssReinstallServiceWorker:hover {
-      background: #ffffff;
-      color: #333;
-      cursor: pointer;
-      -webkit-user-select: none;
-      user-select: none;
-    }
-    .noCssReinstallServiceWorker:active {
-      background: #646669;
-    }
-  </style>
-  <script>
-    function reinstallServiceWorker() {
-      navigator.serviceWorker.getRegistrations().then(function (registrations) {
-        for (let registration of registrations) {
-          registration.unregister();
-        }
-        caches.keys().then((cacheNames) => {
-          for (let cacheName of cacheNames) {
-            caches.delete(cacheName);
-          }
-        });
-      });
-      setTimeout(function () {
-        window.location.reload();
-      }, 500);
-    }
-  </script>
-  <div
-    style="
+    .ncss-wrap {
       display: grid;
       justify-content: center;
       align-content: center;
-      max-width: 800px;
-      gap: 1rem;
-    "
-  >
-    <span style="font-size: 6rem; color: #ff5a1f">:(</span>
-    <span style="font-size: 1.5rem; color: #ffffff">
-      It seems like the CSS failed to load. Please try clearing your cache to
-      redownload the styles:
-      <br />
-      <span class="keys">
-        <span
-          style="
-            padding: 1rem;
-            display: inline-block;
-            border-radius: 1rem;
-            background: #1a1a1a;
-            margin-top: 1rem;
-            margin-bottom: 1rem;
-          "
-        >
-          Ctrl
-        </span>
-        /
-        <span
-          style="
-            padding: 1rem;
-            display: inline-block;
-            border-radius: 1rem;
-            background: #1a1a1a;
-          "
-        >
-          Cmd
-        </span>
-        +
-        <span
-          style="
-            padding: 1rem;
-            display: inline-block;
-            border-radius: 1rem;
-            background: #1a1a1a;
-          "
-        >
-          Shift
-        </span>
-        +
-        <span
-          style="
-            padding: 1rem;
-            display: inline-block;
-            border-radius: 1rem;
-            background: #1a1a1a;
-          "
-        >
-          R
-        </span>
-      </span>
-      <br />
-      You could also try to reinstall the service worker:
-      <br />
-      <span
-        class="noCssReinstallServiceWorker"
-        onclick="reinstallServiceWorker()"
-        style="margin-bottom: 1rem"
-      >
-        Reinstall
-      </span>
-      <br />
-      Various dark mode extensions are also known to cause this issue.
-    </span>
-    <span>
-      If that doesn't help contact support (support@typeuz.uz)
-    </span>
-    <span class="requestedStylesheets">
-      If the website works for a bit but then this screen comes back, clear your
-      cache again and then on TypeUZ open the command line (esc) and search
-      for "Clear SW cache".
-    </span>
-    <span class="requestedJs"></span>
+      max-width: 480px;
+      gap: 1.5rem;
+      text-align: center;
+    }
+    .ncss-logo {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #ffffff;
+    }
+    .ncss-logo span { color: #ff5a1f; }
+    .ncss-title {
+      font-size: 1.25rem;
+      color: #ffffff;
+      line-height: 1.5;
+    }
+    .ncss-key {
+      display: inline-block;
+      padding: 0.75rem 1.25rem;
+      border-radius: 0.75rem;
+      background: #1a1a1a;
+      font-family: monospace;
+      font-size: 0.875rem;
+      color: #ffffff;
+    }
+    .ncss-btn {
+      display: inline-block;
+      margin-top: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 999px;
+      background: #ff5a1f;
+      color: #0d0d0d;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+      transition: opacity 0.125s;
+      border: none;
+      font-size: 0.875rem;
+    }
+    .ncss-btn:hover { opacity: 0.85; }
+    .ncss-btn:active { opacity: 0.7; }
+    .ncss-sub { font-size: 0.875rem; line-height: 1.5; }
+    .ncss-link { color: #ff5a1f; text-decoration: underline; }
+  </style>
+  <script>
+    function ncssSwReinstall() {
+      navigator.serviceWorker.getRegistrations().then(function (r) {
+        for (let reg of r) reg.unregister();
+        caches.keys().then(function (k) { for (let c of k) caches.delete(c); });
+      });
+      setTimeout(function () { window.location.reload(); }, 500);
+    }
+  </script>
+  <div class="ncss-wrap">
+    <div class="ncss-logo">Type<span>UZ</span></div>
+    <div class="ncss-title">CSS yuklanmadi</div>
+    <div class="ncss-sub">
+      Keshni tozalab, sahifani qayta yuklang:
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:center">
+      <span class="ncss-key">Ctrl</span>
+      <span style="color:#6b7280;align-self:center">+</span>
+      <span class="ncss-key">Shift</span>
+      <span style="color:#6b7280;align-self:center">+</span>
+      <span class="ncss-key">R</span>
+    </div>
+    <div class="ncss-sub">
+      Yoki service workerni qayta o&apos;rnating:
+    </div>
+    <button class="ncss-btn" onclick="ncssSwReinstall()">Qayta o&apos;rnatish</button>
+    <div class="ncss-sub" style="margin-top:0.5rem">
+      Muammo davom etsa, <a class="ncss-link" href="mailto:contact@typeuz.uz">contact@typeuz.uz</a>
+    </div>
+    <div class="ncss-sub" style="font-size:0.75rem;opacity:0.5">
+      Dark mode kengaytmalari ham sabab bo&apos;lishi mumkin
+    </div>
   </div>
 </div>

@@ -3,6 +3,7 @@ import { JSXElement, onCleanup } from "solid-js";
 export function AnimatedSection(props: {
   children: JSXElement;
   class?: string;
+  animationClass?: string;
 }): JSXElement {
   let el: HTMLDivElement | undefined;
   onCleanup(() => {
@@ -27,7 +28,7 @@ export function AnimatedSection(props: {
         observer.observe(node);
         onCleanup(() => observer.disconnect());
       }}
-      class={`scroll-fade ${props.class ?? ""}`}
+      class={`${props.animationClass ?? "scroll-fade"} ${props.class ?? ""}`}
     >
       {props.children}
     </div>

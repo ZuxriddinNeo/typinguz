@@ -14,7 +14,7 @@ export type TsRestRequestWithContext = {
 } & TsRestRequest &
   ExpressRequest;
 
-export type MonkeyRequest<
+export type TypeUZRequest<
   TQuery = undefined,
   TBody = undefined,
   TParams = undefined,

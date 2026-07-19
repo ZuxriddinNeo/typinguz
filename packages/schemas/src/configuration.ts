@@ -87,6 +87,19 @@ export const ConfigurationSchema = z.object({
   admin: z.object({
     endpointsEnabled: z.boolean(),
   }),
+  ads: z.object({
+    enabled: z.boolean(),
+    masterToggle: z.boolean(),
+    slots: z.array(
+      z.object({
+        slotId: z.string(),
+        creativeId: z.string().optional(),
+        imageUrl: z.string().optional(),
+        targetUrl: z.string().optional(),
+        enabled: z.boolean(),
+      }),
+    ),
+  }),
   apeKeys: z.object({
     endpointsEnabled: z.boolean(),
     acceptKeys: z.boolean(),

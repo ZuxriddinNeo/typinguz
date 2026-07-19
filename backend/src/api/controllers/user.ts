@@ -1,9 +1,9 @@
 import * as UserDAL from "../../dal/user";
-import MonkeyError, {
+import TypeUZError, {
   getErrorMessage,
   isFirebaseError,
 } from "../../utils/error";
-import { MonkeyResponse } from "../../utils/monkey-response";
+import { TypeUZResponse } from "../../utils/typeuz-response";
 import * as DiscordUtils from "../../utils/discord";
 import {
   buildAgentLog,
@@ -39,7 +39,7 @@ import {
   CountByYearAndDay,
   TestActivity,
   UserProfileDetails,
-} from "@monkeytype/schemas/users";
+} from "@typeuz/schemas/users";
 import { addImportantLog, addLog, deleteUserLogs } from "../../dal/logs";
 import { sendForgotPasswordEmail as authSendForgotPasswordEmail } from "../../utils/auth";
 import {
@@ -90,29 +90,29 @@ import {
   UpdateUserProfileRequest,
   UpdateUserProfileResponse,
   WeeklyAnalysisDailyBreakdown,
-} from "@monkeytype/contracts/users";
-import { MILLISECONDS_IN_DAY } from "@monkeytype/util/date-and-time";
-import { MonkeyRequest } from "../types";
-import { tryCatch } from "@monkeytype/util/trycatch";
+} from "@typeuz/contracts/users";
+import { MILLISECONDS_IN_DAY } from "@typeuz/util/date-and-time";
+import { TypeUZRequest } from "../types";
+import { tryCatch } from "@typeuz/util/trycatch";
 import * as ConnectionsDal from "../../dal/connections";
-import { PersonalBest } from "@monkeytype/schemas/shared";
+import { PersonalBest } from "@typeuz/schemas/shared";
 
 async function verifyCaptcha(captcha: string): Promise<void> {
   const { data: verified, error } = await tryCatch(verify(captcha));
   if (error) {
-    throw new MonkeyError(
+    throw new TypeUZError(
       422,
       "Request to the Captcha API failed, please try again later",
     );
   }
   if (!verified) {
-    throw new MonkeyError(422, "Captcha challenge failed");
+    throw new TypeUZError(422, "Captcha challenge failed");
   }
 }
 
 export async function createNewUser(
-  req: MonkeyRequest<undefined, CreateUserRequest>,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest<undefined, CreateUserRequest>,
+): Promise<TypeUZResponse> {
   const { name, firstName, lastName, captcha, gender, age, avatar } =
     req.body;
   const { email, uid } = req.ctx.decodedToken;
@@ -121,23 +121,23 @@ export async function createNewUser(
     await verifyCaptcha(captcha);
 
     if (email.endsWith("@tidal.lol") || email.endsWith("@selfbot.cc")) {
-      throw new MonkeyError(400, "Invalid domain");
+      throw new TypeUZError(400, "Invalid domain");
     }
 
     const available = await UserDAL.isNameAvailable(name, uid);
     if (!available) {
-      throw new MonkeyError(409, "Username unavailable");
+      throw new TypeUZError(409, "Username unavailable");
     }
 
     const blocklisted = await BlocklistDal.contains({ name, email });
     if (blocklisted) {
-      throw new MonkeyError(409, "Username or email blocked");
+      throw new TypeUZError(409, "Username or email blocked");
     }
 
     await UserDAL.addUser(name, email, uid, gender, age, avatar, firstName, lastName);
     void addImportantLog("user_created", `${name} ${email}`, uid);
 
-    return new MonkeyResponse("User created", null);
+    return new TypeUZResponse("User created", null);
   } catch (e) {
     //user was created in firebase from the frontend, remove it
     await firebaseDeleteUserIgnoreError(uid);
@@ -146,15 +146,15 @@ export async function createNewUser(
 }
 
 export async function sendVerificationEmail(
-  req: MonkeyRequest,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest,
+): Promise<TypeUZResponse> {
   const { email, uid } = req.ctx.decodedToken;
   const isVerified = (
     await FirebaseAdmin()
       .auth()
       .getUser(uid)
       .catch((e: unknown) => {
-        throw new MonkeyError(
+        throw new TypeUZError(
           500, // this should never happen, but it does. it mightve been caused by auth token cache, will see if disabling cache fixes it
           "Auth user not found, even though the token got decoded",
           JSON.stringify({
@@ -167,7 +167,7 @@ export async function sendVerificationEmail(
       })
   ).emailVerified;
   if (isVerified) {
-    throw new MonkeyError(400, "Email already verified");
+    throw new TypeUZError(400, "Email already verified");
   }
 
   const userInfo = await UserDAL.getPartialUser(
@@ -177,7 +177,7 @@ export async function sendVerificationEmail(
   );
 
   if (userInfo.email !== email) {
-    throw new MonkeyError(
+    throw new TypeUZError(
       400,
       "Authenticated email does not match the email found in the database. This might happen if you recently changed your email. Please refresh and try again.",
     );
@@ -192,7 +192,7 @@ export async function sendVerificationEmail(
   if (error) {
     if (isFirebaseError(error)) {
       if (error.errorInfo.code === "auth/user-not-found") {
-        throw new MonkeyError(
+        throw new TypeUZError(
           500,
           "Auth user not found when the user was found in the database. Contact support with this error message and your email",
           JSON.stringify({
@@ -202,17 +202,17 @@ export async function sendVerificationEmail(
           userInfo.uid,
         );
       } else if (error.errorInfo.code === "auth/too-many-requests") {
-        throw new MonkeyError(429, "Too many requests. Please try again later");
+        throw new TypeUZError(429, "Too many requests. Please try again later");
       } else if (
         error.errorInfo.code === "auth/internal-error" &&
         error.errorInfo.message.toLowerCase().includes("too_many_attempts")
       ) {
-        throw new MonkeyError(
+        throw new TypeUZError(
           429,
           "Too many Firebase requests. Please try again later",
         );
       } else {
-        throw new MonkeyError(
+        throw new TypeUZError(
           500,
           `Firebase failed to generate an email verification link: ${
             error.errorInfo.message
@@ -223,18 +223,18 @@ export async function sendVerificationEmail(
     } else {
       const message = getErrorMessage(error);
       if (message === undefined) {
-        throw new MonkeyError(
+        throw new TypeUZError(
           500,
           "Failed to generate an email verification link. Unknown error occured",
         );
       } else {
         if (message.toLowerCase().includes("too_many_attempts")) {
-          throw new MonkeyError(
+          throw new TypeUZError(
             429,
             "Too many requests. Please try again later",
           );
         } else {
-          throw new MonkeyError(
+          throw new TypeUZError(
             500,
             `Failed to generate an email verification link: ${message}`,
             error.stack,
@@ -246,22 +246,22 @@ export async function sendVerificationEmail(
 
   await emailQueue.sendVerificationEmail(email, userInfo.name, link);
 
-  return new MonkeyResponse("Email sent", null);
+  return new TypeUZResponse("Email sent", null);
 }
 
 export async function sendForgotPasswordEmail(
-  req: MonkeyRequest<undefined, ForgotPasswordEmailRequest>,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest<undefined, ForgotPasswordEmailRequest>,
+): Promise<TypeUZResponse> {
   const { email, captcha } = req.body;
   await verifyCaptcha(captcha);
   await authSendForgotPasswordEmail(email);
-  return new MonkeyResponse(
+  return new TypeUZResponse(
     "Password reset request received. If the email is valid, you will receive an email shortly.",
     null,
   );
 }
 
-export async function deleteUser(req: MonkeyRequest): Promise<MonkeyResponse> {
+export async function deleteUser(req: TypeUZRequest): Promise<TypeUZResponse> {
   const { uid } = req.ctx.decodedToken;
 
   const { data: userInfo, error } = await tryCatch(
@@ -274,7 +274,7 @@ export async function deleteUser(req: MonkeyRequest): Promise<MonkeyResponse> {
   );
 
   if (error) {
-    if (error instanceof MonkeyError && error.status === 404) {
+    if (error instanceof TypeUZError && error.status === 404) {
       //userinfo was already deleted. We ignore this and still try to remove the  other data
     } else {
       throw error;
@@ -327,10 +327,10 @@ export async function deleteUser(req: MonkeyRequest): Promise<MonkeyResponse> {
     uid,
   );
 
-  return new MonkeyResponse("User deleted", null);
+  return new TypeUZResponse("User deleted", null);
 }
 
-export async function resetUser(req: MonkeyRequest): Promise<MonkeyResponse> {
+export async function resetUser(req: TypeUZRequest): Promise<TypeUZResponse> {
   const { uid } = req.ctx.decodedToken;
 
   const userInfo = await UserDAL.getPartialUser(uid, "reset user", [
@@ -340,7 +340,7 @@ export async function resetUser(req: MonkeyRequest): Promise<MonkeyResponse> {
     "name",
   ]);
   if (userInfo.banned) {
-    throw new MonkeyError(403, "Banned users cannot reset their account");
+    throw new TypeUZError(403, "Banned users cannot reset their account");
   }
 
   const promises = [
@@ -365,18 +365,18 @@ export async function resetUser(req: MonkeyRequest): Promise<MonkeyResponse> {
   await Promise.all(promises);
   void addImportantLog("user_reset", `${userInfo.email} ${userInfo.name}`, uid);
 
-  return new MonkeyResponse("User reset", null);
+  return new TypeUZResponse("User reset", null);
 }
 
 export async function updateName(
-  req: MonkeyRequest<undefined, UpdateUserNameRequest>,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest<undefined, UpdateUserNameRequest>,
+): Promise<TypeUZResponse> {
   const { uid } = req.ctx.decodedToken;
   const { name } = req.body;
 
   const blocklisted = await BlocklistDal.contains({ name });
   if (blocklisted) {
-    throw new MonkeyError(409, "Username blocked");
+    throw new TypeUZError(409, "Username blocked");
   }
 
   const user = await UserDAL.getPartialUser(uid, "update name", [
@@ -387,14 +387,14 @@ export async function updateName(
   ]);
 
   if (user.banned) {
-    throw new MonkeyError(403, "Banned users cannot change their name");
+    throw new TypeUZError(403, "Banned users cannot change their name");
   }
 
   if (
     !user?.needsToChangeName &&
     Date.now() - (user.lastNameChange ?? 0) < MILLISECONDS_IN_DAY * 30
   ) {
-    throw new MonkeyError(409, "You can change your name once every 30 days");
+    throw new TypeUZError(409, "You can change your name once every 30 days");
   }
 
   await UserDAL.updateName(uid, name, user.name);
@@ -406,10 +406,10 @@ export async function updateName(
     uid,
   );
 
-  return new MonkeyResponse("User's name updated", null);
+  return new TypeUZResponse("User's name updated", null);
 }
 
-export async function clearPb(req: MonkeyRequest): Promise<MonkeyResponse> {
+export async function clearPb(req: TypeUZRequest): Promise<TypeUZResponse> {
   const { uid } = req.ctx.decodedToken;
 
   await UserDAL.clearPb(uid);
@@ -419,12 +419,12 @@ export async function clearPb(req: MonkeyRequest): Promise<MonkeyResponse> {
   );
   void addImportantLog("user_cleared_pbs", "", uid);
 
-  return new MonkeyResponse("User's PB cleared", null);
+  return new TypeUZResponse("User's PB cleared", null);
 }
 
 export async function optOutOfLeaderboards(
-  req: MonkeyRequest,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest,
+): Promise<TypeUZResponse> {
   const { uid } = req.ctx.decodedToken;
 
   await UserDAL.optOutOfLeaderboards(uid);
@@ -438,25 +438,25 @@ export async function optOutOfLeaderboards(
   );
   void addImportantLog("user_opted_out_of_leaderboards", "", uid);
 
-  return new MonkeyResponse("User opted out of leaderboards", null);
+  return new TypeUZResponse("User opted out of leaderboards", null);
 }
 
 export async function checkName(
-  req: MonkeyRequest<undefined, undefined, CheckNamePathParameters>,
+  req: TypeUZRequest<undefined, undefined, CheckNamePathParameters>,
 ): Promise<CheckNameResponse> {
   const { name } = req.params;
   const { uid } = req.ctx.decodedToken;
 
   const available = await UserDAL.isNameAvailable(name, uid);
 
-  return new MonkeyResponse("Check username", {
+  return new TypeUZResponse("Check username", {
     available,
   });
 }
 
 export async function updateEmail(
-  req: MonkeyRequest<undefined, UpdateEmailRequest>,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest<undefined, UpdateEmailRequest>,
+): Promise<TypeUZResponse> {
   const { uid } = req.ctx.decodedToken;
   let { newEmail, previousEmail } = req.body;
 
@@ -469,23 +469,23 @@ export async function updateEmail(
   } catch (e) {
     if (isFirebaseError(e)) {
       if (e.code === "auth/email-already-exists") {
-        throw new MonkeyError(
+        throw new TypeUZError(
           409,
           "The email address is already in use by another account",
         );
       } else if (e.code === "auth/invalid-email") {
-        throw new MonkeyError(400, "Invalid email address");
+        throw new TypeUZError(400, "Invalid email address");
       } else if (e.code === "auth/too-many-requests") {
-        throw new MonkeyError(429, "Too many requests. Please try again later");
+        throw new TypeUZError(429, "Too many requests. Please try again later");
       } else if (e.code === "auth/user-not-found") {
-        throw new MonkeyError(
+        throw new TypeUZError(
           404,
           "User not found in the auth system",
           "update email",
           uid,
         );
       } else if (e.code === "auth/invalid-user-token") {
-        throw new MonkeyError(401, "Invalid user token", "update email", uid);
+        throw new TypeUZError(401, "Invalid user token", "update email", uid);
       }
     } else {
       throw e;
@@ -498,18 +498,18 @@ export async function updateEmail(
     uid,
   );
 
-  return new MonkeyResponse("Email updated", null);
+  return new TypeUZResponse("Email updated", null);
 }
 
 export async function updatePassword(
-  req: MonkeyRequest<undefined, UpdatePasswordRequest>,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest<undefined, UpdatePasswordRequest>,
+): Promise<TypeUZResponse> {
   const { uid } = req.ctx.decodedToken;
   const { newPassword } = req.body;
 
   await AuthUtil.updateUserPassword(uid, newPassword);
 
-  return new MonkeyResponse("Password updated", null);
+  return new TypeUZResponse("Password updated", null);
 }
 
 type RelevantUserInfo = Omit<
@@ -543,7 +543,7 @@ function getRelevantUserInfo(user: UserDAL.DBUser): RelevantUserInfo {
   ]);
 }
 
-export async function getUser(req: MonkeyRequest): Promise<GetUserResponse> {
+export async function getUser(req: TypeUZRequest): Promise<GetUserResponse> {
   const { uid } = req.ctx.decodedToken;
 
   const { data: userInfo, error } = await tryCatch(
@@ -551,13 +551,13 @@ export async function getUser(req: MonkeyRequest): Promise<GetUserResponse> {
   );
 
   if (error) {
-    if (error instanceof MonkeyError && error.status === 404) {
+    if (error instanceof TypeUZError && error.status === 404) {
       //if the user is in the auth system but not in the db, its possible that the user was created by bypassing captcha
       //since there is no data in the database anyway, we can just delete the user from the auth system
       //and ask them to sign up again
       try {
         await AuthUtil.deleteUser(uid);
-        throw new MonkeyError(
+        throw new TypeUZError(
           404,
           "User not found in the database, but found in the auth system. We have deleted the ghost user from the auth system. Please sign up again.",
           "get user",
@@ -565,8 +565,8 @@ export async function getUser(req: MonkeyRequest): Promise<GetUserResponse> {
         );
       } catch (e) {
         // oxlint-disable-next-line no-unsafe-member-access
-        if (e.code === "auth/user-not-found") {
-          throw new MonkeyError(
+        if ((e as Record<string, unknown>)?.["code"] === "auth/user-not-found") {
+          throw new TypeUZError(
             404,
             "User not found in the database or the auth system. Please sign up again.",
             "get user",
@@ -632,14 +632,14 @@ export async function getUser(req: MonkeyRequest): Promise<GetUserResponse> {
     testActivity,
   };
 
-  return new MonkeyResponse("User data retrieved", {
+  return new TypeUZResponse("User data retrieved", {
     ...userData,
     inboxUnreadSize: inboxUnreadSize,
   });
 }
 
 export async function getOauthLink(
-  req: MonkeyRequest,
+  req: TypeUZRequest,
 ): Promise<GetDiscordOauthLinkResponse> {
   const { uid } = req.ctx.decodedToken;
 
@@ -647,19 +647,19 @@ export async function getOauthLink(
   const url = await DiscordUtils.getOauthLink(uid);
 
   //return
-  return new MonkeyResponse("Discord oauth link generated", {
+  return new TypeUZResponse("Discord oauth link generated", {
     url: url,
   });
 }
 
 export async function linkDiscord(
-  req: MonkeyRequest<undefined, LinkDiscordRequest>,
+  req: TypeUZRequest<undefined, LinkDiscordRequest>,
 ): Promise<LinkDiscordResponse> {
   const { uid } = req.ctx.decodedToken;
   const { tokenType, accessToken, state } = req.body;
 
   if (!(await DiscordUtils.iStateValidForUser(state, uid))) {
-    throw new MonkeyError(403, "Invalid user token");
+    throw new TypeUZError(403, "Invalid user token");
   }
 
   const userInfo = await UserDAL.getPartialUser(uid, "link discord", [
@@ -668,7 +668,7 @@ export async function linkDiscord(
     "lbOptOut",
   ]);
   if (userInfo.banned) {
-    throw new MonkeyError(403, "Banned accounts cannot link with Discord");
+    throw new TypeUZError(403, "Banned accounts cannot link with Discord");
   }
 
   const { id: discordId, avatar: discordAvatar } =
@@ -676,14 +676,14 @@ export async function linkDiscord(
 
   if (userInfo.discordId !== undefined && userInfo.discordId !== "") {
     await UserDAL.linkDiscord(uid, userInfo.discordId, discordAvatar);
-    return new MonkeyResponse("Discord avatar updated", {
+    return new TypeUZResponse("Discord avatar updated", {
       discordId,
       discordAvatar,
     });
   }
 
   if (!discordId) {
-    throw new MonkeyError(
+    throw new TypeUZError(
       500,
       "Could not get Discord account info",
       "discord id is undefined",
@@ -692,14 +692,14 @@ export async function linkDiscord(
 
   const discordIdAvailable = await UserDAL.isDiscordIdAvailable(discordId);
   if (!discordIdAvailable) {
-    throw new MonkeyError(
+    throw new TypeUZError(
       409,
       "This Discord account is linked to a different account",
     );
   }
 
   if (await BlocklistDal.contains({ discordId })) {
-    throw new MonkeyError(409, "The Discord account is blocked");
+    throw new TypeUZError(409, "The Discord account is blocked");
   }
 
   await UserDAL.linkDiscord(uid, discordId, discordAvatar);
@@ -707,15 +707,15 @@ export async function linkDiscord(
   await GeorgeQueue.linkDiscord(discordId, uid, userInfo.lbOptOut ?? false);
   void addImportantLog("user_discord_link", `linked to ${discordId}`, uid);
 
-  return new MonkeyResponse("Discord account linked", {
+  return new TypeUZResponse("Discord account linked", {
     discordId,
     discordAvatar,
   });
 }
 
 export async function unlinkDiscord(
-  req: MonkeyRequest,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest,
+): Promise<TypeUZResponse> {
   const { uid } = req.ctx.decodedToken;
 
   const userInfo = await UserDAL.getPartialUser(uid, "unlink discord", [
@@ -724,23 +724,23 @@ export async function unlinkDiscord(
   ]);
 
   if (userInfo.banned) {
-    throw new MonkeyError(403, "Banned accounts cannot unlink Discord");
+    throw new TypeUZError(403, "Banned accounts cannot unlink Discord");
   }
 
   const discordId = userInfo.discordId;
   if (discordId === undefined || discordId === "") {
-    throw new MonkeyError(404, "User does not have a linked Discord account");
+    throw new TypeUZError(404, "User does not have a linked Discord account");
   }
 
   await GeorgeQueue.unlinkDiscord(discordId, uid);
   await UserDAL.unlinkDiscord(uid);
   void addImportantLog("user_discord_unlinked", discordId, uid);
 
-  return new MonkeyResponse("Discord account unlinked", null);
+  return new TypeUZResponse("Discord account unlinked", null);
 }
 
 export async function addResultFilterPreset(
-  req: MonkeyRequest<undefined, AddResultFilterPresetRequest>,
+  req: TypeUZRequest<undefined, AddResultFilterPresetRequest>,
 ): Promise<AddResultFilterPresetResponse> {
   const { uid } = req.ctx.decodedToken;
   const filter = req.body;
@@ -751,150 +751,150 @@ export async function addResultFilterPreset(
     filter,
     maxPresetsPerUser,
   );
-  return new MonkeyResponse(
+  return new TypeUZResponse(
     "Result filter preset created",
     createdId.toHexString(),
   );
 }
 
 export async function removeResultFilterPreset(
-  req: MonkeyRequest<undefined, undefined, RemoveResultFilterPresetPathParams>,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest<undefined, undefined, RemoveResultFilterPresetPathParams>,
+): Promise<TypeUZResponse> {
   const { uid } = req.ctx.decodedToken;
   const { presetId } = req.params;
 
   await UserDAL.removeResultFilterPreset(uid, presetId);
-  return new MonkeyResponse("Result filter preset deleted", null);
+  return new TypeUZResponse("Result filter preset deleted", null);
 }
 
 export async function addTag(
-  req: MonkeyRequest<undefined, AddTagRequest>,
+  req: TypeUZRequest<undefined, AddTagRequest>,
 ): Promise<AddTagResponse> {
   const { uid } = req.ctx.decodedToken;
   const { tagName } = req.body;
 
   const tag = await UserDAL.addTag(uid, tagName);
-  return new MonkeyResponse("Tag updated", replaceObjectId(tag));
+  return new TypeUZResponse("Tag updated", replaceObjectId(tag));
 }
 
 export async function clearTagPb(
-  req: MonkeyRequest<undefined, undefined, TagIdPathParams>,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest<undefined, undefined, TagIdPathParams>,
+): Promise<TypeUZResponse> {
   const { uid } = req.ctx.decodedToken;
   const { tagId } = req.params;
 
   await UserDAL.removeTagPb(uid, tagId);
-  return new MonkeyResponse("Tag PB cleared", null);
+  return new TypeUZResponse("Tag PB cleared", null);
 }
 
 export async function editTag(
-  req: MonkeyRequest<undefined, EditTagRequest>,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest<undefined, EditTagRequest>,
+): Promise<TypeUZResponse> {
   const { uid } = req.ctx.decodedToken;
   const { tagId, newName } = req.body;
 
   await UserDAL.editTag(uid, tagId, newName);
-  return new MonkeyResponse("Tag updated", null);
+  return new TypeUZResponse("Tag updated", null);
 }
 
 export async function removeTag(
-  req: MonkeyRequest<undefined, undefined, TagIdPathParams>,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest<undefined, undefined, TagIdPathParams>,
+): Promise<TypeUZResponse> {
   const { uid } = req.ctx.decodedToken;
   const { tagId } = req.params;
 
   await UserDAL.removeTag(uid, tagId);
-  return new MonkeyResponse("Tag deleted", null);
+  return new TypeUZResponse("Tag deleted", null);
 }
 
-export async function getTags(req: MonkeyRequest): Promise<GetTagsResponse> {
+export async function getTags(req: TypeUZRequest): Promise<GetTagsResponse> {
   const { uid } = req.ctx.decodedToken;
 
   const tags = await UserDAL.getTags(uid);
-  return new MonkeyResponse("Tags retrieved", replaceObjectIds(tags));
+  return new TypeUZResponse("Tags retrieved", replaceObjectIds(tags));
 }
 
 export async function updateLbMemory(
-  req: MonkeyRequest<undefined, UpdateLeaderboardMemoryRequest>,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest<undefined, UpdateLeaderboardMemoryRequest>,
+): Promise<TypeUZResponse> {
   const { uid } = req.ctx.decodedToken;
   const { mode, language, rank } = req.body;
   const mode2 = req.body.mode2;
 
   await UserDAL.updateLbMemory(uid, mode, mode2, language, rank);
-  return new MonkeyResponse("Leaderboard memory updated", null);
+  return new TypeUZResponse("Leaderboard memory updated", null);
 }
 
 export async function getCustomThemes(
-  req: MonkeyRequest,
+  req: TypeUZRequest,
 ): Promise<GetCustomThemesResponse> {
   const { uid } = req.ctx.decodedToken;
   const customThemes = await UserDAL.getThemes(uid);
-  return new MonkeyResponse(
+  return new TypeUZResponse(
     "Custom themes retrieved",
     replaceObjectIds(customThemes),
   );
 }
 
 export async function addCustomTheme(
-  req: MonkeyRequest<undefined, AddCustomThemeRequest>,
+  req: TypeUZRequest<undefined, AddCustomThemeRequest>,
 ): Promise<AddCustomThemeResponse> {
   const { uid } = req.ctx.decodedToken;
   const { name, colors } = req.body;
 
   const addedTheme = await UserDAL.addTheme(uid, { name, colors });
-  return new MonkeyResponse("Custom theme added", replaceObjectId(addedTheme));
+  return new TypeUZResponse("Custom theme added", replaceObjectId(addedTheme));
 }
 
 export async function removeCustomTheme(
-  req: MonkeyRequest<undefined, DeleteCustomThemeRequest>,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest<undefined, DeleteCustomThemeRequest>,
+): Promise<TypeUZResponse> {
   const { uid } = req.ctx.decodedToken;
   const { themeId } = req.body;
   await UserDAL.removeTheme(uid, themeId);
-  return new MonkeyResponse("Custom theme removed", null);
+  return new TypeUZResponse("Custom theme removed", null);
 }
 
 export async function editCustomTheme(
-  req: MonkeyRequest<undefined, EditCustomThemeRequst>,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest<undefined, EditCustomThemeRequst>,
+): Promise<TypeUZResponse> {
   const { uid } = req.ctx.decodedToken;
   const { themeId, theme } = req.body;
 
   await UserDAL.editTheme(uid, themeId, theme);
-  return new MonkeyResponse("Custom theme updated", null);
+  return new TypeUZResponse("Custom theme updated", null);
 }
 
 export async function getPersonalBests(
-  req: MonkeyRequest<GetPersonalBestsQuery>,
+  req: TypeUZRequest<GetPersonalBestsQuery>,
 ): Promise<GetPersonalBestsResponse> {
   const { uid } = req.ctx.decodedToken;
   const { mode, mode2 } = req.query;
 
   const data = (await UserDAL.getPersonalBests(uid, mode, mode2)) ?? null;
-  return new MonkeyResponse("Personal bests retrieved", data);
+  return new TypeUZResponse("Personal bests retrieved", data);
 }
 
-export async function getStats(req: MonkeyRequest): Promise<GetStatsResponse> {
+export async function getStats(req: TypeUZRequest): Promise<GetStatsResponse> {
   const { uid } = req.ctx.decodedToken;
 
   const data = (await UserDAL.getStats(uid)) ?? null;
-  return new MonkeyResponse("Personal stats retrieved", data);
+  return new TypeUZResponse("Personal stats retrieved", data);
 }
 
 export async function getFavoriteQuotes(
-  req: MonkeyRequest,
+  req: TypeUZRequest,
 ): Promise<GetFavoriteQuotesResponse> {
   const { uid } = req.ctx.decodedToken;
 
   const quotes = await UserDAL.getFavoriteQuotes(uid);
 
-  return new MonkeyResponse("Favorite quotes retrieved", quotes);
+  return new TypeUZResponse("Favorite quotes retrieved", quotes);
 }
 
 export async function addFavoriteQuote(
-  req: MonkeyRequest<undefined, AddFavoriteQuoteRequest>,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest<undefined, AddFavoriteQuoteRequest>,
+): Promise<TypeUZResponse> {
   const { uid } = req.ctx.decodedToken;
 
   const { language, quoteId } = req.body;
@@ -906,22 +906,22 @@ export async function addFavoriteQuote(
     req.ctx.configuration.quotes.maxFavorites,
   );
 
-  return new MonkeyResponse("Quote added to favorites", null);
+  return new TypeUZResponse("Quote added to favorites", null);
 }
 
 export async function removeFavoriteQuote(
-  req: MonkeyRequest<undefined, RemoveFavoriteQuoteRequest>,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest<undefined, RemoveFavoriteQuoteRequest>,
+): Promise<TypeUZResponse> {
   const { uid } = req.ctx.decodedToken;
 
   const { quoteId, language } = req.body;
   await UserDAL.removeFavoriteQuote(uid, language, quoteId);
 
-  return new MonkeyResponse("Quote removed from favorites", null);
+  return new TypeUZResponse("Quote removed from favorites", null);
 }
 
 export async function getProfile(
-  req: MonkeyRequest<GetProfileQuery, undefined, GetProfilePathParams>,
+  req: TypeUZRequest<GetProfileQuery, undefined, GetProfilePathParams>,
 ): Promise<GetProfileResponse> {
   const { uidOrName } = req.params;
 
@@ -1004,7 +1004,7 @@ export async function getProfile(
   };
 
   if (banned) {
-    return new MonkeyResponse("Profile retrived: banned user", baseProfile);
+    return new TypeUZResponse("Profile retrived: banned user", baseProfile);
   }
 
   const allTimeLbs = await getAllTimeLbs(user.uid);
@@ -1022,11 +1022,11 @@ export async function getProfile(
   } else {
     delete profileData.testActivity;
   }
-  return new MonkeyResponse("Profile retrieved", profileData);
+  return new TypeUZResponse("Profile retrieved", profileData);
 }
 
 export async function updateProfile(
-  req: MonkeyRequest<undefined, UpdateUserProfileRequest>,
+  req: TypeUZRequest<undefined, UpdateUserProfileRequest>,
 ): Promise<UpdateUserProfileResponse> {
   const { uid } = req.ctx.decodedToken;
   const {
@@ -1043,7 +1043,7 @@ export async function updateProfile(
   ]);
 
   if (user.banned) {
-    throw new MonkeyError(403, "Banned users cannot update their profile");
+    throw new TypeUZError(403, "Banned users cannot update their profile");
   }
 
   user.inventory?.badges.forEach((badge) => {
@@ -1068,12 +1068,12 @@ export async function updateProfile(
 
   await UserDAL.updateProfile(uid, profileDetailsUpdates, user.inventory);
 
-  return new MonkeyResponse("Profile updated", profileDetailsUpdates);
+  return new TypeUZResponse("Profile updated", profileDetailsUpdates);
 }
 
 export async function updateProfileDetails(
-  req: MonkeyRequest<undefined, UpdateProfileDetailsRequest>,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest<undefined, UpdateProfileDetailsRequest>,
+): Promise<TypeUZResponse> {
   const { uid } = req.ctx.decodedToken;
   const body = req.body as Record<string, unknown>;
 
@@ -1085,30 +1085,30 @@ export async function updateProfileDetails(
   if (body["avatar"] !== undefined) updates["avatar"] = body["avatar"];
 
   if (Object.keys(updates).length === 0) {
-    return new MonkeyResponse("Hech qanday o'zgarish kiritilmadi", null);
+    return new TypeUZResponse("Hech qanday o'zgarish kiritilmadi", null);
   }
 
   await UserDAL.updateProfileDetails(uid, updates);
 
-  return new MonkeyResponse("Profil yangilandi", null);
+  return new TypeUZResponse("Profil yangilandi", null);
 }
 
 export async function getInbox(
-  req: MonkeyRequest,
+  req: TypeUZRequest,
 ): Promise<GetUserInboxResponse> {
   const { uid } = req.ctx.decodedToken;
 
   const inbox = await UserDAL.getInbox(uid);
 
-  return new MonkeyResponse("Inbox retrieved", {
+  return new TypeUZResponse("Inbox retrieved", {
     inbox,
     maxMail: req.ctx.configuration.users.inbox.maxMail,
   });
 }
 
 export async function updateInbox(
-  req: MonkeyRequest<undefined, UpdateUserInboxRequest>,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest<undefined, UpdateUserInboxRequest>,
+): Promise<TypeUZResponse> {
   const { uid } = req.ctx.decodedToken;
   const { mailIdsToMarkRead, mailIdsToDelete } = req.body;
 
@@ -1118,12 +1118,12 @@ export async function updateInbox(
     mailIdsToDelete ?? [],
   );
 
-  return new MonkeyResponse("Inbox updated", null);
+  return new TypeUZResponse("Inbox updated", null);
 }
 
 export async function reportUser(
-  req: MonkeyRequest<undefined, ReportUserRequest>,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest<undefined, ReportUserRequest>,
+): Promise<TypeUZResponse> {
   const { uid } = req.ctx.decodedToken;
   const {
     reporting: { maxReports, contentReportLimit },
@@ -1146,12 +1146,12 @@ export async function reportUser(
 
   await ReportDAL.createReport(newReport, maxReports, contentReportLimit);
 
-  return new MonkeyResponse("User reported", null);
+  return new TypeUZResponse("User reported", null);
 }
 
 export async function setStreakHourOffset(
-  req: MonkeyRequest<undefined, SetStreakHourOffsetRequest>,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest<undefined, SetStreakHourOffsetRequest>,
+): Promise<TypeUZResponse> {
   const { uid } = req.ctx.decodedToken;
   const { hourOffset } = req.body;
 
@@ -1163,23 +1163,23 @@ export async function setStreakHourOffset(
     user.streak?.hourOffset !== undefined &&
     user.streak?.hourOffset !== null
   ) {
-    throw new MonkeyError(403, "Streak hour offset already set");
+    throw new TypeUZError(403, "Streak hour offset already set");
   }
 
   await UserDAL.setStreakHourOffset(uid, hourOffset);
 
   void addImportantLog("user_streak_hour_offset_set", { hourOffset }, uid);
 
-  return new MonkeyResponse("Streak hour offset set", null);
+  return new TypeUZResponse("Streak hour offset set", null);
 }
 
 export async function revokeAllTokens(
-  req: MonkeyRequest,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest,
+): Promise<TypeUZResponse> {
   const { uid } = req.ctx.decodedToken;
   await AuthUtil.revokeTokensByUid(uid);
   void addImportantLog("user_tokens_revoked", "", uid);
-  return new MonkeyResponse("All tokens revoked", null);
+  return new TypeUZResponse("All tokens revoked", null);
 }
 
 async function getAllTimeLbs(uid: string): Promise<AllTimeLbs> {
@@ -1275,7 +1275,7 @@ export function generateCurrentTestActivity(
 }
 
 export async function getTestActivity(
-  req: MonkeyRequest,
+  req: TypeUZRequest,
 ): Promise<GetTestActivityResponse> {
   const { uid } = req.ctx.decodedToken;
   const premiumFeaturesEnabled = req.ctx.configuration.users.premium.enabled;
@@ -1286,14 +1286,14 @@ export async function getTestActivity(
   const userHasPremium = await UserDAL.checkIfUserIsPremium(uid, user);
 
   if (!premiumFeaturesEnabled) {
-    throw new MonkeyError(503, "Premium features are disabled");
+    throw new TypeUZError(503, "Premium features are disabled");
   }
 
   if (!userHasPremium) {
-    throw new MonkeyError(503, "User does not have premium");
+    throw new TypeUZError(503, "User does not have premium");
   }
 
-  return new MonkeyResponse(
+  return new TypeUZResponse(
     "Test activity data retrieved",
     user.testActivity ?? null,
   );
@@ -1308,7 +1308,7 @@ async function firebaseDeleteUserIgnoreError(uid: string): Promise<void> {
 }
 
 export async function getCurrentTestActivity(
-  req: MonkeyRequest,
+  req: TypeUZRequest,
 ): Promise<GetCurrentTestActivityResponse> {
   const { uid } = req.ctx.decodedToken;
 
@@ -1316,24 +1316,24 @@ export async function getCurrentTestActivity(
     "testActivity",
   ]);
   const data = generateCurrentTestActivity(user.testActivity);
-  return new MonkeyResponse(
+  return new TypeUZResponse(
     "Current test activity data retrieved",
     data ?? null,
   );
 }
 
 export async function getStreak(
-  req: MonkeyRequest,
+  req: TypeUZRequest,
 ): Promise<GetStreakResponse> {
   const { uid } = req.ctx.decodedToken;
 
   const user = await UserDAL.getPartialUser(uid, "streak", ["streak"]);
 
-  return new MonkeyResponse("Streak data retrieved", user.streak ?? null);
+  return new TypeUZResponse("Streak data retrieved", user.streak ?? null);
 }
 
 export async function getWeeklyAnalysis(
-  req: MonkeyRequest,
+  req: TypeUZRequest,
 ): Promise<WeeklyAnalysisResponse> {
   const { uid } = req.ctx.decodedToken;
 
@@ -1343,7 +1343,7 @@ export async function getWeeklyAnalysis(
   });
 
   if (results.length === 0) {
-    return new MonkeyResponse("Haftalik tahlil", {
+    return new TypeUZResponse("Haftalik tahlil", {
       avgWpm: 0,
       avgAccuracy: 0,
       totalTests: 0,
@@ -1472,7 +1472,7 @@ export async function getWeeklyAnalysis(
       "Barqaror natijalar ko'rsatyapsiz. Tezlikni oshirish uchun turli xil matnlar bilan mashq qilib ko'ring.";
   }
 
-  return new MonkeyResponse("Haftalik tahlil", {
+  return new TypeUZResponse("Haftalik tahlil", {
     avgWpm,
     avgAccuracy,
     totalTests: results.length,
@@ -1487,7 +1487,7 @@ export async function getWeeklyAnalysis(
 }
 
 export async function getFriends(
-  req: MonkeyRequest,
+  req: TypeUZRequest,
 ): Promise<GetFriendsResponse> {
   const { uid } = req.ctx.decodedToken;
   const premiumEnabled = req.ctx.configuration.users.premium.enabled;
@@ -1499,5 +1499,5 @@ export async function getFriends(
     }
   }
 
-  return new MonkeyResponse("Friends retrieved", data);
+  return new TypeUZResponse("Friends retrieved", data);
 }

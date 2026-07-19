@@ -1,7 +1,7 @@
 import * as db from "../init/db";
 import { v4 as uuidv4 } from "uuid";
 import Logger from "../utils/logger";
-import MonkeyError, { getErrorMessage } from "../utils/error";
+import TypeUZError, { getErrorMessage } from "../utils/error";
 import { incrementBadAuth } from "./rate-limit";
 import type { NextFunction, Response } from "express";
 import { isCustomCode } from "../constants/monkey-status-codes";
@@ -39,7 +39,7 @@ async function errorHandlingMiddleware(
   _next: NextFunction,
 ): Promise<void> {
   try {
-    const monkeyError = error as MonkeyError;
+    const monkeyError = error as TypeUZError;
     let status = 500;
     const data: { errorId?: string; uid: string } = {
       errorId: monkeyError.errorId ?? uuidv4(),
@@ -52,7 +52,7 @@ async function errorHandlingMiddleware(
     } else if (error instanceof URIError || error instanceof SyntaxError) {
       status = 400;
       message = "Unprocessable request";
-    } else if (error instanceof MonkeyError) {
+    } else if (error instanceof TypeUZError) {
       message = error.message;
       status = error.status;
     } else {

@@ -4,14 +4,14 @@ import path from "path";
 import { existsSync, writeFileSync } from "fs";
 import { readFile } from "node:fs/promises";
 import * as db from "../init/db";
-import MonkeyError from "../utils/error";
+import TypeUZError from "../utils/error";
 import { compareTwoStrings } from "string-similarity";
-import { ApproveQuote, Quote } from "@monkeytype/schemas/quotes";
+import { ApproveQuote, Quote } from "@typeuz/schemas/quotes";
 import { WithObjectId } from "../utils/misc";
-import { parseWithSchema as parseJsonWithSchema } from "@monkeytype/util/json";
+import { parseWithSchema as parseJsonWithSchema } from "@typeuz/util/json";
 import { z } from "zod";
-import { tryCatchSync } from "@monkeytype/util/trycatch";
-import { Language } from "@monkeytype/schemas/languages";
+import { tryCatchSync } from "@typeuz/util/trycatch";
+import { Language } from "@typeuz/schemas/languages";
 
 const JsonQuoteSchema = z.object({
   text: z.string(),
@@ -57,7 +57,7 @@ export async function add(
   language: string,
   uid: string,
 ): Promise<AddQuoteReturn | undefined> {
-  if (git === undefined) throw new MonkeyError(500, "Git not available.");
+  if (git === undefined) throw new TypeUZError(500, "Git not available.");
   const quote = {
     _id: new ObjectId(),
     text: text,
@@ -69,7 +69,7 @@ export async function add(
   };
 
   if (!/^\w+$/.test(language)) {
-    throw new MonkeyError(500, `Invalid language name`, language);
+    throw new TypeUZError(500, `Invalid language name`, language);
   }
 
   const count = await getNewQuoteCollection().countDocuments({
@@ -77,7 +77,7 @@ export async function add(
   });
 
   if (count >= 100) {
-    throw new MonkeyError(
+    throw new TypeUZError(
       409,
       "There are already 100 quotes in the queue for this language.",
     );
@@ -115,7 +115,7 @@ export async function add(
 }
 
 export async function get(language: Language | "all"): Promise<DBNewQuote[]> {
-  if (git === undefined) throw new MonkeyError(500, "Git not available.");
+  if (git === undefined) throw new TypeUZError(500, "Git not available.");
   const where: {
     approved: boolean;
     language?: Language;
@@ -124,7 +124,7 @@ export async function get(language: Language | "all"): Promise<DBNewQuote[]> {
   };
 
   if (!/^\w+$/.test(language)) {
-    throw new MonkeyError(500, `Invalid language name`, language);
+    throw new TypeUZError(500, `Invalid language name`, language);
   }
 
   if (language !== "all") {
@@ -148,13 +148,13 @@ export async function approve(
   editSource: string | undefined,
   name: string,
 ): Promise<ApproveReturn> {
-  if (!git) throw new MonkeyError(500, "Git not available.");
+  if (!git) throw new TypeUZError(500, "Git not available.");
   //check mod status
   const targetQuote = await getNewQuoteCollection().findOne({
     _id: new ObjectId(quoteId),
   });
   if (!targetQuote) {
-    throw new MonkeyError(
+    throw new TypeUZError(
       404,
       "Quote not found. It might have already been reviewed. Please refresh the list.",
     );
@@ -170,7 +170,7 @@ export async function approve(
   let message = "";
 
   if (!/^\w+$/.test(language)) {
-    throw new MonkeyError(500, `Invalid language name`, language);
+    throw new TypeUZError(500, `Invalid language name`, language);
   }
 
   const fileDir = path.join(
@@ -186,7 +186,7 @@ export async function approve(
     );
     quoteObject.quotes.every((old) => {
       if (compareTwoStrings(old.text, quote.text) > 0.8) {
-        throw new MonkeyError(409, "Duplicate quote");
+        throw new TypeUZError(409, "Duplicate quote");
       }
       return true;
     });
@@ -199,7 +199,7 @@ export async function approve(
     quote.id = maxid + 1;
 
     if (quote.id === -1) {
-      throw new MonkeyError(500, "Failed to get max id");
+      throw new TypeUZError(500, "Failed to get max id");
     }
 
     quoteObject.quotes.push(quote);
@@ -231,6 +231,6 @@ export async function approve(
 }
 
 export async function refuse(quoteId: string): Promise<void> {
-  if (git === undefined) throw new MonkeyError(500, "Git not available.");
+  if (git === undefined) throw new TypeUZError(500, "Git not available.");
   await getNewQuoteCollection().deleteOne({ _id: new ObjectId(quoteId) });
 }

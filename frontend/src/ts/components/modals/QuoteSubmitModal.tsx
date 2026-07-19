@@ -1,5 +1,5 @@
-import { QuoteTextSchema } from "@monkeytype/contracts/quotes";
-import { Language } from "@monkeytype/schemas/languages";
+import { QuoteTextSchema } from "@typeuz/contracts/quotes";
+import { Language } from "@typeuz/schemas/languages";
 import { createForm } from "@tanstack/solid-form";
 import { JSXElement } from "solid-js";
 

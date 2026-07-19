@@ -1,0 +1,8 @@
+{
+  "installCommand": "cd .. && pnpm install --frozen-lockfile",
+  "buildCommand": "cd .. && pnpm run build-fe",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

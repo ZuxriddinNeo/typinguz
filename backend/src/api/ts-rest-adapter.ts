@@ -1,8 +1,8 @@
 import { AppRoute, AppRouter } from "@ts-rest/core";
 import { TsRestRequest } from "@ts-rest/express";
-import { MonkeyResponse } from "../utils/monkey-response";
+import { TypeUZResponse } from "../utils/typeuz-response";
 import { Context } from "../middlewares/context";
-import { MonkeyRequest } from "./types";
+import { TypeUZRequest } from "./types";
 
 export function callController<
   TRoute extends AppRoute | AppRouter,
@@ -17,10 +17,10 @@ export function callController<
   handler: MonkeyHandler<TQuery, TBody, TParams, TResponse>,
 ): (all: TypeSafeTsRestRequest<TRoute, TQuery, TBody, TParams>) => Promise<{
   status: TStatus;
-  body: MonkeyResponse<TResponse>;
+  body: TypeUZResponse<TResponse>;
 }> {
   return async (all) => {
-    const req: MonkeyRequest<TQuery, TBody, TParams> = {
+    const req: TypeUZRequest<TQuery, TBody, TParams> = {
       body: all.body as TBody,
       query: all.query as TQuery,
       params: all.params as TParams,
@@ -63,8 +63,8 @@ type WithoutParams = {
 };
 
 type MonkeyHandler<TQuery, TBody, TParams, TResponse> = (
-  req: MonkeyRequest<TQuery, TBody, TParams>,
-) => Promise<MonkeyResponse<TResponse>>;
+  req: TypeUZRequest<TQuery, TBody, TParams>,
+) => Promise<TypeUZResponse<TResponse>>;
 
 type TypeSafeTsRestRequest<
   TRoute extends AppRoute | AppRouter,

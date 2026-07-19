@@ -201,6 +201,18 @@ export default function SlimSelect(props: SlimSelectProps): JSXElement {
         item.selected = item.value !== "all" && allValuesSet.has(item.value);
       }
       updateSlimSelectData(slimSelect, data, true);
+
+      const newSelection = selectedOptions
+        .filter((o) => o.value !== "all")
+        .map((o) => o.value);
+
+      if (
+        props.onChange &&
+        !areUnsortedArraysEqual(newSelection, currentSelected)
+      ) {
+        props.onChange(newSelection);
+        currentSelected = newSelection;
+      }
       return false;
     }
 

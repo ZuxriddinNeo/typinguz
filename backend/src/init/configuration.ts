@@ -3,18 +3,18 @@ import { ObjectId } from "mongodb";
 import Logger from "../utils/logger";
 import { identity, isPlainObject, omit } from "../utils/misc";
 import { BASE_CONFIGURATION } from "../constants/base-configuration";
-import { Configuration } from "@monkeytype/schemas/configuration";
+import { Configuration } from "@typeuz/schemas/configuration";
 import { addLog } from "../dal/logs";
 import {
   PartialConfiguration,
   PartialConfigurationSchema,
-} from "@monkeytype/contracts/configuration";
+} from "@typeuz/contracts/configuration";
 import { getErrorMessage } from "../utils/error";
 import { join } from "path";
 import { existsSync, readFileSync } from "fs";
-import { parseWithSchema as parseJsonWithSchema } from "@monkeytype/util/json";
+import { parseWithSchema as parseJsonWithSchema } from "@typeuz/util/json";
 import { z } from "zod";
-import { intersect } from "@monkeytype/util/arrays";
+import { intersect } from "@typeuz/util/arrays";
 
 const CONFIG_UPDATE_INTERVAL = 10 * 60 * 1000; // 10 Minutes
 const SERVER_CONFIG_FILE_PATH = join(
@@ -88,10 +88,16 @@ export async function getLiveConfiguration(): Promise<Configuration> {
       await pushConfiguration(baseConfiguration);
       configuration = baseConfiguration;
     } else {
-      await configurationCollection.insertOne({
+      const configToSeed = {
         ...BASE_CONFIGURATION,
+        admin: {
+          ...BASE_CONFIGURATION.admin,
+          endpointsEnabled:
+            process.env["ADMIN_ENDPOINTS_ENABLED"] === "true",
+        },
         _id: new ObjectId(),
-      }); // Seed the base configuration.
+      };
+      await configurationCollection.insertOne(configToSeed);
     }
   } catch (error) {
     const errorMessage = getErrorMessage(error) ?? "Unknown error";

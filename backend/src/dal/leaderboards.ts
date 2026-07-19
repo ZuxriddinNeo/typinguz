@@ -10,9 +10,9 @@ import {
 
 import { addLog } from "./logs";
 import { Collection, Document, ObjectId } from "mongodb";
-import { LeaderboardEntry } from "@monkeytype/schemas/leaderboards";
+import { LeaderboardEntry } from "@typeuz/schemas/leaderboards";
 import { DBUser, getUsersCollection } from "./user";
-import MonkeyError from "../utils/error";
+import TypeUZError from "../utils/error";
 import { aggregateWithAcceptedConnections } from "./connections";
 
 export type DBLeaderboardEntry = LeaderboardEntry & {
@@ -50,7 +50,7 @@ export async function get(
   numbers?: boolean,
 ): Promise<DBLeaderboardEntry[] | false> {
   if (page < 0 || pageSize < 0) {
-    throw new MonkeyError(500, "Invalid page or pageSize");
+    throw new TypeUZError(500, "Invalid page or pageSize");
   }
 
   const skip = page * pageSize;
@@ -411,9 +411,9 @@ async function createIndex(
     ) {
       Logger.warning(`Index ${key} not matching, dropping and recreating...`);
 
-      const existingIndex = (await getUsersCollection().listIndexes().toArray())
-        // oxlint-disable-next-line no-unsafe-member-access
-        .map((it) => it.name as string)
+      const indexes = (await getUsersCollection().listIndexes().toArray()) as Array<{ name: string }>;
+      const existingIndex = indexes
+        .map((it) => it.name)
         .find((it) => it.startsWith(key));
 
       if (existingIndex !== undefined && existingIndex !== null) {

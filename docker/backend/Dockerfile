@@ -46,6 +46,7 @@ ENV BYPASS_ANTICHEAT=true
 ENV BYPASS_EMAILCLIENT=true
 ENV BYPASS_FIREBASE=true
 
+# Railway injects PORT dynamically — app reads process.env.PORT
 EXPOSE 5005
 USER node
 

@@ -66,36 +66,36 @@ export type RequestAuthenticationOptions = {
   isGithubWebhook?: boolean;
 };
 
-export const MonkeyResponseSchema = z.object({
+export const TypeUZResponseSchema = z.object({
   message: z.string(),
 });
-export type MonkeyResponseType = z.infer<typeof MonkeyResponseSchema>;
+export type TypeUZResponseType = z.infer<typeof TypeUZResponseSchema>;
 
-export const MonkeyValidationErrorSchema = MonkeyResponseSchema.extend({
+export const TypeUZValidationErrorSchema = TypeUZResponseSchema.extend({
   validationErrors: z.array(z.string()),
 });
-export type MonkeyValidationError = z.infer<typeof MonkeyValidationErrorSchema>;
+export type TypeUZValidationError = z.infer<typeof TypeUZValidationErrorSchema>;
 
-export const MonkeyClientError = MonkeyResponseSchema;
-export type MonkeyClientErrorType = z.infer<typeof MonkeyClientError>;
+export const TypeUZClientError = TypeUZResponseSchema;
+export type TypeUZClientErrorType = z.infer<typeof TypeUZClientError>;
 
-export const MonkeyServerError = MonkeyClientError.extend({
+export const TypeUZServerError = TypeUZClientError.extend({
   errorId: z.string(),
   uid: z.string().optional(),
 });
-export type MonkeyServerErrorType = z.infer<typeof MonkeyServerError>;
+export type TypeUZServerErrorType = z.infer<typeof TypeUZServerError>;
 
 export function responseWithNullableData<T extends ZodSchema>(
   dataSchema: T,
 ): z.ZodObject<
   z.objectUtil.extendShape<
-    typeof MonkeyResponseSchema.shape,
+    typeof TypeUZResponseSchema.shape,
     {
       data: z.ZodNullable<T>;
     }
   >
 > {
-  return MonkeyResponseSchema.extend({
+  return TypeUZResponseSchema.extend({
     data: dataSchema.nullable(),
   });
 }
@@ -104,31 +104,31 @@ export function responseWithData<T extends ZodSchema>(
   dataSchema: T,
 ): z.ZodObject<
   z.objectUtil.extendShape<
-    typeof MonkeyResponseSchema.shape,
+    typeof TypeUZResponseSchema.shape,
     {
       data: T;
     }
   >
 > {
-  return MonkeyResponseSchema.extend({
+  return TypeUZResponseSchema.extend({
     data: dataSchema,
   });
 }
 
 export const CommonResponses = {
-  400: MonkeyClientError.describe("Generic client error"),
-  401: MonkeyClientError.describe(
+  400: TypeUZClientError.describe("Generic client error"),
+  401: TypeUZClientError.describe(
     "Authentication required but not provided or invalid",
   ),
-  403: MonkeyClientError.describe("Operation not permitted"),
-  422: MonkeyValidationErrorSchema.describe("Request validation failed"),
-  429: MonkeyClientError.describe("Rate limit exceeded"),
-  470: MonkeyClientError.describe("Invalid ApeKey"),
-  471: MonkeyClientError.describe("ApeKey is inactive"),
-  472: MonkeyClientError.describe("ApeKey is malformed"),
-  479: MonkeyClientError.describe("ApeKey rate limit exceeded"),
-  500: MonkeyServerError.describe("Generic server error"),
-  503: MonkeyServerError.describe(
+  403: TypeUZClientError.describe("Operation not permitted"),
+  422: TypeUZValidationErrorSchema.describe("Request validation failed"),
+  429: TypeUZClientError.describe("Rate limit exceeded"),
+  470: TypeUZClientError.describe("Invalid ApeKey"),
+  471: TypeUZClientError.describe("ApeKey is inactive"),
+  472: TypeUZClientError.describe("ApeKey is malformed"),
+  479: TypeUZClientError.describe("ApeKey rate limit exceeded"),
+  500: TypeUZServerError.describe("Generic server error"),
+  503: TypeUZServerError.describe(
     "Endpoint disabled or server is under maintenance",
   ),
 };
@@ -136,13 +136,13 @@ export const CommonResponses = {
 export type CommonResponsesType =
   | {
       status: 400 | 401 | 403 | 429 | 470 | 471 | 472 | 479;
-      body: MonkeyClientErrorType;
+      body: TypeUZClientErrorType;
     }
   | {
       status: 422;
-      body: MonkeyValidationError;
+      body: TypeUZValidationError;
     }
   | {
       status: 500 | 503;
-      body: MonkeyServerErrorType;
+      body: TypeUZServerErrorType;
     };

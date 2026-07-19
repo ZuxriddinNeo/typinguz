@@ -1,5 +1,5 @@
 {
-  "name": "@monkeytype/funbox",
+  "name": "@typeuz/funbox",
   "private": true,
   "exports": {
     ".": {
@@ -18,18 +18,18 @@
     "lint-fast": "oxlint ."
   },
   "dependencies": {
-    "@monkeytype/schemas": "workspace:*",
-    "@monkeytype/util": "workspace:*"
+    "@typeuz/schemas": "workspace:*",
+    "@typeuz/util": "workspace:*"
   },
   "devDependencies": {
-    "@monkeytype/tsup-config": "workspace:*",
-    "@monkeytype/typescript-config": "workspace:*",
     "@types/node": "24.9.1",
     "madge": "8.0.0",
     "oxlint": "1.73.0",
     "oxlint-tsgolint": "0.24.0",
     "tsup": "8.4.0",
     "typescript": "6.0.2",
-    "vitest": "4.1.0"
+    "vitest": "4.1.0",
+    "@typeuz/tsup-config": "workspace:*",
+    "@typeuz/typescript-config": "workspace:*"
   }
 }

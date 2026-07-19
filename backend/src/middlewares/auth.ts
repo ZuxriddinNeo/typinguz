@@ -1,6 +1,6 @@
 import { compare } from "bcrypt";
 import { getApeKey, updateLastUsedOn } from "../dal/ape-keys";
-import MonkeyError from "../utils/error";
+import TypeUZError from "../utils/error";
 import { verifyIdToken } from "../utils/auth";
 import { verifyToken } from "../utils/jwt";
 import { base64UrlDecode, isDevEnvironment } from "../utils/misc";
@@ -17,8 +17,8 @@ import { AppRoute, AppRouter } from "@ts-rest/core";
 import {
   EndpointMetadata,
   RequestAuthenticationOptions,
-} from "@monkeytype/contracts/util/api";
-import { Configuration } from "@monkeytype/schemas/configuration";
+} from "@typeuz/contracts/util/api";
+import { Configuration } from "@typeuz/schemas/configuration";
 import { AsyncTsRestRequestHandler, getMetadata } from "./utility";
 import { TsRestRequestWithContext } from "../api/types";
 
@@ -26,6 +26,7 @@ export type DecodedToken = {
   type: "Bearer" | "ApeKey" | "None" | "GithubWebhook";
   uid: string;
   email: string;
+  admin?: boolean;
 };
 
 const DEFAULT_OPTIONS: RequestAuthenticationOptions = {
@@ -83,7 +84,7 @@ export function authenticateTsRestRequest<
           email: "",
         };
       } else {
-        throw new MonkeyError(
+        throw new TypeUZError(
           401,
           "Unauthorized",
           `endpoint: ${req.baseUrl} no authorization header found`,
@@ -137,7 +138,7 @@ async function authenticateWithAuthHeader(
   const [authScheme, token] = authHeader.split(" ");
 
   if (token === undefined) {
-    throw new MonkeyError(
+    throw new TypeUZError(
       401,
       "Missing authentication token",
       "authenticateWithAuthHeader",
@@ -155,7 +156,7 @@ async function authenticateWithAuthHeader(
       return await authenticateWithUid(token);
   }
 
-  throw new MonkeyError(
+  throw new TypeUZError(
     401,
     "Unknown authentication scheme",
     `The authentication scheme "${authScheme}" is not implemented`,
@@ -172,6 +173,7 @@ async function authenticateWithBearerToken(
       type: "Bearer",
       uid: decoded.uid,
       email: decoded.email,
+      admin: decoded.admin === true,
     };
   } catch {
     // Custom JWT failed — try Firebase
@@ -188,7 +190,7 @@ async function authenticateWithBearerToken(
       const tokenIssuedAt = new Date(decodedToken.iat * 1000).getTime();
 
       if (now - tokenIssuedAt > 60 * 1000) {
-        throw new MonkeyError(
+        throw new TypeUZError(
           401,
           "Unauthorized",
           `This endpoint requires a fresh token`,
@@ -206,7 +208,7 @@ async function authenticateWithBearerToken(
       error instanceof Error &&
       error.message.includes("An internal error has occurred")
     ) {
-      throw new MonkeyError(
+      throw new TypeUZError(
         503,
         "Firebase returned an internal error when trying to verify the token.",
         "authenticateWithBearerToken",
@@ -217,25 +219,25 @@ async function authenticateWithBearerToken(
     const errorCode = error?.errorInfo?.code as string | undefined;
 
     if (errorCode?.includes("auth/id-token-expired")) {
-      throw new MonkeyError(
+      throw new TypeUZError(
         401,
         "Token expired - please login again",
         "authenticateWithBearerToken",
       );
     } else if (errorCode?.includes("auth/id-token-revoked")) {
-      throw new MonkeyError(
+      throw new TypeUZError(
         401,
         "Token revoked - please login again",
         "authenticateWithBearerToken",
       );
     } else if (errorCode?.includes("auth/user-not-found")) {
-      throw new MonkeyError(
+      throw new TypeUZError(
         404,
         "User not found",
         "authenticateWithBearerToken",
       );
     } else if (errorCode?.includes("auth/argument-error")) {
-      throw new MonkeyError(
+      throw new TypeUZError(
         400,
         "Incorrect Bearer token format",
         "authenticateWithBearerToken",
@@ -256,11 +258,11 @@ async function authenticateWithApeKey(
 
   if (!isPublic) {
     if (!configuration.apeKeys.acceptKeys) {
-      throw new MonkeyError(503, "ApeKeys are not being accepted at this time");
+      throw new TypeUZError(503, "ApeKeys are not being accepted at this time");
     }
 
     if (!options.acceptApeKeys) {
-      throw new MonkeyError(401, "This endpoint does not accept ApeKeys");
+      throw new TypeUZError(401, "This endpoint does not accept ApeKeys");
     }
   }
 
@@ -274,23 +276,23 @@ async function authenticateWithApeKey(
       apeKey === undefined ||
       apeKey === ""
     ) {
-      throw new MonkeyError(400, "Malformed ApeKey");
+      throw new TypeUZError(400, "Malformed ApeKey");
     }
 
     const targetApeKey = await getApeKey(keyId);
     if (!targetApeKey) {
-      throw new MonkeyError(404, "ApeKey not found");
+      throw new TypeUZError(404, "ApeKey not found");
     }
 
     if (!targetApeKey.enabled) {
       const { code, message } = statuses.APE_KEY_INACTIVE;
-      throw new MonkeyError(code, message);
+      throw new TypeUZError(code, message);
     }
 
     const isKeyValid = await compare(apeKey, targetApeKey.hash);
     if (!isKeyValid) {
       const { code, message } = statuses.APE_KEY_INVALID;
-      throw new MonkeyError(code, message);
+      throw new TypeUZError(code, message);
     }
 
     await updateLastUsedOn(targetApeKey.uid, keyId);
@@ -301,9 +303,9 @@ async function authenticateWithApeKey(
       email: "",
     };
   } catch (error) {
-    if (!(error instanceof MonkeyError)) {
+    if (!(error instanceof TypeUZError)) {
       const { code, message } = statuses.APE_KEY_MALFORMED;
-      throw new MonkeyError(code, message);
+      throw new TypeUZError(code, message);
     }
 
     throw error;
@@ -312,12 +314,12 @@ async function authenticateWithApeKey(
 
 async function authenticateWithUid(token: string): Promise<DecodedToken> {
   if (!isDevEnvironment()) {
-    throw new MonkeyError(401, "Bearer type uid is not supported");
+    throw new TypeUZError(401, "Bearer type uid is not supported");
   }
   const [uid, email] = token.split("|");
 
   if (uid === undefined || uid === "") {
-    throw new MonkeyError(401, "Missing uid");
+    throw new TypeUZError(401, "Missing uid");
   }
 
   return {
@@ -335,7 +337,7 @@ export function authenticateGithubWebhook(
     const webhookSecret = process.env["GITHUB_WEBHOOK_SECRET"];
 
     if (webhookSecret === undefined || webhookSecret === "") {
-      throw new MonkeyError(500, "Missing Github Webhook Secret");
+      throw new TypeUZError(500, "Missing Github Webhook Secret");
     }
 
     if (
@@ -343,7 +345,7 @@ export function authenticateGithubWebhook(
       authHeader === undefined ||
       authHeader === ""
     ) {
-      throw new MonkeyError(401, "Missing Github signature header");
+      throw new TypeUZError(401, "Missing Github signature header");
     }
 
     const signature = crypto
@@ -355,7 +357,7 @@ export function authenticateGithubWebhook(
     const isSignatureValid = crypto.timingSafeEqual(trusted, untrusted);
 
     if (!isSignatureValid) {
-      throw new MonkeyError(401, "Github webhook signature invalid");
+      throw new TypeUZError(401, "Github webhook signature invalid");
     }
 
     return {
@@ -364,10 +366,10 @@ export function authenticateGithubWebhook(
       email: "",
     };
   } catch (error) {
-    if (error instanceof MonkeyError) {
+    if (error instanceof TypeUZError) {
       throw error;
     }
-    throw new MonkeyError(
+    throw new TypeUZError(
       500,
       `Failed to authenticate Github webhook: ${(error as Error).message}`,
     );

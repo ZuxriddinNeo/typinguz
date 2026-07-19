@@ -3,14 +3,12 @@ import { Fa } from "../common/Fa";
 
 export function AboutPage(): JSXElement {
   return (
-    <div class="mx-auto mt-16 flex max-w-6xl flex-col gap-16 px-6 pb-24">
+    <main class="mx-auto mt-16 flex max-w-6xl flex-col gap-16 px-6 pb-24">
       {/* Hero */}
-      <section id="hero" class="text-center">
-        <div class="mb-6">
-          <span class="text-6xl font-extrabold tracking-tight text-text">
-            Type<span class="text-main">UZ</span>
-          </span>
-        </div>
+      <section id="hero" class="text-center" aria-label="Loyiha haqida">
+        <h1 class="mb-6 text-6xl font-extrabold tracking-tight text-text">
+          Type<span class="text-main">UZ</span>
+        </h1>
         <p class="mx-auto max-w-2xl text-lg leading-relaxed text-sub">
           <span class="font-semibold text-text">TypeUZ</span> &mdash;
           O&apos;zbekistonning 1-raqamli yozuv tezligi platformasi. IT o&apos;quv
@@ -140,7 +138,7 @@ export function AboutPage(): JSXElement {
                 text: "O'zbek, Ingliz va Rus tillarida matnlar. Har bir til alohida statistikaga ega.",
               },
               {
-                icon: "fa-gauge-high",
+                icon: "fa-tachometer-alt",
                 title: "Real vaqt WPM",
                 text: "Yozish jarayonida so'z/minut ko'rsatkichi real vaqtda yangilanadi.",
               },
@@ -175,7 +173,7 @@ export function AboutPage(): JSXElement {
                 text: "Barcha asosiy amallar klaviatura orqali bajariladi — tez va qulay.",
               },
               {
-                icon: "fa-mobile-screen",
+                icon: "fa-mobile-alt",
                 title: "Mobil qurilmalar",
                 text: "Telefon va planshetlarda ham mukammal ishlaydi. Har qanday qurilmada sinab ko'ring.",
               },
@@ -226,7 +224,7 @@ export function AboutPage(): JSXElement {
                 text: "Kuchsiz tomonlaringizni aniqlab, ularni yaxshilash uchun mashqlar taklif etadi.",
               },
               {
-                icon: "fa-chart-simple",
+                icon: "fa-chart-line",
                 title: "Progress kuzatuvi",
                 text: "Haftalar va oylar bo'yicha o'sish dinamikangizni batafsil ko'rib boring.",
               },
@@ -327,6 +325,6 @@ export function AboutPage(): JSXElement {
           <Fa icon="fa-arrow-right" class="text-sm" />
         </a>
       </section>
-    </div>
+    </main>
   );
 }

@@ -10,15 +10,15 @@ import {
   Language,
   LanguageObject,
   LanguageObjectSchema,
-} from "@monkeytype/schemas/languages";
-import { Layout, ThemeName } from "@monkeytype/schemas/configs";
+} from "@typeuz/schemas/languages";
+import { Layout, ThemeName } from "@typeuz/schemas/configs";
 import { LayoutsList } from "../src/ts/constants/layouts";
-import { KnownFontName } from "@monkeytype/schemas/fonts";
+import { KnownFontName } from "@typeuz/schemas/fonts";
 import { Fonts } from "../src/ts/constants/fonts";
 import { themes, ThemeSchema, ThemesList } from "../src/ts/constants/themes";
 import { z } from "zod";
-import { LayoutObject, LayoutObjectSchema } from "@monkeytype/schemas/layouts";
-import { QuoteDataSchema, QuoteData } from "@monkeytype/schemas/quotes";
+import { LayoutObject, LayoutObjectSchema } from "@typeuz/schemas/layouts";
+import { QuoteDataSchema, QuoteData } from "@typeuz/schemas/quotes";
 import { clickSoundConfig } from "../src/ts/constants/sounds";
 import * as ghCore from "@actions/core";
 

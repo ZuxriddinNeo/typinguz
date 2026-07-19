@@ -1,7 +1,7 @@
-import { PSA } from "@monkeytype/schemas/psas";
-import { IdSchema } from "@monkeytype/schemas/util";
-import { isSafeNumber } from "@monkeytype/util/numbers";
-import { tryCatch } from "@monkeytype/util/trycatch";
+import { PSA } from "@typeuz/schemas/psas";
+import { IdSchema } from "@typeuz/schemas/util";
+import { isSafeNumber } from "@typeuz/util/numbers";
+import { tryCatch } from "@typeuz/util/trycatch";
 import { format } from "date-fns/format";
 import { z } from "zod";
 

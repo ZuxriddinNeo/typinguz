@@ -37,7 +37,7 @@ export function SelectField(props: {
           }}
           disabled={props.disabled}
           class={cn(
-            "w-full appearance-none rounded-xl border border-sub-alt bg-bg px-3 py-2 pr-8 text-sm text-text outline-none transition-colors hover:border-sub focus:border-main",
+            "w-full appearance-none rounded border-none bg-sub-alt p-[0.5em] pr-[1.85em] text-em-base leading-[1.25em] text-text caret-main outline-none transition-colors focus-visible:shadow-[0_0_0_0.1rem_var(--bg-color),0_0_0_0.2rem_var(--text-color)]",
             props.class,
           )}
         >
@@ -48,8 +48,8 @@ export function SelectField(props: {
             {(opt) => <option value={opt.value}>{opt.label}</option>}
           </For>
         </select>
-        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5 text-sub">
-          <Fa icon="fa-chevron-down" class="h-3.5 w-3.5" />
+        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-[0.4em] text-sub">
+          <Fa icon="fa-chevron-down" class="h-[0.75em] w-[0.75em]" />
         </div>
       </div>
       <Show when={props.field && props.field().options.validators}>

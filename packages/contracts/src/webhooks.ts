@@ -1,11 +1,11 @@
 import { initContract } from "@ts-rest/core";
 import { z } from "zod";
-import { PSASchema } from "@monkeytype/schemas/psas";
+import { PSASchema } from "@typeuz/schemas/psas";
 
 import {
   CommonResponses,
   meta,
-  MonkeyResponseSchema,
+  TypeUZResponseSchema,
   responseWithData,
 } from "./util/api";
 
@@ -41,7 +41,7 @@ export const webhooksContract = c.router(
         "x-hub-signature-256": z.string(),
       }),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
     },
   },

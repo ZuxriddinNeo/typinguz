@@ -4,9 +4,9 @@ import { cachedFetchJson } from "../utils/json-data";
 import { configEvent } from "../events/config";
 import * as DB from "../db";
 import Ape from "../ape";
-import { tryCatch } from "@monkeytype/util/trycatch";
-import { Language } from "@monkeytype/schemas/languages";
-import { QuoteData } from "@monkeytype/schemas/quotes";
+import { tryCatch } from "@typeuz/util/trycatch";
+import { Language } from "@typeuz/schemas/languages";
+import { QuoteData } from "@typeuz/schemas/quotes";
 import {
   Quote as QuoteType,
   QuoteWithTextSplit as QuoteWithTextSplitType,
@@ -67,9 +67,9 @@ class QuotesController {
         language: data.language,
       };
 
-      // Transform JSON Quote schema to MonkeyTypes Quote schema
+      // Transform JSON Quote schema to TypeUZ Quote schema
       data.quotes.forEach((quote) => {
-        const monkeyTypeQuote: Quote = {
+        const typeuzQuote: Quote = {
           text: quote.text,
           britishText: quote.britishText,
           source: quote.source,
@@ -79,7 +79,7 @@ class QuotesController {
           group: 0,
         };
 
-        this.quoteCollection.quotes.push(monkeyTypeQuote);
+        this.quoteCollection.quotes.push(typeuzQuote);
       });
 
       data.groups.forEach((quoteGroup, groupIndex) => {

@@ -1,4 +1,4 @@
-import { Configuration } from "@monkeytype/schemas/configuration";
+import { Configuration } from "@typeuz/schemas/configuration";
 
 const defaultConfig: Configuration = {
   maintenance: false,
@@ -32,7 +32,8 @@ const defaultConfig: Configuration = {
     inbox: { enabled: true, maxMail: 100 },
     premium: { enabled: false },
   },
-  admin: { endpointsEnabled: false },
+  admin: { endpointsEnabled: true },
+  ads: { enabled: false, masterToggle: false, slots: [] },
   apeKeys: {
     endpointsEnabled: false,
     acceptKeys: false,

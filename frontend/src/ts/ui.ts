@@ -11,7 +11,7 @@ import {
   getGlobalOffsetTop,
 } from "./states/core";
 import { canQuickRestart } from "./utils/quick-restart";
-import { FontName } from "@monkeytype/schemas/fonts";
+import { FontName } from "@typeuz/schemas/fonts";
 import { qs, qsr } from "./utils/dom";
 import { createEffect } from "solid-js";
 import fileStorage from "./utils/file-storage";

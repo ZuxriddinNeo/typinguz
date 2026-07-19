@@ -5,21 +5,21 @@ import {
   GetConnectionsResponse,
   IdPathParams,
   UpdateConnectionRequest,
-} from "@monkeytype/contracts/connections";
-import { MonkeyRequest } from "../types";
-import { MonkeyResponse } from "../../utils/monkey-response";
+} from "@typeuz/contracts/connections";
+import { TypeUZRequest } from "../types";
+import { TypeUZResponse } from "../../utils/typeuz-response";
 import * as ConnectionsDal from "../../dal/connections";
 import * as UserDal from "../../dal/user";
 import { replaceObjectId, omit } from "../../utils/misc";
-import MonkeyError from "../../utils/error";
+import TypeUZError from "../../utils/error";
 
-import { Connection } from "@monkeytype/schemas/connections";
+import { Connection } from "@typeuz/schemas/connections";
 
 function convert(db: ConnectionsDal.DBConnection): Connection {
   return replaceObjectId(omit(db, ["key"]));
 }
 export async function getConnections(
-  req: MonkeyRequest<GetConnectionsQuery>,
+  req: TypeUZRequest<GetConnectionsQuery>,
 ): Promise<GetConnectionsResponse> {
   const { uid } = req.ctx.decodedToken;
   const { status, type } = req.query;
@@ -32,11 +32,11 @@ export async function getConnections(
     status: status,
   });
 
-  return new MonkeyResponse("Connections retrieved", results.map(convert));
+  return new TypeUZResponse("Connections retrieved", results.map(convert));
 }
 
 export async function createConnection(
-  req: MonkeyRequest<undefined, CreateConnectionRequest>,
+  req: TypeUZRequest<undefined, CreateConnectionRequest>,
 ): Promise<CreateConnectionResponse> {
   const { uid } = req.ctx.decodedToken;
   const { receiverName } = req.body;
@@ -48,7 +48,7 @@ export async function createConnection(
   );
 
   if (uid === receiver.uid) {
-    throw new MonkeyError(400, "You cannot be your own friend, sorry.");
+    throw new TypeUZError(400, "You cannot be your own friend, sorry.");
   }
 
   const initiator = await UserDal.getPartialUser(uid, "create connection", [
@@ -58,28 +58,28 @@ export async function createConnection(
 
   const result = await ConnectionsDal.create(initiator, receiver, maxPerUser);
 
-  return new MonkeyResponse("Connection created", convert(result));
+  return new TypeUZResponse("Connection created", convert(result));
 }
 
 export async function deleteConnection(
-  req: MonkeyRequest<undefined, undefined, IdPathParams>,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest<undefined, undefined, IdPathParams>,
+): Promise<TypeUZResponse> {
   const { uid } = req.ctx.decodedToken;
   const { id } = req.params;
 
   await ConnectionsDal.deleteById(uid, id);
 
-  return new MonkeyResponse("Connection deleted", null);
+  return new TypeUZResponse("Connection deleted", null);
 }
 
 export async function updateConnection(
-  req: MonkeyRequest<undefined, UpdateConnectionRequest, IdPathParams>,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest<undefined, UpdateConnectionRequest, IdPathParams>,
+): Promise<TypeUZResponse> {
   const { uid } = req.ctx.decodedToken;
   const { id } = req.params;
   const { status } = req.body;
 
   await ConnectionsDal.updateStatus(uid, id, status);
 
-  return new MonkeyResponse("Connection updated", null);
+  return new TypeUZResponse("Connection updated", null);
 }

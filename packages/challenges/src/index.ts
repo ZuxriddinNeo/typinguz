@@ -1,12 +1,12 @@
-import { ChallengeName } from "@monkeytype/schemas/challenges";
+import { ChallengeName } from "@typeuz/schemas/challenges";
 import {
   Config,
   Difficulty,
   FunboxName,
   ThemeName,
-} from "@monkeytype/schemas/configs";
-import { Mode } from "@monkeytype/schemas/shared";
-import { CustomTextLimitMode, CustomTextMode } from "@monkeytype/schemas/util";
+} from "@typeuz/schemas/configs";
+import { Mode } from "@typeuz/schemas/shared";
+import { CustomTextLimitMode, CustomTextMode } from "@typeuz/schemas/util";
 
 export type Challenge = {
   name: ChallengeName;
@@ -271,12 +271,12 @@ const challenges: Record<ChallengeName, Omit<Challenge, "name">> = {
     display: "What's this website called again?",
     discordRoleId: "739276161603076116",
     category: "script",
-    description: "Type monkeytype one thousand times.",
+    description: "Type typeuz one thousand times.",
     settings: {
       autoRole: true,
       type: "customText",
       parameters: {
-        text: "monkeytype",
+        text: "typeuz",
         mode: "repeat",
         limit: 1000,
         limitMode: "word",
@@ -547,7 +547,7 @@ const challenges: Record<ChallengeName, Omit<Challenge, "name">> = {
     discordRoleId: "937358772635074600",
     category: "script",
     description:
-      "Type out the entire source code of Monkeytype, as it was in February 2022.",
+      "Type out the entire source code of TypeUZ, as it was in February 2022.",
     settings: {
       autoRole: true,
       type: "script",

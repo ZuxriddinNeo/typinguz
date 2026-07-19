@@ -1,6 +1,5 @@
 // oxlint-disable react/no-unescaped-entities
 import { For, JSXElement } from "solid-js";
-import { AnimatedSection } from "../../common/AnimatedSection";
 import { Fa } from "../../common/Fa";
 
 const sections = [
@@ -25,7 +24,7 @@ const sections = [
     ),
   },
   {
-    icon: "fa-list-check",
+    icon: "fa-tasks",
     title: "Hisobot topshirish qoidalari",
     content: (
       <div class="space-y-4 text-base leading-relaxed text-sub">
@@ -55,52 +54,59 @@ const sections = [
       </div>
     ),
   },
+  {
+    icon: "fa-shield-alt",
+    title: "Xavfsizlik choralarimiz",
+    content: (
+      <div class="space-y-4 text-base leading-relaxed text-sub">
+        <p class="font-semibold text-text">TypeUZ quyidagi xavfsizlik choralarini amalga oshiradi:</p>
+        <ul class="list-inside list-disc space-y-1.5 pl-2">
+          <li><strong class="text-text">Parollar xeshlanib saqlanadi</strong> — bcrypt algoritmi bilan, ochiq holda hech qachon</li>
+          <li><strong class="text-text">SSL/TLS shifrlash</strong> — Barcha ulanishlar HTTPS orqali shifrlanadi</li>
+          <li><strong class="text-text">Muntazam xavfsizlik auditlari</strong> — Kod va infrastruktura doimiy tekshiriladi</li>
+          <li><strong class="text-text">Ruxsatsiz kirish himoyasi</strong> — Rate limiting, WAF, suspicious activity monitoring</li>
+          <li><strong class="text-text">Ma'lumotlar yedeklash</strong> — Kunlik avtomatik backup, geografik razdiska</li>
+        </ul>
+        <p class="mt-4">Ma'lumotlar O'zbekiston Respublikasi hududida joylashgan serverlarda saqlanadi.</p>
+      </div>
+    ),
+  },
 ];
+
+function SectionWrapper(props: { children: JSXElement }): JSXElement {
+  return (
+    <section class="prose prose-zinc dark:prose-invert max-w-none space-y-6">
+      {props.children}
+    </section>
+  );
+}
 
 export function SecurityPolicyPage(): JSXElement {
   return (
-    <div class="mx-auto mt-16 flex max-w-6xl flex-col gap-16 px-6 pb-24">
-      <section class="text-center">
-        <div class="mb-4">
-          <span class="text-5xl font-extrabold tracking-tight text-text">
-            Xavfsizlik <span class="text-main">siyosati</span>
-          </span>
-        </div>
-        <p class="mx-auto max-w-xl text-sm text-sub/70">TypeUZ xavfsizlik siyosati — zaifliklarni qanday hisobot qilish va xavfsizlik masalalari.</p>
-      </section>
+    <div class="mx-auto mt-16 max-w-4xl px-6 pb-20">
+      <header class="mb-16 text-center space-y-4">
+        <h1 class="text-5xl font-extrabold tracking-tight text-text">Xavfsizlik <span class="text-main">siyosati</span></h1>
+        <p class="mx-auto max-w-2xl text-base text-sub">
+          TypeUZ xavfsizlik siyosati — zaifliklarni qanday hisobot qilish va xavfsizlik masalalari.
+        </p>
+        <p class="mx-auto max-w-3xl text-sm leading-relaxed text-sub/70">
+          Platformamiz xavfsizligini ta'minlash — ustuvor vazifamiz. Agar xavfsizlik zaifligi topgan bo'lsangiz, quyidagi yo'llar bilan bizga xabar berishingiz mumkin.
+        </p>
+      </header>
 
       <For each={sections}>
         {(section) => (
-          <AnimatedSection>
-            <section class="rounded-2xl border border-sub/10 bg-bg/50 backdrop-blur-sm p-8">
-              <div class="flex items-center gap-3">
-                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-main/10 text-lg text-main">
-                  <Fa icon={section.icon as never} />
-                </div>
-                <h2 class="text-2xl font-bold text-text">{section.title}</h2>
-              </div>
-              <div class="mt-6">{section.content}</div>
-            </section>
-          </AnimatedSection>
+          <SectionWrapper>
+            <h2 class="flex items-center gap-3 text-2xl font-bold text-text">
+              <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-main/10 text-lg text-main shrink-0">
+                <Fa icon={section.icon as never} />
+              </span>
+              {section.title}
+            </h2>
+            <div>{section.content}</div>
+          </SectionWrapper>
         )}
       </For>
-
-      <AnimatedSection>
-        <section class="rounded-2xl border border-main/10 bg-bg/50 backdrop-blur-sm p-8">
-          <div class="flex items-center gap-3">
-            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-main/10 text-lg text-main">
-              <Fa icon="fa-envelope" />
-            </div>
-            <h2 class="text-2xl font-bold text-text">Biz bilan bog'lanish</h2>
-          </div>
-          <div class="mt-6 space-y-3 text-base text-sub">
-            <p>Savollaringiz bo'lsa, biz bilan bog'laning:</p>
-            <p>Email: <a href="mailto:contact@typeuz.uz" class="text-main underline hover:no-underline">contact@typeuz.uz</a></p>
-            <p>Telegram: <a href="https://t.me/typeuz" class="text-main underline hover:no-underline">@typeuz</a></p>
-            <p>IT o'quv markazi<br />O'zbekiston Respublikasi</p>
-          </div>
-        </section>
-      </AnimatedSection>
     </div>
   );
 }

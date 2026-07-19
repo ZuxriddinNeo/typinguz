@@ -1,4 +1,4 @@
-import { getChallenges } from "@monkeytype/challenges";
+import { getChallenges } from "@typeuz/challenges";
 import * as ChallengeController from "../../controllers/challenge-controller";
 import { navigate } from "../../controllers/route-controller";
 import * as TestLogic from "../../test/test-logic";

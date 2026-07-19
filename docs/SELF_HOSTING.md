@@ -1,4 +1,4 @@
-# Monkeytype Self Hosting
+# TypeUZ Self Hosting
 
 <!-- TOC ignore:true -->
 
@@ -6,7 +6,7 @@
 
 <!-- TOC -->
 
-- [Monkeytype Self Hosting](#monkeytype-self-hosting)
+- [TypeUZ Self Hosting](#typeuz-self-hosting)
   - [Table of contents](#table-of-contents)
   - [Prerequisites](#prerequisites)
   - [Quickstart](#quickstart)
@@ -30,16 +30,16 @@
 
 ## Quickstart
 
-- create a new directory (e.g. `monkeytype`) and navigate into it.
-- download the [docker-compose.yml](https://github.com/monkeytypegame/monkeytype/tree/master/docker/docker-compose.yml) file.
-- create an `.env` file, you can copy the content from the [example.env](https://github.com/monkeytypegame/monkeytype/tree/master/docker/example.env).
-- download the [backend-configuration.json](https://github.com/monkeytypegame/monkeytype/tree/master/docker/backend-configuration.json)
+- create a new directory (e.g. `typeuz`) and navigate into it.
+- download the [docker-compose.yml](https://github.com/typeuz/typeuz/tree/master/docker/docker-compose.yml) file.
+- create an `.env` file, you can copy the content from the [example.env](https://github.com/typeuz/typeuz/tree/master/docker/example.env).
+- download the [backend-configuration.json](https://github.com/typeuz/typeuz/tree/master/docker/backend-configuration.json)
 - run `docker compose up -d`
 - after the command exits successfully you can access [http://localhost:8080](http://localhost:8080)
 
 ### Hosting over the network (HTTPS)
 
-If you plan to access your self-hosted Monkeytype instance over a local network or the internet (not using `localhost`), **you must serve it over HTTPS**. Modern browsers restrict key web features, such as `crypto.randomUUID`, to secure contexts. Accessing the site via HTTP over a network will cause the frontend to crash with errors like `Uncaught TypeError: crypto.randomUUID is not a function`.
+If you plan to access your self-hosted TypeUZ instance over a local network or the internet (not using `localhost`), **you must serve it over HTTPS**. Modern browsers restrict key web features, such as `crypto.randomUUID`, to secure contexts. Accessing the site via HTTP over a network will cause the frontend to crash with errors like `Uncaught TypeError: crypto.randomUUID is not a function`.
 
 To solve this, you need to place a reverse proxy (like Nginx, Caddy, or Traefik) in front of your containers to handle HTTPS/TLS termination.
 
@@ -49,9 +49,9 @@ If your reverse proxy is up but you see errors like `Looks like the server is ex
 
 Ensure you configure the frontend to talk to your secure backend URL by following these rules in your `.env` file:
 
-1. **Update the frontend and backend URL:** Set `MONKEYTYPE_FRONTENDURL` and `MONKEYTYPE_BACKENDURL` to your full HTTPS backend domain.
+1. **Update the frontend and backend URL:** Set `TYPEUZ_FRONTENDURL` and `TYPEUZ_BACKENDURL` to your full HTTPS backend domain.
 2. **Do not include a trailing slash:** Ensure the URL does not end with a `/` (e.g., use `https://api.yourdomain.com`, **not** `https://api.yourdomain.com/`). A trailing slash will cause `404 Not Found` errors due to double slashes in the API calls (like `//configuration`).
-3. **Force container recreation:** Monkeytype is a Single Page Application (SPA), meaning environment variables are baked into the static JavaScript files during startup. If you change your `.env`, you must completely recreate the container for the changes to apply:
+3. **Force container recreation:** TypeUZ is a Single Page Application (SPA), meaning environment variables are baked into the static JavaScript files during startup. If you change your `.env`, you must completely recreate the container for the changes to apply:
 
 ```bash
 docker compose up -d --force-recreate
@@ -70,7 +70,7 @@ Stop the running docker containers using `docker compose down` before making any
 
 - create a [Firebase](https://firebase.google.com/) account
 - create a [new Firebase project](https://console.firebase.google.com/u/0/).
-  - name "monkeytype"
+  - name "typeuz"
   - uncheck "enable google analytics"
 - enable authentication
   - open the [firebase console](https://console.firebase.google.com/) and open your project
@@ -79,13 +79,13 @@ Stop the running docker containers using `docker compose down` before making any
 - whitelist your domain
   - In the Firebase console, go to `Authentication > Sign-in method`
   - Scroll to `Authorized domains`
-  - Click `Add domain` and enter the domain where you’ll host the Monkeytype frontend (e.g. `localhost`)
+  - Click `Add domain` and enter the domain where you’ll host the TypeUZ frontend (e.g. `localhost`)
 - generate service account
   - go to your project settings by clicking the `⚙` icon in the sidebar, then `Project settings`
   - navigate to the `Service accounts` tab
   - click `Generate new private key` to download the `.json` file.
   - save it as `serviceAccountKey.json`
-  - update `docker-compose.yml` and uncomment the volume block in the `monkeytype-backend` container to mount the Firebase service account:
+  - update `docker-compose.yml` and uncomment the volume block in the `typeuz-backend` container to mount the Firebase service account:
     ```yaml
     #uncomment to enable the account system, check the SELF_HOSTING.md file
     - type: bind
@@ -98,7 +98,7 @@ Stop the running docker containers using `docker compose down` before making any
   - open the [firebase console](https://console.firebase.google.com/) and open your project
   - open the project settings by clicking the `⚙` icon on the sidebar and `Project settings`
   - if your project has no apps yet, create a new Web app (`</>` icon)
-    - nickname `monkeytype`
+    - nickname `typeuz`
     - uncheck `set up firebase hosting`
     - click `Register app`
   - select your app and select `Config` for `SDK setup and configuration`
@@ -106,9 +106,9 @@ Stop the running docker containers using `docker compose down` before making any
     ```
     const firebaseConfig = {
     apiKey: "AAAAAAAA",
-    authDomain: "monkeytype-00000.firebaseapp.com",
-    projectId: "monkeytype-00000",
-    storageBucket: "monkeytype-00000.appspot.com",
+    authDomain: "typeuz-00000.firebaseapp.com",
+    projectId: "typeuz-00000",
+    storageBucket: "typeuz-00000.appspot.com",
     messagingSenderId: "90000000000",
     appId: "1:90000000000:web:000000000000"
     };
@@ -116,9 +116,9 @@ Stop the running docker containers using `docker compose down` before making any
   - update the `.env` file with the values above:
     ```
     FIREBASE_APIKEY=AAAAAAAA
-    FIREBASE_AUTHDOMAIN=monkeytype-00000.firebaseapp.com
-    FIREBASE_PROJECTID=monkeytype-00000
-    FIREBASE_STORAGEBUCKET=monkeytype-00000.appspot.com
+    FIREBASE_AUTHDOMAIN=typeuz-00000.firebaseapp.com
+    FIREBASE_PROJECTID=typeuz-00000
+    FIREBASE_STORAGEBUCKET=typeuz-00000.appspot.com
     FIREBASE_MESSAGINGSENDERID=90000000000
     FIREBASE_APPID=1:90000000000:web:000000000000
     ```
@@ -140,7 +140,7 @@ Stop the running docker containers using `docker compose down` before making any
 ### Setup Recaptcha
 
 - [create](https://www.google.com/recaptcha/admin/create) a new recaptcha token
-  - label: `monkeytype`
+  - label: `typeuz`
   - type: v2
   - domain: the domain of the frontend
 - update the `.env` file with the site key from the previous step
@@ -204,7 +204,7 @@ To enable daily leaderboards update the `backend-configuration.json` file and ad
 
 ### env file
 
-All settings are described in the [example.env](https://github.com/monkeytypegame/monkeytype/tree/master/docker/example.env) file.
+All settings are described in the [example.env](https://github.com/typeuz/typeuz/tree/master/docker/example.env) file.
 
 ### serviceAccountKey.json
 
@@ -212,7 +212,7 @@ Contains your firebase config, only needed if you want to allow users to signup.
 
 ### backend-configuration.json
 
-Configuration of the backend. Check the [default configuration](https://github.com/monkeytypegame/monkeytype/blob/master/backend/src/constants/base-configuration.ts#L8) for possible values.
+Configuration of the backend. Check the [default configuration](https://github.com/typeuz/typeuz/blob/master/backend/src/constants/base-configuration.ts#L8) for possible values.
 
 > [!NOTE]
 > Configuration changes are applied only on container startup. You must restart the container for your updates to take effect.

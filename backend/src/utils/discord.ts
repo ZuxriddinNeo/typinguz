@@ -1,9 +1,9 @@
-import { isDevEnvironment } from "./misc";
+import { getFrontendUrl } from "./misc";
 import * as RedisClient from "../init/redis";
 import { randomBytes } from "crypto";
-import MonkeyError from "./error";
+import TypeUZError from "./error";
 import { z } from "zod";
-import { parseWithSchema as parseJsonWithSchema } from "@monkeytype/util/json";
+import { parseWithSchema as parseJsonWithSchema } from "@typeuz/util/json";
 
 const BASE_URL = "https://discord.com/api";
 
@@ -37,18 +37,15 @@ export async function getDiscordUser(
 export async function getOauthLink(uid: string): Promise<string> {
   const connection = RedisClient.getConnection();
   if (!connection) {
-    throw new MonkeyError(500, "Redis connection not found");
+    throw new TypeUZError(500, "Redis connection not found");
   }
   const token = randomBytes(10).toString("hex");
 
   //add the token uid pair to reids
   await connection.setex(`discordoauth:${uid}`, 60, token);
 
-  return `${BASE_URL}/oauth2/authorize?client_id=798272335035498557&redirect_uri=${
-    isDevEnvironment()
-      ? `http%3A%2F%2Flocalhost%3A3000%2Fverify`
-      : `https%3A%2F%2Ftypeuz.uz%2Fverify`
-  }&response_type=token&scope=identify&state=${token}`;
+  const redirectUri = encodeURIComponent(`${getFrontendUrl()}/verify`);
+  return `${BASE_URL}/oauth2/authorize?client_id=798272335035498557&redirect_uri=${redirectUri}&response_type=token&scope=identify&state=${token}`;
 }
 
 export async function iStateValidForUser(
@@ -57,7 +54,7 @@ export async function iStateValidForUser(
 ): Promise<boolean> {
   const connection = RedisClient.getConnection();
   if (!connection) {
-    throw new MonkeyError(500, "Redis connection not found");
+    throw new TypeUZError(500, "Redis connection not found");
   }
   const redisToken = await connection.getdel(`discordoauth:${uid}`);
 

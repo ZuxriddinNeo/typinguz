@@ -4,15 +4,15 @@ import {
   ConnectionSchema,
   ConnectionStatusSchema,
   ConnectionTypeSchema,
-} from "@monkeytype/schemas/connections";
+} from "@typeuz/schemas/connections";
 import { z } from "zod";
 import {
   CommonResponses,
   meta,
-  MonkeyResponseSchema,
+  TypeUZResponseSchema,
   responseWithData,
 } from "./util/api";
-import { IdSchema } from "@monkeytype/schemas/util";
+import { IdSchema } from "@typeuz/schemas/util";
 
 const c = initContract();
 
@@ -83,8 +83,8 @@ export const connectionsContract = c.router(
       body: CreateConnectionRequestSchema.strict(),
       responses: {
         200: CreateConnectionResponseSchema,
-        404: MonkeyResponseSchema.describe("ReceiverUid unknown"),
-        409: MonkeyResponseSchema.describe(
+        404: TypeUZResponseSchema.describe("ReceiverUid unknown"),
+        409: TypeUZResponseSchema.describe(
           "Duplicate connection, blocked or max connections reached",
         ),
       },
@@ -100,7 +100,7 @@ export const connectionsContract = c.router(
       pathParams: IdPathParamsSchema.strict(),
       body: c.noBody(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         rateLimit: "connectionDelete",
@@ -114,7 +114,7 @@ export const connectionsContract = c.router(
       pathParams: IdPathParamsSchema.strict(),
       body: UpdateConnectionRequestSchema.strict(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         rateLimit: "connectionUpdate",

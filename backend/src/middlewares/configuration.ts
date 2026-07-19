@@ -1,12 +1,12 @@
 import type { Response, NextFunction } from "express";
 import { TsRestRequestHandler } from "@ts-rest/express";
-import { EndpointMetadata } from "@monkeytype/contracts/util/api";
-import MonkeyError from "../utils/error";
-import { Configuration } from "@monkeytype/schemas/configuration";
+import { EndpointMetadata } from "@typeuz/contracts/util/api";
+import TypeUZError from "../utils/error";
+import { Configuration } from "@typeuz/schemas/configuration";
 import {
   ConfigurationPath,
   RequireConfiguration,
-} from "@monkeytype/contracts/require-configuration/index";
+} from "@typeuz/contracts/require-configuration/index";
 import { getMetadata } from "./utility";
 import { TsRestRequestWithContext } from "../api/types";
 import { AppRoute, AppRouter } from "@ts-rest/core";
@@ -32,7 +32,7 @@ export function verifyRequiredConfiguration<
           requireConfiguration.path,
         );
         if (!value) {
-          throw new MonkeyError(
+          throw new TypeUZError(
             503,
             requireConfiguration.invalidMessage ??
               "This endpoint is currently unavailable.",
@@ -57,19 +57,19 @@ function getValue(
 
   for (const key of keys) {
     if (result === undefined || result === null) {
-      throw new MonkeyError(500, `Invalid configuration path: "${path}"`);
+      throw new TypeUZError(500, `Invalid configuration path: "${path}"`);
     }
     result = result[key];
   }
 
   if (result === undefined || result === null) {
-    throw new MonkeyError(
+    throw new TypeUZError(
       500,
       `Required configuration doesnt exist: "${path}"`,
     );
   }
   if (typeof result !== "boolean") {
-    throw new MonkeyError(
+    throw new TypeUZError(
       500,
       `Required configuration is not a boolean: "${path}"`,
     );

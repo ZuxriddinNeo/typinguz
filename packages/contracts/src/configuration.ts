@@ -1,11 +1,11 @@
 import { initContract } from "@ts-rest/core";
 import { z } from "zod";
 
-import { ConfigurationSchema } from "@monkeytype/schemas/configuration";
+import { ConfigurationSchema } from "@typeuz/schemas/configuration";
 import {
   CommonResponses,
   meta,
-  MonkeyResponseSchema,
+  TypeUZResponseSchema,
   responseWithData,
 } from "./util/api";
 
@@ -61,7 +61,7 @@ export const configurationContract = c.router(
       path: "",
       body: PatchConfigurationRequestSchema,
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         authenticationOptions: {

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/solid-query";
-import { For, JSXElement, Show } from "solid-js";
-import type { Language } from "@monkeytype/schemas/languages";
+import { For, JSXElement, Show, createSignal } from "solid-js";
+import type { Language } from "@typeuz/schemas/languages";
 
 import {
   getLeaderboardQueryOptions,
@@ -14,7 +14,6 @@ import {
   setPage,
   setSelection,
 } from "../../../states/leaderboard-selection";
-import type { ContentType } from "../../../states/content-type";
 import { cn } from "../../../utils/cn";
 import AsyncContent from "../../common/AsyncContent";
 import { Page } from "../../common/Page";
@@ -29,26 +28,47 @@ const languageOptions: { value: Language; label: string }[] = [
   { value: "russian", label: "Русский" },
 ];
 
-const contentTypeOptions: { value: ContentType | ""; label: string }[] = [
+const contentTypeOptions: { value: "" | "words" | "mixed"; label: string }[] = [
   { value: "", label: "Barcha" },
   { value: "words", label: "So'zlar" },
-  { value: "numbers", label: "Raqamlar" },
   { value: "mixed", label: "Aralash" },
 ];
 
+type LbType = "allTime" | "weekly";
+
+const LbTABS: { id: LbType; label: string; icon: string }[] = [
+  { id: "allTime", label: "Tezlik", icon: "fa-tachometer-alt" },
+  { id: "weekly", label: "Tajriba (XP)", icon: "fa-star" },
+];
+
 export function LeaderboardPage(): JSXElement {
+  const [lbType, setLbType] = createSignal<LbType>("allTime");
+
   const isOpen = () => getActivePage() === pageName;
 
   const selection = () => getSelection();
   const page = () => getPage();
 
+  const effectiveSelection = () => {
+    const s = selection();
+    if (lbType() === "weekly") {
+      return { ...s, type: "weekly" as const, mode: undefined, mode2: undefined, language: undefined, numbers: undefined };
+    }
+    return { ...s, type: "allTime" as const, mode: (s as { mode?: string }).mode ?? "time", mode2: (s as { mode2?: string }).mode2 ?? "15", language: (s as { language?: Language }).language ?? "english" };
+  };
+
+  const sel = () => effectiveSelection();
+
   const lbQuery = useQuery(() => ({
-    ...getLeaderboardQueryOptions({ ...selection(), page: page() }),
+    ...getLeaderboardQueryOptions({
+      ...effectiveSelection(),
+      page: page(),
+    } as never),
     enabled: isOpen(),
   }));
 
   const rankQuery = useQuery(() => ({
-    ...getRankQueryOptions(selection()),
+    ...getRankQueryOptions(effectiveSelection() as never),
     enabled: isOpen() && isAuthenticated(),
   }));
 
@@ -58,15 +78,34 @@ export function LeaderboardPage(): JSXElement {
     setPage(next);
   };
 
-  const sel = () => selection();
-
   return (
     <Page id={pageName}>
       <div class="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8">
         <div class="flex flex-col gap-4">
           <h1 class="text-2xl font-bold text-text">Reyting</h1>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <For each={LbTABS}>
+              {(tab) => (
+                <button
+                  type="button"
+                  onClick={() => setLbType(tab.id)}
+                  class={cn(
+                    "flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-colors",
+                    lbType() === tab.id
+                      ? "bg-main text-bg"
+                      : "bg-sub-alt text-text hover:bg-sub",
+                  )}
+                >
+                  <i class={cn("fas", tab.icon)}></i>
+                  {tab.label}
+                </button>
+              )}
+            </For>
+          </div>
+
           <div class="flex flex-wrap items-center gap-3">
-            <Show when={sel().type !== "weekly"}>
+            <Show when={lbType() !== "weekly"}>
               <SelectField
                 value={sel().mode2}
                 onChange={(v) => setSelection({ ...sel(), mode2: v } as never)}
@@ -84,44 +123,38 @@ export function LeaderboardPage(): JSXElement {
                 class="bg-sub-alt px-3 py-1.5"
               />
 
-              <div class="flex items-center gap-1 rounded-xl bg-sub-alt px-2 py-1.5 text-sm">
+              <div class="flex items-center gap-1 rounded-xl border border-sub-alt bg-sub-alt px-3 py-1.5">
                 <For each={contentTypeOptions}>
-                  {(ct) => (
-                    <button
-                      type="button"
-                      class={cn(
-                        "rounded-lg px-2 py-0.5 text-xs transition-colors",
-                        ct.value === ""
-                          ? sel().numbers === undefined
+                  {(ct) => {
+                    const active =
+                      ct.value === ""
+                        ? sel().numbers === undefined
+                        : ct.value === "words"
+                          ? sel().numbers === false
+                          : sel().numbers === true;
+                    return (
+                      <button
+                        type="button"
+                        class={cn(
+                          "rounded-lg px-2 py-0.5 text-sm transition-colors",
+                          active
                             ? "bg-main text-bg"
-                            : "text-sub hover:text-text"
-                          : ct.value === "words"
-                            ? sel().numbers === false
-                              ? "bg-main text-bg"
-                              : "text-sub hover:text-text"
-                            : ct.value === "mixed"
-                              ? sel().numbers === true
-                                ? "bg-main text-bg"
-                                : "text-sub hover:text-text"
-                              : ct.value === "numbers"
-                                ? sel().numbers === true
-                                  ? "bg-main text-bg"
-                                  : "text-sub hover:text-text"
-                                : "text-sub",
-                      )}
-                      onClick={() => {
-                        if (ct.value === "") {
-                          setSelection({ ...sel(), numbers: undefined } as never);
-                        } else if (ct.value === "words") {
-                          setSelection({ ...sel(), numbers: false } as never);
-                        } else {
-                          setSelection({ ...sel(), numbers: true } as never);
-                        }
-                      }}
-                    >
-                      {ct.label}
-                    </button>
-                  )}
+                            : "text-sub hover:text-text",
+                        )}
+                        onClick={() => {
+                          if (ct.value === "") {
+                            setSelection({ ...sel(), numbers: undefined } as never);
+                          } else if (ct.value === "words") {
+                            setSelection({ ...sel(), numbers: false } as never);
+                          } else {
+                            setSelection({ ...sel(), numbers: true } as never);
+                          }
+                        }}
+                      >
+                        {ct.label}
+                      </button>
+                    );
+                  }}
                 </For>
               </div>
             </Show>
@@ -153,34 +186,30 @@ export function LeaderboardPage(): JSXElement {
               <div class="flex flex-col gap-2">
                 <For each={entries()}>
                   {(entry, i) => {
-                    const e = entry as { name: string; firstName?: string; lastName?: string; wpm?: number; totalXp?: number };
-                    const isLb = "wpm" in entry;
-                    const fn = e.firstName;
-                    const ln = e.lastName;
-                    const showName = Boolean(fn ?? ln);
-                    const nameDisplay = fn !== undefined && ln !== undefined
-                      ? `${fn} ${ln}`
-                      : (fn ?? ln ?? "");
+                    const e = entry as { name: string; firstName?: string; lastName?: string; wpm?: number; totalXp?: number; acc?: number };
+                    const idx = () => page() * 50 + i();
                     return (
                       <div
                         class={cn(
                           "flex items-center gap-4 rounded-2xl px-5 py-3 transition-colors",
-                          page() * 50 + i() <= 2
+                          idx() <= 2
                             ? "bg-sub-alt"
                             : "bg-sub-alt/50 hover:bg-sub-alt",
                         )}
                       >
                         <span class="w-8 text-center text-lg font-bold text-sub">
-                          {["🥇", "🥈", "🥉"][page() * 50 + i()] ?? `#${page() * 50 + i() + 1}`}
+                          {idx() === 0 ? "🥇" : idx() === 1 ? "🥈" : idx() === 2 ? "🥉" : `#${idx() + 1}`}
                         </span>
                         <span class="flex flex-1 flex-col">
                           <span class="font-medium text-text">{e.name}</span>
-                          <Show when={showName}>
-                            <span class="text-xs text-sub/60">{nameDisplay}</span>
+                          <Show when={e.acc}>
+                            <span class="text-xs text-sub/60">{e.acc}% aniqlik</span>
                           </Show>
                         </span>
-                        <span class="text-sm text-sub">
-                          {isLb ? `${e.wpm} WPM` : `${e.totalXp} XP`}
+                        <span class="text-sm font-medium text-text">
+                          {"totalXp" in entry
+                            ? `${(entry as { totalXp: number }).totalXp} XP`
+                            : `${(entry as { wpm: number }).wpm} WPM`}
                         </span>
                       </div>
                     );

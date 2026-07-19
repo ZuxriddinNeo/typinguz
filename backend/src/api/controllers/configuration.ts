@@ -1,39 +1,39 @@
 import * as Configuration from "../../init/configuration";
-import { MonkeyResponse } from "../../utils/monkey-response";
+import { TypeUZResponse } from "../../utils/typeuz-response";
 import { CONFIGURATION_FORM_SCHEMA } from "../../constants/base-configuration";
 import {
   ConfigurationSchemaResponse,
   GetConfigurationResponse,
   PatchConfigurationRequest,
-} from "@monkeytype/contracts/configuration";
-import MonkeyError from "../../utils/error";
-import { MonkeyRequest } from "../types";
+} from "@typeuz/contracts/configuration";
+import TypeUZError from "../../utils/error";
+import { TypeUZRequest } from "../types";
 
 export async function getConfiguration(
-  _req: MonkeyRequest,
+  _req: TypeUZRequest,
 ): Promise<GetConfigurationResponse> {
   const currentConfiguration = await Configuration.getCachedConfiguration(true);
-  return new MonkeyResponse("Configuration retrieved", currentConfiguration);
+  return new TypeUZResponse("Configuration retrieved", currentConfiguration);
 }
 
 export async function getSchema(
-  _req: MonkeyRequest,
+  _req: TypeUZRequest,
 ): Promise<ConfigurationSchemaResponse> {
-  return new MonkeyResponse(
+  return new TypeUZResponse(
     "Configuration schema retrieved",
     CONFIGURATION_FORM_SCHEMA,
   );
 }
 
 export async function updateConfiguration(
-  req: MonkeyRequest<undefined, PatchConfigurationRequest>,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest<undefined, PatchConfigurationRequest>,
+): Promise<TypeUZResponse> {
   const { configuration } = req.body;
   const success = await Configuration.patchConfiguration(configuration);
 
   if (!success) {
-    throw new MonkeyError(500, "Configuration update failed");
+    throw new TypeUZError(500, "Configuration update failed");
   }
 
-  return new MonkeyResponse("Configuration updated", null);
+  return new TypeUZResponse("Configuration updated", null);
 }

@@ -1,9 +1,9 @@
-import { GetPsaResponse } from "@monkeytype/contracts/psas";
+import { GetPsaResponse } from "@typeuz/contracts/psas";
 import * as PsaDAL from "../../dal/psa";
-import { MonkeyResponse } from "../../utils/monkey-response";
+import { TypeUZResponse } from "../../utils/typeuz-response";
 import { replaceObjectIds } from "../../utils/misc";
-import { MonkeyRequest } from "../types";
-import { PSA } from "@monkeytype/schemas/psas";
+import { TypeUZRequest } from "../types";
+import { PSA } from "@typeuz/schemas/psas";
 import { cacheWithTTL } from "../../utils/ttl-cache";
 
 //cache for one minute
@@ -11,6 +11,6 @@ const cache = cacheWithTTL<PSA[]>(1 * 60 * 1000, async () => {
   return replaceObjectIds(await PsaDAL.get());
 });
 
-export async function getPsas(_req: MonkeyRequest): Promise<GetPsaResponse> {
-  return new MonkeyResponse("PSAs retrieved", (await cache()) ?? []);
+export async function getPsas(_req: TypeUZRequest): Promise<GetPsaResponse> {
+  return new TypeUZResponse("PSAs retrieved", (await cache()) ?? []);
 }

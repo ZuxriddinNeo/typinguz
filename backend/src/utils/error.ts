@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { isDevEnvironment } from "./misc";
-import { MonkeyServerErrorType } from "@monkeytype/contracts/util/api";
+import { TypeUZServerErrorType } from "@typeuz/contracts/util/api";
 import { FirebaseError } from "firebase-admin";
 
 type FirebaseErrorParent = {
@@ -47,7 +47,7 @@ export function getErrorMessage(error: unknown): string | undefined {
   return message;
 }
 
-class MonkeyError extends Error implements MonkeyServerErrorType {
+class TypeUZError extends Error implements TypeUZServerErrorType {
   status: number;
   errorId: string;
   uid?: string;
@@ -75,4 +75,4 @@ class MonkeyError extends Error implements MonkeyServerErrorType {
   }
 }
 
-export default MonkeyError;
+export default TypeUZError;

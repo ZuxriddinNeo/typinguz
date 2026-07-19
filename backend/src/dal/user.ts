@@ -1,6 +1,6 @@
 import { canFunboxGetPb, checkAndUpdatePb, LbPersonalBests } from "../utils/pb";
 import * as db from "../init/db";
-import MonkeyError from "../utils/error";
+import TypeUZError from "../utils/error";
 import {
   Collection,
   ObjectId,
@@ -27,17 +27,17 @@ import {
   User,
   CountByYearAndDay,
   Friend,
-} from "@monkeytype/schemas/users";
+} from "@typeuz/schemas/users";
 import {
   Mode,
   Mode2,
   PersonalBest,
   PersonalBests,
-} from "@monkeytype/schemas/shared";
+} from "@typeuz/schemas/shared";
 import { addImportantLog } from "./logs";
-import { Result as ResultType } from "@monkeytype/schemas/results";
-import { Configuration } from "@monkeytype/schemas/configuration";
-import { isToday, isYesterday } from "@monkeytype/util/date-and-time";
+import { Result as ResultType } from "@typeuz/schemas/results";
+import { Configuration } from "@typeuz/schemas/configuration";
+import { isToday, isYesterday } from "@typeuz/util/date-and-time";
 import GeorgeQueue from "../queues/george-queue";
 import { aggregateWithAcceptedConnections } from "./connections";
 
@@ -119,7 +119,7 @@ export async function addUser(
   );
 
   if (result.upsertedCount === 0) {
-    throw new MonkeyError(409, "User document already exists", "addUser");
+    throw new TypeUZError(409, "User document already exists", "addUser");
   }
 }
 
@@ -179,14 +179,14 @@ export async function updateName(
   previousName: string,
 ): Promise<void> {
   if (name === previousName) {
-    throw new MonkeyError(400, "New name is the same as the old name");
+    throw new TypeUZError(400, "New name is the same as the old name");
   }
 
   if (
     name?.toLowerCase() !== previousName?.toLowerCase() &&
     !(await isNameAvailable(name, uid))
   ) {
-    throw new MonkeyError(409, "Username already taken", name);
+    throw new TypeUZError(409, "Username already taken", name);
   }
 
   await getUsersCollection().updateOne(
@@ -263,7 +263,7 @@ export async function updateEmail(
 
 export async function getUser(uid: string, stack: string): Promise<DBUser> {
   const user = await getUsersCollection().findOne({ uid });
-  if (!user) throw new MonkeyError(404, "User not found", stack);
+  if (!user) throw new TypeUZError(404, "User not found", stack);
   return migrateUser(user);
 }
 
@@ -273,7 +273,7 @@ export async function getUser(uid: string, stack: string): Promise<DBUser> {
  * @param stack stack description used in the error
  * @param fields list of fields
  * @returns partial DBUser only containing requested fields
- * @throws MonkeyError if user does not exist
+ * @throws TypeUZError if user does not exist
  */
 export async function getPartialUser<K extends keyof DBUser>(
   uid: string,
@@ -285,7 +285,7 @@ export async function getPartialUser<K extends keyof DBUser>(
     { uid },
     { projection },
   );
-  if (partialUser === null) throw new MonkeyError(404, "User not found", stack);
+  if (partialUser === null) throw new TypeUZError(404, "User not found", stack);
 
   if (fields.includes("personalBests" as K)) {
     return migrateUser(partialUser);
@@ -326,7 +326,7 @@ export async function getUserByName(
   stack: string,
 ): Promise<DBUser> {
   const user = await findByName(name);
-  if (!user) throw new MonkeyError(404, "User not found", stack);
+  if (!user) throw new TypeUZError(404, "User not found", stack);
   return migrateUser(user);
 }
 
@@ -346,7 +346,7 @@ export async function addResultFilterPreset(
   maxFiltersPerUser: number,
 ): Promise<ObjectId> {
   if (maxFiltersPerUser === 0) {
-    throw new MonkeyError(
+    throw new TypeUZError(
       409,
       "Maximum number of custom filters reached",
       "add result filter preset",
@@ -1149,7 +1149,7 @@ export async function updateInbox(
   ]);
 
   if (update.matchedCount !== 1) {
-    throw new MonkeyError(404, "User not found", "update inbox");
+    throw new TypeUZError(404, "User not found", "update inbox");
   }
 }
 
@@ -1265,7 +1265,7 @@ export async function logIpAddress(
  * @param filter user filter
  * @param update update document
  * @param error stack description used in the error or statusCode and message of the error
- * @throws MonkeyError if user does not exist
+ * @throws TypeUZError if user does not exist
  */
 async function updateUser(
   filter: Filter<DBUser>,
@@ -1275,7 +1275,7 @@ async function updateUser(
   const result = await getUsersCollection().updateOne(filter, update);
 
   if (result.matchedCount !== 1) {
-    throw new MonkeyError(
+    throw new TypeUZError(
       error.statusCode ?? 404,
       error.message ?? "User not found",
       error.stack,

@@ -11,7 +11,7 @@ import { getStoredToken } from "../../utils/custom-auth";
 import {
   COMPATIBILITY_CHECK,
   COMPATIBILITY_CHECK_HEADER,
-} from "@monkeytype/contracts";
+} from "@typeuz/contracts";
 import { addBanner } from "../../states/banners";
 
 let bannerShownThisSession = false;

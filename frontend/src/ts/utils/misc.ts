@@ -1,9 +1,9 @@
 import { lastElementFromArray } from "./arrays";
-import { Config } from "@monkeytype/schemas/configs";
-import { Mode, Mode2, PersonalBests } from "@monkeytype/schemas/shared";
-import { Result } from "@monkeytype/schemas/results";
-import { RankAndCount } from "@monkeytype/schemas/users";
-import { roundTo2 } from "@monkeytype/util/numbers";
+import { Config } from "@typeuz/schemas/configs";
+import { Mode, Mode2, PersonalBests } from "@typeuz/schemas/shared";
+import { Result } from "@typeuz/schemas/results";
+import { RankAndCount } from "@typeuz/schemas/users";
+import { roundTo2 } from "@typeuz/util/numbers";
 import { animate, AnimationParams } from "animejs";
 import { ElementWithUtils } from "./dom";
 

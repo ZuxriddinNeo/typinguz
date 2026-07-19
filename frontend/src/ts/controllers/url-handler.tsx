@@ -1,4 +1,4 @@
-import { getChallenges } from "@monkeytype/challenges";
+import { getChallenges } from "@typeuz/challenges";
 import {
   CustomBackgroundFilter,
   CustomBackgroundFilterSchema,
@@ -8,16 +8,16 @@ import {
   CustomThemeColorsSchema,
   FunboxName,
   FunboxSchema,
-} from "@monkeytype/schemas/configs";
-import { Language } from "@monkeytype/schemas/languages";
-import { CustomTextSettingsSchema } from "@monkeytype/schemas/results";
+} from "@typeuz/schemas/configs";
+import { Language } from "@typeuz/schemas/languages";
+import { CustomTextSettingsSchema } from "@typeuz/schemas/results";
 import {
   DifficultySchema,
   Mode2Schema,
   ModeSchema,
-} from "@monkeytype/schemas/shared";
-import { parseWithSchema as parseJsonWithSchema } from "@monkeytype/util/json";
-import { tryCatchSync } from "@monkeytype/util/trycatch";
+} from "@typeuz/schemas/shared";
+import { parseWithSchema as parseJsonWithSchema } from "@typeuz/util/json";
+import { tryCatchSync } from "@typeuz/util/trycatch";
 import { decompressFromURI } from "lz-ts";
 import { z } from "zod";
 

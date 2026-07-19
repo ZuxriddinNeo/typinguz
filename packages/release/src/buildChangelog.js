@@ -88,11 +88,11 @@ const titles = {
 
 function getPrLink(pr) {
   const prNum = pr.replace("#", "");
-  return `[#${prNum}](https://github.com/monkeytypegame/monkeytype/pull/${prNum})`;
+  return `[#${prNum}](https://github.com/typeuz/typeuz/pull/${prNum})`;
 }
 
 function getCommitLink(hash, longHash) {
-  return `[${hash}](https://github.com/monkeytypegame/monkeytype/commit/${longHash})`;
+  return `[${hash}](https://github.com/typeuz/typeuz/commit/${longHash})`;
 }
 
 function buildItems(items, mergeTypeAndScope = false) {
@@ -332,7 +332,7 @@ async function main() {
     const filtered = l.usernames.filter((u) => {
       const lowerCased = u.toLowerCase();
       return (
-        lowerCased !== "monkeytype-bot" &&
+        lowerCased !== "typeuz-bot" &&
         lowerCased !== "dependabot" &&
         lowerCased !== "miodec"
       );

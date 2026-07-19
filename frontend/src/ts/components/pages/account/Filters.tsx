@@ -1,10 +1,10 @@
-import { QuoteLength } from "@monkeytype/schemas/configs";
-import { PresetNameSchema } from "@monkeytype/schemas/presets";
+import { QuoteLength } from "@typeuz/schemas/configs";
+import { PresetNameSchema } from "@typeuz/schemas/presets";
 import {
   ResultFilters,
   ResultFiltersGroupItem,
   ResultFiltersKeys,
-} from "@monkeytype/schemas/users";
+} from "@typeuz/schemas/users";
 import { createMemo, createSignal, For, JSXElement, Show } from "solid-js";
 import { SetStoreFunction, unwrap } from "solid-js/store";
 import { z } from "zod";

@@ -3,9 +3,9 @@ import { getPartialUser, updateQuoteRatings } from "../../dal/user";
 import * as ReportDAL from "../../dal/report";
 import * as NewQuotesDAL from "../../dal/new-quotes";
 import * as QuoteRatingsDAL from "../../dal/quote-ratings";
-import MonkeyError from "../../utils/error";
+import TypeUZError from "../../utils/error";
 import { verify } from "../../utils/captcha";
-import { MonkeyResponse } from "../../utils/monkey-response";
+import { TypeUZResponse } from "../../utils/typeuz-response";
 import { ObjectId } from "mongodb";
 import { addLog } from "../../dal/logs";
 import {
@@ -19,19 +19,19 @@ import {
   IsSubmissionEnabledResponse,
   RejectQuoteRequest,
   ReportQuoteRequest,
-} from "@monkeytype/contracts/quotes";
+} from "@typeuz/contracts/quotes";
 import { replaceObjectId, replaceObjectIds } from "../../utils/misc";
-import { MonkeyRequest } from "../types";
-import { Language } from "@monkeytype/schemas/languages";
+import { TypeUZRequest } from "../types";
+import { Language } from "@typeuz/schemas/languages";
 
 async function verifyCaptcha(captcha: string): Promise<void> {
   if (!(await verify(captcha))) {
-    throw new MonkeyError(422, "Captcha check failed");
+    throw new TypeUZError(422, "Captcha check failed");
   }
 }
 
 export async function getQuotes(
-  req: MonkeyRequest,
+  req: TypeUZRequest,
 ): Promise<GetQuotesResponse> {
   const { uid } = req.ctx.decodedToken;
   const quoteMod = (await getPartialUser(uid, "get quotes", ["quoteMod"]))
@@ -39,36 +39,36 @@ export async function getQuotes(
   const quoteModLanguage = quoteMod === true ? "all" : (quoteMod as Language);
 
   const data = await NewQuotesDAL.get(quoteModLanguage);
-  return new MonkeyResponse(
+  return new TypeUZResponse(
     "Quote submissions retrieved",
     replaceObjectIds(data),
   );
 }
 
 export async function isSubmissionEnabled(
-  req: MonkeyRequest,
+  req: TypeUZRequest,
 ): Promise<IsSubmissionEnabledResponse> {
   const { submissionsEnabled } = req.ctx.configuration.quotes;
-  return new MonkeyResponse(
+  return new TypeUZResponse(
     `Quote submission ${submissionsEnabled ? "enabled" : "disabled"}`,
     { isEnabled: submissionsEnabled },
   );
 }
 
 export async function addQuote(
-  req: MonkeyRequest<undefined, AddQuoteRequest>,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest<undefined, AddQuoteRequest>,
+): Promise<TypeUZResponse> {
   const { uid } = req.ctx.decodedToken;
   const { text, source, language, captcha } = req.body;
 
   await verifyCaptcha(captcha);
 
   await NewQuotesDAL.add(text, source, language, uid);
-  return new MonkeyResponse("Quote submission added", null);
+  return new TypeUZResponse("Quote submission added", null);
 }
 
 export async function approveQuote(
-  req: MonkeyRequest<undefined, ApproveQuoteRequest>,
+  req: TypeUZRequest<undefined, ApproveQuoteRequest>,
 ): Promise<ApproveQuoteResponse> {
   const { uid } = req.ctx.decodedToken;
   const { quoteId, editText, editSource } = req.body;
@@ -76,37 +76,37 @@ export async function approveQuote(
   const { name } = await getPartialUser(uid, "approve quote", ["name"]);
 
   if (!name) {
-    throw new MonkeyError(500, "Missing name field");
+    throw new TypeUZError(500, "Missing name field");
   }
 
   const data = await NewQuotesDAL.approve(quoteId, editText, editSource, name);
   void addLog("system_quote_approved", data, uid);
 
-  return new MonkeyResponse(data.message, data.quote);
+  return new TypeUZResponse(data.message, data.quote);
 }
 
 export async function refuseQuote(
-  req: MonkeyRequest<undefined, RejectQuoteRequest>,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest<undefined, RejectQuoteRequest>,
+): Promise<TypeUZResponse> {
   const { quoteId } = req.body;
 
   await NewQuotesDAL.refuse(quoteId);
-  return new MonkeyResponse("Quote refused", null);
+  return new TypeUZResponse("Quote refused", null);
 }
 
 export async function getRating(
-  req: MonkeyRequest<GetQuoteRatingQuery>,
+  req: TypeUZRequest<GetQuoteRatingQuery>,
 ): Promise<GetQuoteRatingResponse> {
   const { quoteId, language } = req.query;
 
   const data = await QuoteRatingsDAL.get(quoteId, language);
 
-  return new MonkeyResponse("Rating retrieved", replaceObjectId(data));
+  return new TypeUZResponse("Rating retrieved", replaceObjectId(data));
 }
 
 export async function submitRating(
-  req: MonkeyRequest<undefined, AddQuoteRatingRequest>,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest<undefined, AddQuoteRatingRequest>,
+): Promise<TypeUZResponse> {
   const { uid } = req.ctx.decodedToken;
   const { quoteId, rating, language } = req.body;
 
@@ -133,12 +133,12 @@ export async function submitRating(
   const responseMessage = `Rating ${
     shouldUpdateRating ? "updated" : "submitted"
   }`;
-  return new MonkeyResponse(responseMessage, null);
+  return new TypeUZResponse(responseMessage, null);
 }
 
 export async function reportQuote(
-  req: MonkeyRequest<undefined, ReportQuoteRequest>,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest<undefined, ReportQuoteRequest>,
+): Promise<TypeUZResponse> {
   const { uid } = req.ctx.decodedToken;
   const {
     reporting: { maxReports, contentReportLimit },
@@ -161,5 +161,5 @@ export async function reportQuote(
 
   await ReportDAL.createReport(newReport, maxReports, contentReportLimit);
 
-  return new MonkeyResponse("Quote reported", null);
+  return new TypeUZResponse("Quote reported", null);
 }

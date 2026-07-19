@@ -4,7 +4,7 @@ import { z } from "zod";
 import {
   CommonResponses,
   meta,
-  MonkeyResponseSchema,
+  TypeUZResponseSchema,
   responseWithData,
   responseWithNullableData,
 } from "./util/api";
@@ -14,9 +14,9 @@ import {
   QuoteRatingSchema,
   QuoteReportReasonSchema,
   QuoteSchema,
-} from "@monkeytype/schemas/quotes";
-import { IdSchema, NullableStringSchema } from "@monkeytype/schemas/util";
-import { LanguageSchema } from "@monkeytype/schemas/languages";
+} from "@typeuz/schemas/quotes";
+import { IdSchema, NullableStringSchema } from "@typeuz/schemas/util";
+import { LanguageSchema } from "@typeuz/schemas/languages";
 
 export const GetQuotesResponseSchema = responseWithData(z.array(QuoteSchema));
 export type GetQuotesResponse = z.infer<typeof GetQuotesResponseSchema>;
@@ -123,7 +123,7 @@ export const quotesContract = c.router(
       path: "",
       body: AddQuoteRequestSchema.strict(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         rateLimit: "newQuotesAdd",
@@ -155,7 +155,7 @@ export const quotesContract = c.router(
       path: "/reject",
       body: RejectQuoteRequestSchema.strict(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         rateLimit: "newQuotesAction",
@@ -182,7 +182,7 @@ export const quotesContract = c.router(
       path: "/rating",
       body: AddQuoteRatingRequestSchema.strict(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         rateLimit: "quoteRatingsSubmit",
@@ -195,7 +195,7 @@ export const quotesContract = c.router(
       path: "/report",
       body: ReportQuoteRequestSchema.strict(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         rateLimit: "quoteReportSubmit",

@@ -3,15 +3,15 @@ import {
   AddPresetResponse,
   DeletePresetsParams,
   GetPresetResponse,
-} from "@monkeytype/contracts/presets";
+} from "@typeuz/contracts/presets";
 import * as PresetDAL from "../../dal/preset";
-import { MonkeyResponse } from "../../utils/monkey-response";
+import { TypeUZResponse } from "../../utils/typeuz-response";
 import { replaceObjectId } from "../../utils/misc";
-import { EditPresetRequest } from "@monkeytype/schemas/presets";
-import { MonkeyRequest } from "../types";
+import { EditPresetRequest } from "@typeuz/schemas/presets";
+import { TypeUZRequest } from "../types";
 
 export async function getPresets(
-  req: MonkeyRequest,
+  req: TypeUZRequest,
 ): Promise<GetPresetResponse> {
   const { uid } = req.ctx.decodedToken;
 
@@ -22,36 +22,36 @@ export async function getPresets(
     }))
     .map((it) => replaceObjectId(it));
 
-  return new MonkeyResponse("Presets retrieved", data);
+  return new TypeUZResponse("Presets retrieved", data);
 }
 
 export async function addPreset(
-  req: MonkeyRequest<undefined, AddPresetRequest>,
+  req: TypeUZRequest<undefined, AddPresetRequest>,
 ): Promise<AddPresetResponse> {
   const { uid } = req.ctx.decodedToken;
 
   const data = await PresetDAL.addPreset(uid, req.body);
 
-  return new MonkeyResponse("Preset created", data);
+  return new TypeUZResponse("Preset created", data);
 }
 
 export async function editPreset(
-  req: MonkeyRequest<undefined, EditPresetRequest>,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest<undefined, EditPresetRequest>,
+): Promise<TypeUZResponse> {
   const { uid } = req.ctx.decodedToken;
 
   await PresetDAL.editPreset(uid, req.body);
 
-  return new MonkeyResponse("Preset updated", null);
+  return new TypeUZResponse("Preset updated", null);
 }
 
 export async function removePreset(
-  req: MonkeyRequest<undefined, undefined, DeletePresetsParams>,
-): Promise<MonkeyResponse> {
+  req: TypeUZRequest<undefined, undefined, DeletePresetsParams>,
+): Promise<TypeUZResponse> {
   const { presetId } = req.params;
   const { uid } = req.ctx.decodedToken;
 
   await PresetDAL.removePreset(uid, presetId);
 
-  return new MonkeyResponse("Preset deleted", null);
+  return new TypeUZResponse("Preset deleted", null);
 }

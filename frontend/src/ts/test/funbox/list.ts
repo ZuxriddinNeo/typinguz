@@ -2,10 +2,10 @@ import {
   FunboxMetadata,
   getFunboxObject,
   FunboxProperty,
-} from "@monkeytype/funbox";
+} from "@typeuz/funbox";
 
 import { FunboxFunctions, getFunboxFunctions } from "./funbox-functions";
-import { FunboxName } from "@monkeytype/schemas/configs";
+import { FunboxName } from "@typeuz/schemas/configs";
 import {
   getActiveFunboxNames,
   isFunboxActive,

@@ -1,5 +1,5 @@
-import { ApeKeyNameSchema } from "@monkeytype/schemas/ape-keys";
-import { tryCatch } from "@monkeytype/util/trycatch";
+import { ApeKeyNameSchema } from "@typeuz/schemas/ape-keys";
+import { tryCatch } from "@typeuz/util/trycatch";
 import { createColumnHelper } from "@tanstack/solid-table";
 import { format as dateFormat } from "date-fns";
 import { createMemo, Show } from "solid-js";

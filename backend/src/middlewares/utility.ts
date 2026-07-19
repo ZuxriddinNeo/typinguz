@@ -1,9 +1,9 @@
-import { EndpointMetadata } from "@monkeytype/contracts/util/api";
+import { EndpointMetadata } from "@typeuz/contracts/util/api";
 import { AppRoute, AppRouter } from "@ts-rest/core";
 import { TsRestRequestHandler } from "@ts-rest/express";
 import type { NextFunction, Request, RequestHandler, Response } from "express";
 import { TsRestRequestWithContext } from "../api/types";
-import MonkeyError from "../utils/error";
+import TypeUZError from "../utils/error";
 import { isDevEnvironment } from "../utils/misc";
 import { recordClientVersion as prometheusRecordClientVersion } from "../utils/prometheus";
 
@@ -34,7 +34,7 @@ export function onlyAvailableOnDev(): RequestHandler {
   ) => {
     if (!isDevEnvironment()) {
       next(
-        new MonkeyError(
+        new TypeUZError(
           503,
           "Development endpoints are only available in DEV mode.",
         ),

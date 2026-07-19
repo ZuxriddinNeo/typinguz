@@ -2,18 +2,18 @@ import { z } from "zod";
 import {
   CommonResponses,
   meta,
-  MonkeyClientError,
+  TypeUZClientError,
   responseWithData,
   responseWithNullableData,
 } from "./util/api";
 import {
   LeaderboardEntrySchema,
   XpLeaderboardEntrySchema,
-} from "@monkeytype/schemas/leaderboards";
-import { Mode2Schema, ModeSchema } from "@monkeytype/schemas/shared";
+} from "@typeuz/schemas/leaderboards";
+import { Mode2Schema, ModeSchema } from "@typeuz/schemas/shared";
 import { initContract } from "@ts-rest/core";
-import { LanguageSchema } from "@monkeytype/schemas/languages";
-import { PageNumberSchema } from "@monkeytype/schemas/util";
+import { LanguageSchema } from "@typeuz/schemas/languages";
+import { PageNumberSchema } from "@typeuz/schemas/util";
 
 const LanguageAndModeQuerySchema = z.object({
   language: LanguageSchema,
@@ -160,7 +160,7 @@ export const leaderboardsContract = c.router(
       query: GetLeaderboardQuerySchema.strict(),
       responses: {
         200: GetLeaderboardResponseSchema,
-        404: MonkeyClientError,
+        404: TypeUZClientError,
       },
       metadata: meta({
         authenticationOptions: { isPublic: true },

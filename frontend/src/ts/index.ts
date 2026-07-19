@@ -8,6 +8,7 @@ import { onAuthStateChanged } from "./auth";
 import "./test/caps-warning";
 import "./input/listeners";
 import "./controllers/route-controller";
+import "./controllers/theme-controller";
 import "./elements/no-css";
 
 import "./test/tts";
@@ -51,7 +52,9 @@ void fetchLatestVersion().then((data) => {
   setVersion(data);
 });
 
+mountComponents();
 Focus.set(true, true);
+
 const accepted = Cookies.getAcceptedCookies();
 if (accepted === null) {
   showModal("Cookies");
@@ -61,5 +64,3 @@ void init(onAuthStateChanged).then(() => {
     Cookies.activateWhatsAccepted();
   }
 });
-
-mountComponents();

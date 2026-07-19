@@ -6,7 +6,7 @@ import {
   type MongoClientOptions,
   type WithId,
 } from "mongodb";
-import MonkeyError, { getErrorMessage } from "../utils/error";
+import TypeUZError, { getErrorMessage } from "../utils/error";
 import Logger from "../utils/logger";
 import { isDevEnvironment } from "../utils/misc";
 
@@ -107,7 +107,7 @@ export function collection<T>(collectionName: string): Collection<WithId<T>> {
     if (isDevEnvironment()) {
       return createMockCollection<T>();
     }
-    throw new MonkeyError(500, "Database is not initialized.");
+    throw new TypeUZError(500, "Database is not initialized.");
   }
 
   return db.collection<WithId<T>>(collectionName);

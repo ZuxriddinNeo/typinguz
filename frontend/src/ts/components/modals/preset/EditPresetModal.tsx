@@ -1,8 +1,8 @@
 import {
   ConfigGroupName,
   ConfigGroupNameSchema,
-} from "@monkeytype/schemas/configs";
-import { PresetNameSchema, PresetType } from "@monkeytype/schemas/presets";
+} from "@typeuz/schemas/configs";
+import { PresetNameSchema, PresetType } from "@typeuz/schemas/presets";
 import { createForm } from "@tanstack/solid-form";
 import { createSignal, JSXElement, Show } from "solid-js";
 

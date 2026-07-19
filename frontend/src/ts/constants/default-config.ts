@@ -1,4 +1,4 @@
-import { Config, CustomThemeColors } from "@monkeytype/schemas/configs";
+import { Config, CustomThemeColors } from "@typeuz/schemas/configs";
 
 const obj: Config = {
   theme: "typeuz_light",

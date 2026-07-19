@@ -1,6 +1,7 @@
-import { Gender, UserEmailSchema, UserNameSchema } from "@monkeytype/schemas/users";
+import { Gender, UserEmailSchema, UserNameSchema } from "@typeuz/schemas/users";
 import { createForm } from "@tanstack/solid-form";
 import { For, JSXElement, createSignal } from "solid-js";
+import { envConfig } from "virtual:env-config";
 
 import Ape from "../../../ape";
 import { getPasswordSchema, signUp } from "../../../auth";
@@ -93,6 +94,8 @@ export function Register(): JSXElement {
     return messages.length > 0 ? messages : undefined;
   };
 
+  const isCaptchaEnabled = envConfig.recaptchaSiteKey !== "";
+
   const form = createForm(() => ({
     defaultValues: {
       firstName: "",
@@ -107,11 +110,14 @@ export function Register(): JSXElement {
     },
     onSubmit: async ({ value }) => {
       disableLoginPageInputs();
-      const captchaToken = await showRegisterCaptchaModal();
-      if (captchaToken === undefined || captchaToken === "") {
-        showErrorNotification("Captcha ni tasdiqlang");
-        enableLoginPageInputs();
-        return;
+      let captchaToken: string | undefined = "";
+      if (isCaptchaEnabled) {
+        captchaToken = await showRegisterCaptchaModal();
+        if (captchaToken === undefined || captchaToken === "") {
+          showErrorNotification("Captcha ni tasdiqlang");
+          enableLoginPageInputs();
+          return;
+        }
       }
       try {
         const data = await signUp(
@@ -176,8 +182,8 @@ export function Register(): JSXElement {
           name="firstName"
           validators={{
             onChange: (field) => {
-              if (field.value.length === 0) return "Ism kiritish majburiy";
-              if (field.value.length > 50) return "Ism 50 belgidan oshmasligi kerak";
+              if (field.value.length === 0) { return "Ism kiritish majburiy"; }
+              if (field.value.length > 50) { return "Ism 50 belgidan oshmasligi kerak"; }
               return undefined;
             },
           }}
@@ -194,8 +200,8 @@ export function Register(): JSXElement {
           name="lastName"
           validators={{
             onChange: (field) => {
-              if (field.value.length === 0) return "Familiya kiritish majburiy";
-              if (field.value.length > 50) return "Familiya 50 belgidan oshmasligi kerak";
+              if (field.value.length === 0) { return "Familiya kiritish majburiy"; }
+              if (field.value.length > 50) { return "Familiya 50 belgidan oshmasligi kerak"; }
               return undefined;
             },
           }}

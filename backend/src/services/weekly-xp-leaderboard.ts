@@ -1,4 +1,4 @@
-import { Configuration } from "@monkeytype/schemas/configuration";
+import { Configuration } from "@typeuz/schemas/configuration";
 import * as RedisClient from "../init/redis";
 import LaterQueue from "../queues/later-queue";
 import {
@@ -6,10 +6,10 @@ import {
   RedisXpLeaderboardEntrySchema,
   RedisXpLeaderboardScore,
   XpLeaderboardEntry,
-} from "@monkeytype/schemas/leaderboards";
-import { getCurrentWeekTimestamp } from "@monkeytype/util/date-and-time";
-import MonkeyError from "../utils/error";
-import { parseWithSchema as parseJsonWithSchema } from "@monkeytype/util/json";
+} from "@typeuz/schemas/leaderboards";
+import { getCurrentWeekTimestamp } from "@typeuz/util/date-and-time";
+import TypeUZError from "../utils/error";
+import { parseWithSchema as parseJsonWithSchema } from "@typeuz/util/json";
 import { omit } from "../utils/misc";
 
 export type AddResultOpts = {
@@ -132,7 +132,7 @@ export class WeeklyXpLeaderboard {
     }
 
     if (page < 0 || pageSize < 0) {
-      throw new MonkeyError(500, "Invalid page or pageSize");
+      throw new TypeUZError(500, "Invalid page or pageSize");
     }
 
     if (userIds?.length === 0) {

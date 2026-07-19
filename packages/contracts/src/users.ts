@@ -3,8 +3,8 @@ import { z } from "zod";
 import {
   CommonResponses,
   meta,
-  MonkeyClientError,
-  MonkeyResponseSchema,
+  TypeUZClientError,
+  TypeUZResponseSchema,
   responseWithData,
   responseWithNullableData,
 } from "./util/api";
@@ -28,15 +28,15 @@ import {
   UserNameSchema,
   FriendSchema,
   GenderSchema,
-} from "@monkeytype/schemas/users";
+} from "@typeuz/schemas/users";
 import {
   Mode2Schema,
   ModeSchema,
   PersonalBestSchema,
-} from "@monkeytype/schemas/shared";
-import { IdSchema, StringNumberSchema } from "@monkeytype/schemas/util";
-import { LanguageSchema } from "@monkeytype/schemas/languages";
-import { CustomThemeColorsSchema } from "@monkeytype/schemas/configs";
+} from "@typeuz/schemas/shared";
+import { IdSchema, StringNumberSchema } from "@typeuz/schemas/util";
+import { LanguageSchema } from "@typeuz/schemas/languages";
+import { CustomThemeColorsSchema } from "@typeuz/schemas/configs";
 
 export const GetUserResponseSchema = responseWithData(
   UserSchema.extend({
@@ -399,7 +399,7 @@ export const usersContract = c.router(
       path: "/signup",
       body: CreateUserRequestSchema.strict(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         rateLimit: "userSignup",
@@ -430,7 +430,7 @@ export const usersContract = c.router(
       path: "",
       body: c.noBody(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         authenticationOptions: { requireFreshToken: true },
@@ -444,7 +444,7 @@ export const usersContract = c.router(
       path: "/reset",
       body: c.noBody(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         authenticationOptions: { requireFreshToken: true },
@@ -458,7 +458,7 @@ export const usersContract = c.router(
       path: "/name",
       body: UpdateUserNameRequestSchema.strict(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         authenticationOptions: { requireFreshToken: true },
@@ -472,7 +472,7 @@ export const usersContract = c.router(
       path: "/leaderboardMemory",
       body: UpdateLeaderboardMemoryRequestSchema.strict(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         rateLimit: "userUpdateLBMemory",
@@ -485,7 +485,7 @@ export const usersContract = c.router(
       path: "/email",
       body: UpdateEmailRequestSchema.strict(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         authenticationOptions: { requireFreshToken: true },
@@ -499,7 +499,7 @@ export const usersContract = c.router(
       path: "/password",
       body: UpdatePasswordRequestSchema.strict(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         authenticationOptions: { requireFreshToken: true },
@@ -527,7 +527,7 @@ export const usersContract = c.router(
       path: "/personalBests",
       body: c.noBody(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         authenticationOptions: { requireFreshToken: true },
@@ -541,7 +541,7 @@ export const usersContract = c.router(
       path: "/optOutOfLeaderboards",
       body: c.noBody(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         authenticationOptions: { requireFreshToken: true },
@@ -574,7 +574,7 @@ export const usersContract = c.router(
       pathParams: RemoveResultFilterPresetPathParamsSchema.strict(),
       body: c.noBody(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         rateLimit: "userCustomFilterRemove",
@@ -618,7 +618,7 @@ export const usersContract = c.router(
       path: "/tags",
       body: EditTagRequestSchema.strict(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         rateLimit: "userTagsEdit",
@@ -632,7 +632,7 @@ export const usersContract = c.router(
       pathParams: TagIdPathParamsSchema.strict(),
       body: c.noBody(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         rateLimit: "userTagsRemove",
@@ -646,7 +646,7 @@ export const usersContract = c.router(
       pathParams: TagIdPathParamsSchema.strict(),
       body: c.noBody(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         rateLimit: "userTagsClearPB",
@@ -684,7 +684,7 @@ export const usersContract = c.router(
       path: "/customThemes",
       body: DeleteCustomThemeRequestSchema.strict(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         rateLimit: "userCustomThemeRemove",
@@ -697,7 +697,7 @@ export const usersContract = c.router(
       path: "/customThemes",
       body: EditCustomThemeRequstSchema.strict(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         rateLimit: "userCustomThemeEdit",
@@ -743,7 +743,7 @@ export const usersContract = c.router(
       path: "/discord/unlink",
       body: c.noBody(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         rateLimit: "userDiscordUnlink",
@@ -769,7 +769,7 @@ export const usersContract = c.router(
       path: "/setStreakHourOffset",
       body: SetStreakHourOffsetRequestSchema.strict(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         rateLimit: "setStreakHourOffset",
@@ -794,7 +794,7 @@ export const usersContract = c.router(
       path: "/favoriteQuotes",
       body: AddFavoriteQuoteRequestSchema.strict(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         rateLimit: "quoteFavoritePost",
@@ -807,7 +807,7 @@ export const usersContract = c.router(
       path: "/favoriteQuotes",
       body: RemoveFavoriteQuoteRequestSchema.strict(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         rateLimit: "quoteFavoriteDelete",
@@ -822,7 +822,7 @@ export const usersContract = c.router(
       query: GetProfileQuerySchema.strict(),
       responses: {
         200: GetProfileResponseSchema,
-        404: MonkeyClientError.describe("User not found"),
+        404: TypeUZClientError.describe("User not found"),
       },
       metadata: meta({
         authenticationOptions: { isPublic: true },
@@ -857,7 +857,7 @@ export const usersContract = c.router(
       path: "/profile/details",
       body: UpdateProfileDetailsRequestSchema.strict(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         rateLimit: "userProfileUpdate",
@@ -886,7 +886,7 @@ export const usersContract = c.router(
       body: UpdateUserInboxRequestSchema.strict(),
       path: "/inbox",
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         rateLimit: "userMailUpdate",
@@ -903,7 +903,7 @@ export const usersContract = c.router(
       path: "/report",
       body: ReportUserRequestSchema.strict(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         rateLimit: "quoteReportSubmit",
@@ -920,7 +920,7 @@ export const usersContract = c.router(
       method: "GET",
       path: "/verificationEmail",
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         authenticationOptions: { noCache: true },
@@ -934,7 +934,7 @@ export const usersContract = c.router(
       path: "/forgotPasswordEmail",
       body: ForgotPasswordEmailRequestSchema.strict(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         authenticationOptions: { isPublic: true },
@@ -948,7 +948,7 @@ export const usersContract = c.router(
       path: "/revokeAllTokens",
       body: c.noBody(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         authenticationOptions: { requireFreshToken: true, noCache: true },

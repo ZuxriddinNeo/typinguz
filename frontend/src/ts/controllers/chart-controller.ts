@@ -66,7 +66,7 @@ import { Theme } from "../constants/themes";
 import { createDebouncedEffectOn } from "../hooks/effects";
 import { getWordIndexesForSecond } from "../test/events/stats";
 import { lastEventLog } from "../test/test-state";
-import { typedKeys } from "@monkeytype/util/objects";
+import { typedKeys } from "@typeuz/util/objects";
 
 export class ChartWithUpdateColors<
   TType extends ChartType = ChartType,

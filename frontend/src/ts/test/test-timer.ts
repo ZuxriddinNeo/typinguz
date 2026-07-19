@@ -19,13 +19,13 @@ import * as Time from "../legacy-states/time";
 import { timerEvent } from "../events/timer";
 import { highlight } from "../events/keymap";
 import * as LayoutfluidFunboxTimer from "../test/funbox/layoutfluid-funbox-timer";
-import { KeymapLayout, Layout } from "@monkeytype/schemas/configs";
+import { KeymapLayout, Layout } from "@typeuz/schemas/configs";
 import * as SoundController from "../controllers/sound-controller";
 import { clearLowFpsMode, setLowFpsMode } from "../anim";
 import { createTimer } from "animejs";
 import { requestDebouncedAnimationFrame } from "../utils/debounced-animation-frame";
 import { buildEventLog, getCurrentInput, logTestEvent } from "./events/data";
-import { roundTo2 } from "@monkeytype/util/numbers";
+import { roundTo2 } from "@typeuz/util/numbers";
 import {
   getLiveCachedAccuracy,
   getLiveCachedTestDurationMs,

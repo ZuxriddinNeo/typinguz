@@ -1,4 +1,4 @@
-import { UserEmailSchema } from "@monkeytype/schemas/users";
+import { UserEmailSchema } from "@typeuz/schemas/users";
 import { z } from "zod";
 
 import Ape from "../../../ape";

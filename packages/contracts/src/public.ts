@@ -4,9 +4,9 @@ import { CommonResponses, meta, responseWithData } from "./util/api";
 import {
   SpeedHistogramSchema,
   TypingStatsSchema,
-} from "@monkeytype/schemas/public";
-import { Mode2Schema, ModeSchema } from "@monkeytype/schemas/shared";
-import { LanguageSchema } from "@monkeytype/schemas/languages";
+} from "@typeuz/schemas/public";
+import { Mode2Schema, ModeSchema } from "@typeuz/schemas/shared";
+import { LanguageSchema } from "@typeuz/schemas/languages";
 
 export const GetSpeedHistogramQuerySchema = z
   .object({
@@ -30,6 +30,18 @@ export type GetTypingStatsResponse = z.infer<
   typeof GetTypingStatsResponseSchema
 >;
 
+export const PublicAdSlotInfoSchema = z.object({
+  slotId: z.string(),
+  imageUrl: z.string().optional(),
+  targetUrl: z.string().optional(),
+});
+export const PublicAdConfigResponseSchema = responseWithData(
+  z.object({
+    enabled: z.boolean(),
+    slots: z.array(PublicAdSlotInfoSchema),
+  }),
+);
+
 const c = initContract();
 export const publicContract = c.router(
   {
@@ -52,6 +64,29 @@ export const publicContract = c.router(
       path: "/typingStats",
       responses: {
         200: GetTypingStatsResponseSchema,
+      },
+    },
+    getAdConfig: {
+      summary: "get public ad config",
+      description: "Get ad slot configuration for the public site",
+      method: "GET",
+      path: "/ads",
+      responses: {
+        200: PublicAdConfigResponseSchema,
+      },
+    },
+    getSiteContent: {
+      summary: "get site content for landing page",
+      description: "Get editable site content (hero, features, about, footer)",
+      method: "GET",
+      path: "/site-content",
+      responses: {
+        200: responseWithData(z.object({
+          hero: z.object({ title: z.string(), subtitle: z.string(), description: z.string() }),
+          features: z.array(z.object({ icon: z.string(), title: z.string(), description: z.string() })),
+          aboutCards: z.array(z.object({ icon: z.string(), title: z.string(), description: z.string() })),
+          footer: z.object({ brandName: z.string(), tagline: z.string(), telegram: z.string() }),
+        })),
       },
     },
   },

@@ -46,7 +46,7 @@ In plan mode, before writing up a plan, ask clarifying questions if needed. At t
 - `backend/src/init/email-client.ts` (email subject/from)
 - `backend/src/api/routes/docs.ts` (CSP)
 - `frontend/src/ts/components/pages/account-settings/AccountTab.tsx` (Discord text, name editing removed—moved to EditProfileModal)
-- `packages/contracts` imports (minor - `@monkeytype/...` package refs)
+- `packages/contracts` imports (minor - `@typeuz/...` package refs)
 
 ### Settings page removed (Jul 15)
 - Sozlamalar nav item → olib tashlandi
@@ -81,16 +81,11 @@ In plan mode, before writing up a plan, ask clarifying questions if needed. At t
 - **Auth routes**: use `findUserByEmail` + `devGet`/`devSet` in dev mode (no MongoDB needed)
 
 ### Hali tozalanmagan monkeytype reference
-- `backend/email-templates/`
-- `backend/scripts/openapi.ts`
-- `frontend/src/ts/elements/psa.tsx` (monkeytype.instatus.com)
-- `frontend/src/ts/elements/merch-banner.tsx`
-- `frontend/vite-plugins/env-config.ts`
-- `frontend/src/ts/components/pages/account-settings/ApeKeysTab.tsx`
-- `frontend/src/ts/controllers/eg-ad-controller.ts`
-- `frontend/static/robots.txt, sitemap.xml, .well-known/security.txt`
-- `frontend/vite.config.ts` (sentry)
-- `backend/src/utils/misc.ts`
-- `backend/src/init/email-client.ts`
-- `backend/src/api/routes/docs.ts` (CSP)
-- `packages/contracts` imports
+- ✅ All cleaned. Remaining: `frontend/static/challenges/sourcecode.txt` (historical typing content), `scripts/rename-packages.sh` (migration script), `AGENTS.md` (status doc).
+
+### Jul 19 — Admin dashboard + contract fixes
+- **AdminDashboardPage.tsx**: Added 7 tabs (Dashboard, Users, Content, Appearance, Ads, AI, Settings) with full Uzbek UI. Content/theme/ad config CRUD. ChartBars CSS component. AI test button. Password change.
+- **Contracts**: `admin.ts` — all new endpoints now use `responseWithData(...)` for typed response data. `public.ts` — `getSiteContent` uses typed response.
+- **TS fixes**: Changed `contentQuery()` / `themeQuery()` signal call → `.data` property. Replaced all `Record<string,unknown>` / `any` casts with proper `AdConfig` / `AiAnalysis` types. Removed unused imports (`onCleanup` from admin, `Show` from landing). Fixed style prop object, unescaped entities (file-level disable), ad config spread typing.
+- **Validation**: frontend `tsc --noEmit` clean, backend `tsc --noEmit` clean, contracts `tsc --noEmit` clean, oxlint clean (pre-existing SearchableAutoSetting errors only).
+- **Remaining**: monkeytype refs cleanup still pending (list above unchanged).

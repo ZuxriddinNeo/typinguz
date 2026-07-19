@@ -1,5 +1,5 @@
-import { KeymapStyle } from "@monkeytype/schemas/configs";
-import { LayoutObject } from "@monkeytype/schemas/layouts";
+import { KeymapStyle } from "@typeuz/schemas/configs";
+import { LayoutObject } from "@typeuz/schemas/layouts";
 import {
   FormatDisplayOptions,
   formatForDisplay,

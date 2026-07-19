@@ -9,8 +9,8 @@ import {
 import objectHash from "object-hash";
 import Logger from "../../utils/logger";
 import "dotenv/config";
-import { MonkeyResponse } from "../../utils/monkey-response";
-import MonkeyError from "../../utils/error";
+import { TypeUZResponse } from "../../utils/typeuz-response";
+import TypeUZError from "../../utils/error";
 import { isTestTooShort } from "../../utils/validation";
 import {
   implemented as anticheatImplemented,
@@ -30,7 +30,7 @@ import * as WeeklyXpLeaderboard from "../../services/weekly-xp-leaderboard";
 import { UAParser } from "ua-parser-js";
 import { canFunboxGetPb } from "../../utils/pb";
 import { buildDbResult } from "../../utils/result";
-import { Configuration } from "@monkeytype/schemas/configuration";
+import { Configuration } from "@typeuz/schemas/configuration";
 import { addImportantLog, addLog } from "../../dal/logs";
 import {
   AddResultRequest,
@@ -42,28 +42,28 @@ import {
   GetResultsResponse,
   UpdateResultTagsRequest,
   UpdateResultTagsResponse,
-} from "@monkeytype/contracts/results";
+} from "@typeuz/contracts/results";
 import {
   CompletedEvent,
   KeyStats,
   PostResultResponse,
   XpBreakdown,
-} from "@monkeytype/schemas/results";
+} from "@typeuz/schemas/results";
 import {
   isSafeNumber,
   mapRange,
   roundTo2,
   stdDev,
-} from "@monkeytype/util/numbers";
+} from "@typeuz/util/numbers";
 import {
   getCurrentDayTimestamp,
   getStartOfDayTimestamp,
-} from "@monkeytype/util/date-and-time";
-import { MonkeyRequest } from "../types";
-import { getFunbox, checkCompatibility } from "@monkeytype/funbox";
-import { tryCatch } from "@monkeytype/util/trycatch";
+} from "@typeuz/util/date-and-time";
+import { TypeUZRequest } from "../types";
+import { getFunbox, checkCompatibility } from "@typeuz/funbox";
+import { tryCatch } from "@typeuz/util/trycatch";
 import { getCachedConfiguration } from "../../init/configuration";
-import { getChallenges } from "@monkeytype/challenges";
+import { getChallenges } from "@typeuz/challenges";
 
 try {
   if (!anticheatImplemented()) throw new Error("undefined");
@@ -88,7 +88,7 @@ const autoRoleChallengeNames = new Set(
 );
 
 export async function getResults(
-  req: MonkeyRequest<GetResultsQuery>,
+  req: TypeUZRequest<GetResultsQuery>,
 ): Promise<GetResultsResponse> {
   const { uid } = req.ctx.decodedToken;
   const premiumFeaturesEnabled = req.ctx.configuration.users.premium.enabled;
@@ -110,7 +110,7 @@ export async function getResults(
     !premiumFeaturesEnabled &&
     limit + offset > req.ctx.configuration.results.limits.regularUser
   ) {
-    throw new MonkeyError(503, "Premium feature disabled.");
+    throw new TypeUZError(503, "Premium feature disabled.");
   }
 
   if (limit + offset > maxLimit) {
@@ -118,7 +118,7 @@ export async function getResults(
       //batch is partly in the allowed ranged. Set the limit to the max allowed and return partly results.
       limit = maxLimit - offset;
     } else {
-      throw new MonkeyError(422, `Max results limit of ${maxLimit} exceeded.`);
+      throw new TypeUZError(422, `Max results limit of ${maxLimit} exceeded.`);
     }
   }
 
@@ -138,37 +138,37 @@ export async function getResults(
     uid,
   );
 
-  return new MonkeyResponse("Results retrieved", replaceObjectIds(results));
+  return new TypeUZResponse("Results retrieved", replaceObjectIds(results));
 }
 
 export async function getResultById(
-  req: MonkeyRequest<undefined, undefined, GetResultByIdPath>,
+  req: TypeUZRequest<undefined, undefined, GetResultByIdPath>,
 ): Promise<GetResultByIdResponse> {
   const { uid } = req.ctx.decodedToken;
   const { resultId } = req.params;
 
   const result = await ResultDAL.getResult(uid, resultId);
-  return new MonkeyResponse("Result retrieved", replaceObjectId(result));
+  return new TypeUZResponse("Result retrieved", replaceObjectId(result));
 }
 
 export async function getLastResult(
-  req: MonkeyRequest,
+  req: TypeUZRequest,
 ): Promise<GetLastResultResponse> {
   const { uid } = req.ctx.decodedToken;
   const result = await ResultDAL.getLastResult(uid);
-  return new MonkeyResponse("Result retrieved", replaceObjectId(result));
+  return new TypeUZResponse("Result retrieved", replaceObjectId(result));
 }
 
-export async function deleteAll(req: MonkeyRequest): Promise<MonkeyResponse> {
+export async function deleteAll(req: TypeUZRequest): Promise<TypeUZResponse> {
   const { uid } = req.ctx.decodedToken;
 
   await ResultDAL.deleteAll(uid);
   void addLog("user_results_deleted", "", uid);
-  return new MonkeyResponse("All results deleted", null);
+  return new TypeUZResponse("All results deleted", null);
 }
 
 export async function updateTags(
-  req: MonkeyRequest<undefined, UpdateResultTagsRequest>,
+  req: TypeUZRequest<undefined, UpdateResultTagsRequest>,
 ): Promise<UpdateResultTagsResponse> {
   const { uid } = req.ctx.decodedToken;
   const { tagIds, resultId } = req.body;
@@ -185,20 +185,20 @@ export async function updateTags(
 
   const user = await UserDAL.getPartialUser(uid, "update tags", ["tags"]);
   const tagPbs = await UserDAL.checkIfTagPb(uid, user, result);
-  return new MonkeyResponse("Result tags updated", {
+  return new TypeUZResponse("Result tags updated", {
     tagPbs,
   });
 }
 
 export async function addResult(
-  req: MonkeyRequest<undefined, AddResultRequest>,
+  req: TypeUZRequest<undefined, AddResultRequest>,
 ): Promise<AddResultResponse> {
   const { uid } = req.ctx.decodedToken;
 
   const user = await UserDAL.getUser(uid, "add result");
 
   if (user.needsToChangeName) {
-    throw new MonkeyError(
+    throw new TypeUZError(
       403,
       "Please change your name before submitting a result",
     );
@@ -209,11 +209,11 @@ export async function addResult(
 
   if (isTestTooShort(completedEvent)) {
     const status = MonkeyStatusCodes.TEST_TOO_SHORT;
-    throw new MonkeyError(status.code, status.message);
+    throw new TypeUZError(status.code, status.message);
   }
 
   if (user.lbOptOut !== true && completedEvent.acc < 75) {
-    throw new MonkeyError(400, "Accuracy too low");
+    throw new TypeUZError(400, "Accuracy too low");
   }
 
   const resulthash = completedEvent.hash;
@@ -231,18 +231,18 @@ export async function addResult(
         uid,
       );
       const status = MonkeyStatusCodes.RESULT_HASH_INVALID;
-      throw new MonkeyError(status.code, "Incorrect result hash");
+      throw new TypeUZError(status.code, "Incorrect result hash");
     }
   } else {
     Logger.warning("Object hash check is disabled, skipping hash check");
   }
 
   if (completedEvent.funbox.length !== new Set(completedEvent.funbox).size) {
-    throw new MonkeyError(400, "Duplicate funboxes");
+    throw new TypeUZError(400, "Duplicate funboxes");
   }
 
   if (!checkCompatibility(completedEvent.funbox)) {
-    throw new MonkeyError(400, "Impossible funbox combination");
+    throw new TypeUZError(400, "Impossible funbox combination");
   }
 
   let keySpacingStats: KeyStats | undefined = undefined;
@@ -297,7 +297,7 @@ export async function addResult(
       )
     ) {
       const status = MonkeyStatusCodes.RESULT_DATA_INVALID;
-      throw new MonkeyError(status.code, "Result data doesn't make sense");
+      throw new TypeUZError(status.code, "Result data doesn't make sense");
     } else if (isDevEnvironment()) {
       Logger.success("Result data validated");
     }
@@ -351,7 +351,7 @@ export async function addResult(
       uid,
     );
     const status = MonkeyStatusCodes.RESULT_SPACING_INVALID;
-    throw new MonkeyError(status.code, "Invalid result spacing");
+    throw new TypeUZError(status.code, "Invalid result spacing");
   }
 
   //check keyspacing and duration here for bots
@@ -364,10 +364,10 @@ export async function addResult(
   ) {
     if (!keySpacingStats || !keyDurationStats) {
       const status = MonkeyStatusCodes.MISSING_KEY_DATA;
-      throw new MonkeyError(status.code, "Missing key data");
+      throw new TypeUZError(status.code, "Missing key data");
     }
     if (completedEvent.keyOverlap === undefined) {
-      throw new MonkeyError(400, "Old key data format");
+      throw new TypeUZError(400, "Old key data format");
     }
     if (anticheatImplemented()) {
       if (
@@ -395,7 +395,7 @@ export async function addResult(
           }
         }
         const status = MonkeyStatusCodes.BOT_DETECTED;
-        throw new MonkeyError(status.code, "Possible bot detected");
+        throw new TypeUZError(status.code, "Possible bot detected");
       }
     } else {
       if (!isDevEnvironment()) {
@@ -420,7 +420,7 @@ export async function addResult(
         uid,
       );
       const status = MonkeyStatusCodes.DUPLICATE_RESULT;
-      throw new MonkeyError(status.code, "Duplicate result");
+      throw new TypeUZError(status.code, "Duplicate result");
     } else {
       lastHashes.unshift(resulthash);
       const maxHashes = req.ctx.configuration.users.lastHashesCheck.maxHashes;
@@ -591,7 +591,7 @@ export async function addResult(
   );
 
   if (isNaN(xpGained.xp)) {
-    throw new MonkeyError(
+    throw new TypeUZError(
       500,
       "Calculated XP is NaN",
       JSON.stringify({
@@ -603,7 +603,7 @@ export async function addResult(
   }
 
   if (xpGained.xp < 0) {
-    throw new MonkeyError(
+    throw new TypeUZError(
       500,
       "Calculated XP is negative",
       JSON.stringify({
@@ -684,7 +684,7 @@ export async function addResult(
 
   incrementResult(completedEvent, dbresult.isPb);
 
-  return new MonkeyResponse("Result saved", data);
+  return new TypeUZResponse("Result saved", data);
 }
 
 type XpResult = {

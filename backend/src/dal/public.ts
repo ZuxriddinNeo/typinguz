@@ -1,7 +1,7 @@
-import { roundTo2 } from "@monkeytype/util/numbers";
+import { roundTo2 } from "@typeuz/util/numbers";
 import * as db from "../init/db";
-import MonkeyError from "../utils/error";
-import { TypingStats, SpeedHistogram } from "@monkeytype/schemas/public";
+import TypeUZError from "../utils/error";
+import { TypingStats, SpeedHistogram } from "@typeuz/schemas/public";
 
 export type PublicTypingStatsDB = TypingStats & { _id: "stats" };
 export type PublicSpeedStatsDB = {
@@ -39,7 +39,7 @@ export async function getSpeedHistogram(
   const key = `${language}_${mode}_${mode2}` as keyof PublicSpeedStatsDB;
 
   if (key === "_id") {
-    throw new MonkeyError(
+    throw new TypeUZError(
       400,
       "Invalid speed histogram key",
       "get speed histogram",
@@ -59,7 +59,7 @@ export async function getTypingStats(): Promise<PublicTypingStatsDB> {
     .collection<PublicTypingStatsDB>("public")
     .findOne({ _id: "stats" }, { projection: { _id: 0 } });
   if (!stats) {
-    throw new MonkeyError(
+    throw new TypeUZError(
       404,
       "Public typing stats not found",
       "get typing stats",

@@ -1,6 +1,6 @@
-import { ResultMinified } from "@monkeytype/schemas/results";
-import { Difficulty, Mode, Mode2 } from "@monkeytype/schemas/shared";
-import { ResultFilters } from "@monkeytype/schemas/users";
+import { ResultMinified } from "@typeuz/schemas/results";
+import { Difficulty, Mode, Mode2 } from "@typeuz/schemas/shared";
+import { ResultFilters } from "@typeuz/schemas/users";
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import {
   avg,

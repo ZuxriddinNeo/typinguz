@@ -4,7 +4,7 @@
   font-family: Vazirharf;
   font-style: normal;
   font-weight: 400;
-  font-display: block;
+  font-display: swap;
   src: url("/webfonts/Vazirharf-NL-Regular.woff2") format("woff2");
 }
 
@@ -19,7 +19,7 @@
     font-family: "#{$font}";
     font-style: normal;
     font-weight: map-get($config, "weight");
-    font-display: block;
+    font-display: swap;
     src: url("/#{$dir}/#{map-get($config, 'src')}") format("woff2");
   }
 
@@ -27,7 +27,7 @@
     font-family: "#{$font} Preview";
     font-style: normal;
     font-weight: map-get($config, "weight");
-    font-display: block;
+    font-display: swap;
     src: url("/#{$previewDir}/#{map-get($config, 'src')}") format("woff2");
   }
 }

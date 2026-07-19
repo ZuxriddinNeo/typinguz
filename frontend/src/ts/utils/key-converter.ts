@@ -1,4 +1,4 @@
-import { LayoutObject } from "@monkeytype/schemas/layouts";
+import { LayoutObject } from "@typeuz/schemas/layouts";
 import {
   Keycode,
   leftSideKeys,

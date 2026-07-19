@@ -27,11 +27,11 @@ import * as FirebaseAdmin from "../../../src/init/firebase-admin";
 import * as ApeKeysDal from "../../../src/dal/ape-keys";
 import * as LogDal from "../../../src/dal/logs";
 import { ObjectId } from "mongodb";
-import { PersonalBest } from "@monkeytype/schemas/shared";
+import { PersonalBest } from "@typeuz/schemas/shared";
 import { mockAuthenticateWithApeKey } from "../../__testData__/auth";
 import { randomUUID } from "node:crypto";
-import { MonkeyMail, UserStreak } from "@monkeytype/schemas/users";
-import MonkeyError, { isFirebaseError } from "../../../src/utils/error";
+import { MonkeyMail, UserStreak } from "@typeuz/schemas/users";
+import TypeUZError, { isFirebaseError } from "../../../src/utils/error";
 import * as WeeklyXpLeaderboard from "../../../src/services/weekly-xp-leaderboard";
 import * as ConnectionsDal from "../../../src/dal/connections";
 import { pb } from "../../__testData__/users";
@@ -332,7 +332,7 @@ describe("user controller test", () => {
       );
       expect(adminGenerateVerificationLinkMock).toHaveBeenCalledWith(
         "newuser@mail.com",
-        { url: "http://localhost:3000" },
+        { url: process.env["FRONTEND_URL"] ?? "http://localhost:3000" },
       );
     });
     it("should fail with missing firebase user", async () => {
@@ -733,7 +733,7 @@ describe("user controller test", () => {
 
     it("should not fail if userInfo cannot be found", async () => {
       //GIVEN
-      getUserMock.mockRejectedValue(new MonkeyError(404, "user not found"));
+      getUserMock.mockRejectedValue(new TypeUZError(404, "user not found"));
 
       //WHEN
       await mockApp

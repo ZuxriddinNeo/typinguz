@@ -1,5 +1,5 @@
 {
-  "name": "@monkeytype/util",
+  "name": "@typeuz/util",
   "exports": {
     "./*": {
       "types": "./src/*.ts",
@@ -17,8 +17,6 @@
     "lint-fast": "oxlint ."
   },
   "devDependencies": {
-    "@monkeytype/tsup-config": "workspace:*",
-    "@monkeytype/typescript-config": "workspace:*",
     "@types/node": "24.9.1",
     "madge": "8.0.0",
     "oxlint": "1.73.0",
@@ -26,6 +24,8 @@
     "tsup": "8.4.0",
     "typescript": "6.0.2",
     "vitest": "4.1.0",
-    "zod": "3.23.8"
+    "zod": "3.23.8",
+    "@typeuz/tsup-config": "workspace:*",
+    "@typeuz/typescript-config": "workspace:*"
   }
 }

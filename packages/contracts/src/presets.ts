@@ -4,14 +4,14 @@ import { z } from "zod";
 import {
   CommonResponses,
   meta,
-  MonkeyResponseSchema,
+  TypeUZResponseSchema,
   responseWithData,
 } from "./util/api";
 import {
   EditPresetRequestSchema,
   PresetSchema,
-} from "@monkeytype/schemas/presets";
-import { IdSchema } from "@monkeytype/schemas/util";
+} from "@typeuz/schemas/presets";
+import { IdSchema } from "@typeuz/schemas/util";
 
 export const GetPresetResponseSchema = responseWithData(z.array(PresetSchema));
 export type GetPresetResponse = z.infer<typeof GetPresetResponseSchema>;
@@ -65,7 +65,7 @@ export const presetsContract = c.router(
       path: "",
       body: EditPresetRequestSchema.strict(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         rateLimit: "presetsEdit",
@@ -79,7 +79,7 @@ export const presetsContract = c.router(
       pathParams: DeletePresetsParamsSchema,
       body: c.noBody(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         rateLimit: "presetsRemove",

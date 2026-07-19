@@ -11,10 +11,10 @@ import { Config } from "../config/store";
 import { configEvent } from "../events/config";
 import * as TestState from "../test/test-state";
 
-import { ChallengeSettings, getChallenge } from "@monkeytype/challenges";
-import { ChallengeName } from "@monkeytype/schemas/challenges";
-import { CompletedEvent } from "@monkeytype/schemas/results";
-import { typedKeys } from "@monkeytype/util/objects";
+import { ChallengeSettings, getChallenge } from "@typeuz/challenges";
+import { ChallengeName } from "@typeuz/schemas/challenges";
+import { CompletedEvent } from "@typeuz/schemas/results";
+import { typedKeys } from "@typeuz/util/objects";
 import { hideLoaderBar, showLoaderBar } from "../states/loader-bar";
 import { getLoadedChallenge, setLoadedChallenge } from "../states/test";
 import { areUnsortedArraysEqual } from "../utils/arrays";

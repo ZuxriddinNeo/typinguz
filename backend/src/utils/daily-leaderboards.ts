@@ -1,19 +1,19 @@
 import * as RedisClient from "../init/redis";
 import LaterQueue from "../queues/later-queue";
 import { matchesAPattern, kogascore, omit } from "./misc";
-import { parseWithSchema as parseJsonWithSchema } from "@monkeytype/util/json";
+import { parseWithSchema as parseJsonWithSchema } from "@typeuz/util/json";
 import {
   Configuration,
   ValidModeRule,
-} from "@monkeytype/schemas/configuration";
+} from "@typeuz/schemas/configuration";
 import {
   LeaderboardEntry,
   RedisDailyLeaderboardEntry,
   RedisDailyLeaderboardEntrySchema,
-} from "@monkeytype/schemas/leaderboards";
-import MonkeyError from "./error";
-import { Mode, Mode2 } from "@monkeytype/schemas/shared";
-import { getCurrentDayTimestamp } from "@monkeytype/util/date-and-time";
+} from "@typeuz/schemas/leaderboards";
+import TypeUZError from "./error";
+import { Mode, Mode2 } from "@typeuz/schemas/shared";
+import { getCurrentDayTimestamp } from "@typeuz/util/date-and-time";
 
 const dailyLeaderboardNamespace = "typeuz:dailyleaderboard";
 const scoresNamespace = `${dailyLeaderboardNamespace}:scores`;
@@ -125,7 +125,7 @@ export class DailyLeaderboard {
     }
 
     if (page < 0 || pageSize < 0) {
-      throw new MonkeyError(500, "Invalid page or pageSize");
+      throw new TypeUZError(500, "Invalid page or pageSize");
     }
 
     if (userIds?.length === 0) {

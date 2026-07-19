@@ -17,8 +17,8 @@ import {
   showErrorNotification,
   showNoticeNotification,
 } from "../../../states/notifications";
-import { showRegisterCaptchaModal } from "../../modals/RegisterCaptchaModal";
 import { Button } from "../../common/Button";
+import { Fa } from "../../common/Fa";
 import { H3 } from "../../common/Headers";
 import { Separator } from "../../common/Separator";
 import { Checkbox } from "../../ui/form/Checkbox";
@@ -52,14 +52,8 @@ export function Login(): JSXElement {
     },
     onSubmit: async ({ value }) => {
       disableLoginPageInputs();
-      const captchaToken = await showRegisterCaptchaModal();
-      if (captchaToken === undefined || captchaToken === "") {
-        showErrorNotification("Captcha ni tasdiqlang");
-        enableLoginPageInputs();
-        return;
-      }
       await trySignIn(async () =>
-        signIn(value.email, value.password, value.rememberMe, captchaToken),
+        signIn(value.email, value.password, value.rememberMe),
       );
     },
     onSubmitInvalid: () => {
@@ -117,24 +111,36 @@ export function Login(): JSXElement {
         <form.Field
           name="email"
           children={(field) => (
-            <InputField
-              field={field}
-              placeholder="email yoki username"
-              autocomplete="current-email"
-              disabled={!getLoginPageInputsEnabled()}
-            />
+            <div class="relative">
+              <div class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sub">
+                <Fa icon="fa-envelope" size={1.1} />
+              </div>
+              <InputField
+                field={field}
+                placeholder="email yoki username"
+                autocomplete="current-email"
+                disabled={!getLoginPageInputsEnabled()}
+                class="pl-[2.4em]"
+              />
+            </div>
           )}
         />
         <form.Field
           name="password"
           children={(field) => (
-            <InputField
-              field={field}
-              placeholder="parol"
-              type="password"
-              autocomplete="current-password"
-              disabled={!getLoginPageInputsEnabled()}
-            />
+            <div class="relative">
+              <div class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sub">
+                <Fa icon="fa-lock" size={1.1} />
+              </div>
+              <InputField
+                field={field}
+                placeholder="parol"
+                type="password"
+                autocomplete="current-password"
+                disabled={!getLoginPageInputsEnabled()}
+                class="pl-[2.4em]"
+              />
+            </div>
           )}
         />
         <form.Field
@@ -163,21 +169,23 @@ export function Login(): JSXElement {
         onClick={() => showModal("ForgotPassword")}
         disabled={!getLoginPageInputsEnabled()}
       />
-      <p class="text-center text-sm text-sub">
-        Tizimga kirish orqali siz{" "}
-        <a href="/privacy-policy" class="text-main underline hover:no-underline">
-          Maxfiylik siyosati
-        </a>{" "}
-        va{" "}
-        <a href="/terms-of-service" class="text-main underline hover:no-underline">
-          Foydalanish shartlari
-        </a>
-        {" "}hamda{" "}
-        <a href="/security-policy" class="text-main underline hover:no-underline">
-          Xavfsizlik siyosati
-        </a>
-        {" "}ni qabul qilasiz.
-      </p>
+      <div class="mt-6 rounded-xl border border-sub/10 bg-bg/50 p-5 text-center text-sm text-sub">
+        <p class="space-y-1">
+          Tizimga kirish orqali siz
+          <a href="/privacy-policy" class="text-main underline hover:no-underline">
+            Maxfiylik siyosati
+          </a>{" "}
+          va
+          <a href="/terms-of-service" class="text-main underline hover:no-underline">
+            Foydalanish shartlari
+          </a>{" "}
+          hamda
+          <a href="/security-policy" class="text-main underline hover:no-underline">
+            Xavfsizlik siyosati
+          </a>{" "}
+          ni qabul qilasiz.
+        </p>
+      </div>
     </div>
   );
 }

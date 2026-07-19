@@ -54,7 +54,17 @@ export function Captcha(props: {
     mounted = false;
   });
 
+  const isRecaptchaEnabled = envConfig.recaptchaSiteKey !== "";
+
   const renderCaptcha = (container: HTMLElement): void => {
+    if (!isRecaptchaEnabled) {
+      container.innerHTML = `
+        <div class="flex flex-col items-center gap-2 p-4 text-center">
+          <span class="text-sm text-sub">CAPTCHA o'chirilgan</span>
+        </div>
+      `;
+      return;
+    }
     const g = (window as { grecaptcha?: Grecaptcha }).grecaptcha;
     if (!g) return;
     container.innerHTML = "";
@@ -103,6 +113,11 @@ export function Captcha(props: {
     const el = captchaEl();
     const native = el?.native;
     if (!native) return;
+
+    if (!isRecaptchaEnabled) {
+      renderCaptcha(native);
+      return;
+    }
 
     try {
       await loadRecaptchaScript();

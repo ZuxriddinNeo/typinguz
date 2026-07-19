@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: typinguz-backend
+    env: node
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm build-be
+    startCommand: node backend/dist/server.js
+    envVars:
+      - key: MODE
+        value: dev
+      - key: PORT
+        value: "10000"
+      - key: NODE_ENV
+        value: production

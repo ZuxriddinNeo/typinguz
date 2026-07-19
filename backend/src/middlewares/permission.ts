@@ -1,4 +1,4 @@
-import MonkeyError from "../utils/error";
+import TypeUZError from "../utils/error";
 import type { Response, NextFunction } from "express";
 import { DBUser, getPartialUser } from "../dal/user";
 import { isAdmin } from "../dal/admin-uids";
@@ -6,7 +6,7 @@ import {
   EndpointMetadata,
   RequestAuthenticationOptions,
   PermissionId,
-} from "@monkeytype/contracts/util/api";
+} from "@typeuz/contracts/util/api";
 import { isDevEnvironment } from "../utils/misc";
 import { AsyncTsRestRequestHandler, getMetadata } from "./utility";
 import { TsRestRequestWithContext } from "../api/types";
@@ -91,7 +91,7 @@ export function verifyPermissions<
     const checks = requiredPermissionIds.map((id) => permissionChecks[id]);
 
     if (checks.some((it) => it === undefined)) {
-      next(new MonkeyError(500, "Unknown permission id."));
+      next(new TypeUZError(500, "Unknown permission id."));
       return;
     }
 
@@ -100,7 +100,7 @@ export function verifyPermissions<
     for (const check of requestChecks) {
       if (!(await check.criteria(req, metadata))) {
         next(
-          new MonkeyError(
+          new TypeUZError(
             403,
             check.invalidMessage ?? "You don't have permission to do this.",
           ),
@@ -118,7 +118,7 @@ export function verifyPermissions<
 
     if (!checkResult.passed) {
       next(
-        new MonkeyError(
+        new TypeUZError(
           403,
           checkResult.invalidMessage ?? "You don't have permission to do this.",
         ),
@@ -151,6 +151,8 @@ async function checkIfUserIsAdmin(
 ): Promise<boolean> {
   if (decodedToken === undefined) return false;
   if (options?.isPublicOnDev && isDevEnvironment()) return true;
+
+  if (decodedToken.admin === true) return true;
 
   return await isAdmin(decodedToken.uid);
 }

@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="backend-url" content="" />
   <title>typeuz.uz — Kirish</title>
   <style>
     body {
@@ -49,8 +50,18 @@
 
       // Google OAuth: need to exchange id_token via backend
       if (token && !uid && !error) {
-        // Send id_token to backend for verification
-        var backendUrl = (window.location.origin + '').replace('3000', '5005');
+        // Derive backend URL from query param, meta tag, or fallback
+        var backendUrl = params.get('backend_url') || '';
+        if (!backendUrl) {
+          try {
+            var meta = document.querySelector('meta[name="backend-url"]');
+            if (meta) backendUrl = meta.getAttribute('content') || '';
+          } catch (e) {}
+        }
+        if (!backendUrl) {
+          // Last resort fallback for same-origin dev setup
+          backendUrl = window.location.protocol + '//' + window.location.hostname + ':5005';
+        }
         fetch(backendUrl + '/auth/google', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

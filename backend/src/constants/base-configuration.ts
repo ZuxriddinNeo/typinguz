@@ -1,4 +1,4 @@
-import { Configuration } from "@monkeytype/schemas/configuration";
+import { Configuration } from "@typeuz/schemas/configuration";
 
 /**
  * This is the base schema for the configuration of the API backend.
@@ -34,6 +34,11 @@ export const BASE_CONFIGURATION: Configuration = {
   },
   admin: {
     endpointsEnabled: false,
+  },
+  ads: {
+    enabled: false,
+    masterToggle: false,
+    slots: [],
   },
   apeKeys: {
     endpointsEnabled: false,
@@ -260,6 +265,35 @@ export const CONFIGURATION_FORM_SCHEMA: ObjectSchema<Configuration> = {
         },
       },
     },
+    ads: {
+      type: "object",
+      label: "Ads",
+      fields: {
+        enabled: {
+          type: "boolean",
+          label: "Ads Enabled",
+        } as never,
+        masterToggle: {
+          type: "boolean",
+          label: "Master Toggle",
+        } as never,
+        slots: {
+          type: "array",
+          label: "Ad Slots",
+          items: {
+            type: "object",
+            label: "Slot",
+            fields: {
+              slotId: { type: "string", label: "Slot ID" } as never,
+              creativeId: { type: "string", label: "Creative ID" } as never,
+              imageUrl: { type: "string", label: "Image URL" } as never,
+              targetUrl: { type: "string", label: "Target URL" } as never,
+              enabled: { type: "boolean", label: "Enabled" } as never,
+            },
+          } as never,
+        } as never,
+      },
+    } as never,
     apeKeys: {
       type: "object",
       label: "Ape Keys",

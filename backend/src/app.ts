@@ -9,9 +9,10 @@ import {
   rootRateLimiter,
 } from "./middlewares/rate-limit";
 import { compatibilityCheckMiddleware } from "./middlewares/compatibilityCheck";
-import { COMPATIBILITY_CHECK_HEADER } from "@monkeytype/contracts";
+import { COMPATIBILITY_CHECK_HEADER } from "@typeuz/contracts";
 import { createETagGenerator } from "./utils/etag";
 import { v4RequestBody } from "./middlewares/utility";
+import { isDevEnvironment } from "./utils/misc";
 
 const etagFn = createETagGenerator({ weak: true });
 
@@ -20,7 +21,21 @@ function buildApp(): express.Application {
 
   app.use(urlencoded({ extended: true }));
   app.use(json());
-  app.use(cors({ exposedHeaders: [COMPATIBILITY_CHECK_HEADER] }));
+
+  const allowedOriginsEnv = process.env["ALLOWED_ORIGINS"];
+
+  const corsOrigins: string | string[] = allowedOriginsEnv !== undefined && allowedOriginsEnv !== ""
+    ? allowedOriginsEnv.split(",").map((s) => s.trim()).filter(Boolean)
+    : isDevEnvironment()
+      ? "*"
+      : [];
+  app.use(
+    cors({
+      origin: corsOrigins,
+      credentials: true,
+      exposedHeaders: [COMPATIBILITY_CHECK_HEADER],
+    }),
+  );
   app.use(helmet());
 
   app.set("trust proxy", 1);

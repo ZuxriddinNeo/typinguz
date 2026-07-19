@@ -1,11 +1,11 @@
-import { RequireConfiguration } from "@monkeytype/contracts/require-configuration/index";
-import { Configuration } from "@monkeytype/schemas/configuration";
+import { RequireConfiguration } from "@typeuz/contracts/require-configuration/index";
+import { Configuration } from "@typeuz/schemas/configuration";
 import { Response } from "express";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { TsRestRequestWithContext } from "../../src/api/types";
 import { verifyRequiredConfiguration } from "../../src/middlewares/configuration";
-import MonkeyError from "../../src/utils/error";
-import { enableMonkeyErrorExpects } from "../__testData__/monkey-error";
+import TypeUZError from "../../src/utils/error";
+import { enableMonkeyErrorExpects } from "../__testData__/typeuz-error";
 
 enableMonkeyErrorExpects();
 describe("configuration middleware", () => {
@@ -64,7 +64,7 @@ describe("configuration middleware", () => {
     //THEN
     expect(next).toHaveBeenCalledWith(
       expect.toMatchMonkeyError(
-        new MonkeyError(503, "This endpoint is currently unavailable."),
+        new TypeUZError(503, "This endpoint is currently unavailable."),
       ),
     );
   });
@@ -80,7 +80,7 @@ describe("configuration middleware", () => {
 
     //THEN
     expect(next).toHaveBeenCalledWith(
-      expect.toMatchMonkeyError(new MonkeyError(503, "Feature not enabled.")),
+      expect.toMatchMonkeyError(new TypeUZError(503, "Feature not enabled.")),
     );
   });
   it("should fail for invalid path", () => {
@@ -93,7 +93,7 @@ describe("configuration middleware", () => {
     //THEN
     expect(next).toHaveBeenCalledWith(
       expect.toMatchMonkeyError(
-        new MonkeyError(500, 'Invalid configuration path: "invalid.path"'),
+        new TypeUZError(500, 'Invalid configuration path: "invalid.path"'),
       ),
     );
   });
@@ -110,7 +110,7 @@ describe("configuration middleware", () => {
     //THEN
     expect(next).toHaveBeenCalledWith(
       expect.toMatchMonkeyError(
-        new MonkeyError(
+        new TypeUZError(
           500,
           'Required configuration doesnt exist: "admin.endpointsEnabled"',
         ),
@@ -130,7 +130,7 @@ describe("configuration middleware", () => {
     //THEN
     expect(next).toHaveBeenCalledWith(
       expect.toMatchMonkeyError(
-        new MonkeyError(
+        new TypeUZError(
           500,
           'Required configuration doesnt exist: "admin.endpointsEnabled"',
         ),
@@ -150,7 +150,7 @@ describe("configuration middleware", () => {
     //THEN
     expect(next).toHaveBeenCalledWith(
       expect.toMatchMonkeyError(
-        new MonkeyError(
+        new TypeUZError(
           500,
           'Required configuration is not a boolean: "admin.endpointsEnabled"',
         ),
@@ -185,7 +185,7 @@ describe("configuration middleware", () => {
 
     //THEN
     expect(next).toHaveBeenCalledWith(
-      expect.toMatchMonkeyError(new MonkeyError(503, "admin disabled")),
+      expect.toMatchMonkeyError(new TypeUZError(503, "admin disabled")),
     );
   });
 });

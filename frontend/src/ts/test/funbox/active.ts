@@ -1,6 +1,6 @@
 import { Config } from "../../config/store";
-import { FunboxProperty, getFunboxObject } from "@monkeytype/funbox";
-import { FunboxName } from "@monkeytype/schemas/configs";
+import { FunboxProperty, getFunboxObject } from "@typeuz/funbox";
+import { FunboxName } from "@typeuz/schemas/configs";
 
 const metadata = getFunboxObject();
 

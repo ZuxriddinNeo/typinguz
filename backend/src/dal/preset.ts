@@ -1,7 +1,7 @@
-import MonkeyError from "../utils/error";
+import TypeUZError from "../utils/error";
 import * as db from "../init/db";
 import { ObjectId, type Filter, Collection, type WithId } from "mongodb";
-import { EditPresetRequest, Preset } from "@monkeytype/schemas/presets";
+import { EditPresetRequest, Preset } from "@typeuz/schemas/presets";
 import { WithObjectId, omit } from "../utils/misc";
 
 const MAX_PRESETS = 10;
@@ -44,7 +44,7 @@ export async function addPreset(
   const presets = await getPresetsCollection().countDocuments({ uid });
 
   if (presets >= MAX_PRESETS) {
-    throw new MonkeyError(409, "Too many presets");
+    throw new TypeUZError(409, "Too many presets");
   }
 
   const result = await getPresetsCollection().insertOne({
@@ -84,7 +84,7 @@ export async function removePreset(
   );
 
   if (deleteResult.deletedCount === 0) {
-    throw new MonkeyError(404, "Preset not found");
+    throw new TypeUZError(404, "Preset not found");
   }
 }
 

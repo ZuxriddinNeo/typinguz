@@ -1,6 +1,5 @@
 // oxlint-disable react/no-unescaped-entities
 import { For, JSXElement } from "solid-js";
-import { AnimatedSection } from "../../common/AnimatedSection";
 import { Fa } from "../../common/Fa";
 
 const sections = [
@@ -34,7 +33,7 @@ const sections = [
   },
   {
     id: "how-collected",
-    icon: "fa-circle-info",
+    icon: "fa-info-circle",
     title: "Ma'lumotlar qanday yig'iladi?",
     content: (
       <div class="space-y-4 text-base leading-relaxed text-sub">
@@ -68,7 +67,7 @@ const sections = [
   },
   {
     id: "data-storage",
-    icon: "fa-shield-halved",
+    icon: "fa-shield-alt",
     title: "Ma'lumotlarni qanday saqlaymiz?",
     content: (
       <div class="space-y-4 text-base leading-relaxed text-sub">
@@ -85,7 +84,7 @@ const sections = [
   },
   {
     id: "rights",
-    icon: "fa-scale-balanced",
+    icon: "fa-balance-scale",
     title: "Ma'lumotlarni himoya qilish bo'yicha huquqlaringiz",
     content: (
       <div class="space-y-4 text-base leading-relaxed text-sub">
@@ -104,7 +103,7 @@ const sections = [
   },
   {
     id: "analytics",
-    icon: "fa-chart-simple",
+    icon: "fa-chart-line",
     title: "Analitika",
     content: (
       <div class="space-y-4 text-base leading-relaxed text-sub">
@@ -143,7 +142,7 @@ const sections = [
   },
   {
     id: "changes",
-    icon: "fa-pen-to-square",
+    icon: "fa-edit",
     title: "O'zgartirishlar",
     content: (
       <p class="text-base leading-relaxed text-sub">TypeUZ maxfiylik siyosatini O'zbekiston Respublikasi qonunchiligidagi o'zgarishlarga muvofiq yangilab boradi. Barcha o'zgarishlar ushbu sahifada e'lon qilinadi. Muhim o'zgarishlar haqida foydalanuvchilar email orqali xabardor qilinadi.</p>
@@ -151,53 +150,57 @@ const sections = [
   },
 ];
 
+function SectionWrapper(props: { children: JSXElement }): JSXElement {
+  return (
+    <section class="prose prose-zinc dark:prose-invert max-w-none space-y-6">
+      {props.children}
+    </section>
+  );
+}
+
 export function PrivacyPolicyPage(): JSXElement {
   return (
-    <div class="mx-auto mt-16 flex max-w-6xl flex-col gap-16 px-6 pb-24">
-      <section class="text-center">
-        <div class="mb-4">
-          <span class="text-5xl font-extrabold tracking-tight text-text">
-            Maxfiylik <span class="text-main">siyosati</span>
-          </span>
-        </div>
-        <p class="mx-auto max-w-xl text-base text-sub">Kuchga kirgan sana: 15-iyul, 2026 &middot; Oxirgi yangilanish: 15-iyul, 2026</p>
-        <p class="mx-auto mt-2 max-w-2xl text-sm leading-relaxed text-sub/70">
+    <div class="mx-auto mt-16 max-w-4xl px-6 pb-20">
+      <header class="mb-16 text-center space-y-4">
+        <h1 class="text-5xl font-extrabold tracking-tight text-text">
+          Maxfiylik <span class="text-main">siyosati</span>
+        </h1>
+        <p class="mx-auto max-w-2xl text-base text-sub">
+          Kuchga kirgan sana: 15-iyul, 2026 &middot; Oxirgi yangilanish: 15-iyul, 2026
+        </p>
+        <p class="mx-auto max-w-3xl text-sm leading-relaxed text-sub/70">
           TypeUZ (keyingi o'rinlarda "TypeUZ", "biz", "bizni") — IT o'quv markazi tomonidan boshqariladigan yozuv tezligi testi platformasi. Xizmatlarimizga ishonch bildirganingiz uchun tashakkur! Shaxsiy ma'lumotlaringizni himoya qilish mas'uliyatini jiddiy qabul qilamiz. Ushbu Maxfiylik siyosati ma'lumotlaringizni qanday qayta ishlashimizni tavsiflaydi va O'zbekiston Respublikasining "Shaxsiy ma'lumotlar to'g'risida"gi Qonuniga (O'RQ-547-son) muvofiq ishlab chiqilgan.
         </p>
-      </section>
+      </header>
 
       <For each={sections}>
         {(section) => (
-          <AnimatedSection>
-            <section id={section.id} class="rounded-2xl border border-sub/10 bg-bg/50 backdrop-blur-sm p-8">
-              <div class="flex items-center gap-3">
-                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-main/10 text-lg text-main">
-                  <Fa icon={section.icon as never} />
-                </div>
-                <h2 class="text-2xl font-bold text-text">{section.title}</h2>
-              </div>
-              <div class="mt-6">{section.content}</div>
-            </section>
-          </AnimatedSection>
+          <SectionWrapper>
+            <h2 id={section.id} class="flex items-center gap-3 text-2xl font-bold text-text">
+              <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-main/10 text-lg text-main shrink-0">
+                <Fa icon={section.icon as never} />
+              </span>
+              {section.title}
+            </h2>
+            <div>{section.content}</div>
+          </SectionWrapper>
         )}
       </For>
 
-      <AnimatedSection>
-        <section id="contact" class="rounded-2xl border border-main/10 bg-bg/50 backdrop-blur-sm p-8">
-          <div class="flex items-center gap-3">
-            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-main/10 text-lg text-main">
-              <Fa icon="fa-envelope" />
-            </div>
-            <h2 class="text-2xl font-bold text-text">Biz bilan bog'lanish</h2>
-          </div>
-          <div class="mt-6 space-y-3 text-base text-sub">
-            <p>Agar savollaringiz bo'lsa yoki huquqlaringizni amalga oshirishni istasangiz, biz bilan bog'laning:</p>
-            <p>Email: <a href="mailto:contact@typeuz.uz" class="text-main underline hover:no-underline">contact@typeuz.uz</a></p>
-            <p>Telegram: <a href="https://t.me/typeuz" class="text-main underline hover:no-underline">@typeuz</a></p>
-            <p>IT o'quv markazi<br />O'zbekiston Respublikasi</p>
-          </div>
-        </section>
-      </AnimatedSection>
+      <SectionWrapper>
+        <h2 id="contact" class="flex items-center gap-3 text-2xl font-bold text-text">
+          <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-main/10 text-lg text-main shrink-0">
+            <Fa icon="fa-envelope" />
+          </span>
+          Biz bilan bog'lanish
+        </h2>
+        <div class="space-y-3 text-base text-sub">
+          <p>Agar savollaringiz bo'lsa yoki huquqlaringizni amalga oshirishni istasangiz, biz bilan bog'laning:</p>
+          <p>Email: <a href="mailto:contact@typeuz.uz" class="text-main underline hover:no-underline">contact@typeuz.uz</a></p>
+          <p>Telegram: <a href="https://t.me/typeuz" class="text-main underline hover:no-underline">@typeuz</a></p>
+          <p>IT o'quv markazi<br />O'zbekiston Respublikasi</p>
+        </div>
+      </SectionWrapper>
     </div>
   );
 }

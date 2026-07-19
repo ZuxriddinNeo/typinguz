@@ -1,4 +1,4 @@
-import { typedKeys } from "@monkeytype/util/objects";
+import { typedKeys } from "@typeuz/util/objects";
 import { UseQueryResult } from "@tanstack/solid-query";
 import {
   Accessor,

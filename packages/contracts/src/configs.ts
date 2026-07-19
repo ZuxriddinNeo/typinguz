@@ -1,10 +1,10 @@
 import { initContract } from "@ts-rest/core";
 import { z } from "zod";
-import { PartialConfigSchema } from "@monkeytype/schemas/configs";
+import { PartialConfigSchema } from "@typeuz/schemas/configs";
 import {
   CommonResponses,
   meta,
-  MonkeyResponseSchema,
+  TypeUZResponseSchema,
   responseWithNullableData,
 } from "./util/api";
 
@@ -37,7 +37,7 @@ export const configsContract = c.router(
       path: "",
       body: PartialConfigSchema.strict(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         rateLimit: "configUpdate",
@@ -50,7 +50,7 @@ export const configsContract = c.router(
       path: "",
       body: c.noBody(),
       responses: {
-        200: MonkeyResponseSchema,
+        200: TypeUZResponseSchema,
       },
       metadata: meta({
         rateLimit: "configDelete",

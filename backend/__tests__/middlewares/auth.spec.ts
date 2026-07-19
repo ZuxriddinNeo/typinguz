@@ -7,16 +7,16 @@ import { getCachedConfiguration } from "../../src/init/configuration";
 import * as ApeKeys from "../../src/dal/ape-keys";
 import { ObjectId } from "mongodb";
 import { hashSync } from "bcrypt";
-import MonkeyError from "../../src/utils/error";
+import TypeUZError from "../../src/utils/error";
 import * as Misc from "../../src/utils/misc";
 import crypto from "crypto";
 import {
   EndpointMetadata,
   RequestAuthenticationOptions,
-} from "@monkeytype/contracts/util/api";
+} from "@typeuz/contracts/util/api";
 import * as Prometheus from "../../src/utils/prometheus";
 import { TsRestRequestWithContext } from "../../src/api/types";
-import { enableMonkeyErrorExpects } from "../__testData__/monkey-error";
+import { enableMonkeyErrorExpects } from "../__testData__/typeuz-error";
 import { Context } from "../../src/middlewares/context";
 
 enableMonkeyErrorExpects();
@@ -99,7 +99,7 @@ describe("middlewares/auth", () => {
     it("should fail if token is not fresh", async () => {
       //GIVEN
       Date.now = vi.fn(() => 60001);
-      const expectedError = new MonkeyError(
+      const expectedError = new TypeUZError(
         401,
         "Unauthorized\nStack: This endpoint requires a fresh token",
       );
@@ -249,7 +249,7 @@ describe("middlewares/auth", () => {
       await expect(async () =>
         authenticate({ headers: { authorization: "Uid 123" } }),
       ).rejects.toMatchMonkeyError(
-        new MonkeyError(401, "Bearer type uid is not supported"),
+        new TypeUZError(401, "Bearer type uid is not supported"),
       );
     });
     it("should fail without authentication", async () => {

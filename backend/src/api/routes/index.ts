@@ -1,5 +1,5 @@
-import { contract } from "@monkeytype/contracts";
-import { devContract } from "@monkeytype/contracts/dev";
+import { contract } from "@typeuz/contracts";
+import { devContract } from "@typeuz/contracts/dev";
 import psas from "./psas";
 import publicStats from "./public";
 import users from "./users";
@@ -18,7 +18,7 @@ import { version } from "../../version";
 import leaderboards from "./leaderboards";
 import connections from "./connections";
 import addSwaggerMiddlewares from "./swagger";
-import { MonkeyResponse } from "../../utils/monkey-response";
+import { TypeUZResponse } from "../../utils/typeuz-response";
 import { ObjectId } from "mongodb";
 import * as UserDAL from "../../dal/user";
 import {
@@ -85,7 +85,7 @@ export function addApiRoutes(app: Application): void {
     res
       .status(404)
       .json(
-        new MonkeyResponse(
+        new TypeUZResponse(
           `Unknown request URL (${req.method}: ${req.path})`,
           null,
         ),
@@ -165,13 +165,13 @@ function applyDevApiRoutes(app: Application): void {
       try {
         const { username } = (req.body ?? {}) as { username?: unknown };
         if (username === undefined || username === null || typeof username !== "string") {
-          res.status(400).json(new MonkeyResponse("Username required", null));
+          res.status(400).json(new TypeUZResponse("Username required", null));
           return;
         }
         const existing = await UserDAL.findByName(username);
         if (existing) {
           res.status(200).json(
-            new MonkeyResponse("ok", {
+            new TypeUZResponse("ok", {
               uid: existing.uid,
               email: existing.email,
               name: existing.name,
@@ -183,11 +183,11 @@ function applyDevApiRoutes(app: Application): void {
         const email = `${username}@dev.local`;
         await UserDAL.addUser(username, email, uid);
         res.status(200).json(
-          new MonkeyResponse("ok", { uid, email, name: username }),
+          new TypeUZResponse("ok", { uid, email, name: username }),
         );
       } catch (e) {
         Logger.error(`Dev login error: ${(e as Error).message}`);
-        res.status(500).json(new MonkeyResponse("Dev login failed", null));
+        res.status(500).json(new TypeUZResponse("Dev login failed", null));
       }
     });
   }
@@ -224,11 +224,15 @@ function applyApiRoutes(app: Application): void {
 
   app.get("/", (_req, res) => {
     res.status(200).json(
-      new MonkeyResponse("ok", {
+      new TypeUZResponse("ok", {
         uptime: Date.now() - APP_START_TIME,
         version,
       }),
     );
+  });
+
+  app.get("/health", (_req, res) => {
+    res.status(200).json({ status: "ok", uptime: Date.now() - APP_START_TIME });
   });
 
   for (const [route, mapRouter] of Object.entries(API_ROUTE_MAP)) {

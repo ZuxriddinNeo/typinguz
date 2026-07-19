@@ -27,7 +27,7 @@ import { WordGenError } from "../utils/word-gen-error";
 
 import { showLoaderBar, hideLoaderBar } from "../states/loader-bar";
 import { PolyglotWordset } from "./funbox/funbox-functions";
-import { LanguageObject } from "@monkeytype/schemas/languages";
+import { LanguageObject } from "@typeuz/schemas/languages";
 import { getCurrentQuote, isRepeated, setCurrentQuote } from "../states/test";
 import * as TestWords from "./test-words";
 import { getContentType } from "../states/content-type";

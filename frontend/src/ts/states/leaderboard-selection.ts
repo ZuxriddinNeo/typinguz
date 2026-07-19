@@ -1,6 +1,6 @@
-import { LanguageSchema } from "@monkeytype/schemas/languages";
-import { ModeSchema } from "@monkeytype/schemas/shared";
-import { Accessor, createEffect, createSignal, Setter } from "solid-js";
+import { LanguageSchema } from "@typeuz/schemas/languages";
+import { ModeSchema } from "@typeuz/schemas/shared";
+import { Accessor, createSignal, Setter } from "solid-js";
 import { z } from "zod";
 import { serialize as serializeUrlSearchParams } from "zod-urlsearchparams";
 import { useLocalStorage } from "../hooks/useLocalStorage";
@@ -53,16 +53,13 @@ const [getSelectionLs, setSelection] = lsSelection();
 export const [getPage, setPage] = createSignal(0);
 export const [getGoToUserPage, setGoToUserPage] = createSignal(false);
 
-// Reset friendsOnly when connections are disabled
-createEffect(() => {
-  if (
-    getSelectionLs().friendsOnly &&
-    (getSnapshot() === undefined ||
-      !getServerConfiguration()?.connections.enabled)
-  ) {
-    setSelection((old) => ({ ...old, friendsOnly: false }));
-  }
-});
+if (
+  getSelectionLs().friendsOnly &&
+  (getSnapshot() === undefined ||
+    !getServerConfiguration()?.connections.enabled)
+) {
+  setSelection((old) => ({ ...old, friendsOnly: false }));
+}
 
 export const getSelection = (): Selection => {
   return getSelectionLs();

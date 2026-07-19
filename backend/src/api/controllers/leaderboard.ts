@@ -1,7 +1,7 @@
-import { MonkeyResponse } from "../../utils/monkey-response";
+import { TypeUZResponse } from "../../utils/typeuz-response";
 import * as LeaderboardsDAL from "../../dal/leaderboards";
 import * as ConnectionsDal from "../../dal/connections";
-import MonkeyError from "../../utils/error";
+import TypeUZError from "../../utils/error";
 import * as DailyLeaderboards from "../../utils/daily-leaderboards";
 import * as WeeklyXpLeaderboard from "../../services/weekly-xp-leaderboard";
 import {
@@ -18,18 +18,18 @@ import {
   GetWeeklyXpLeaderboardRankQuery,
   GetWeeklyXpLeaderboardRankResponse,
   GetWeeklyXpLeaderboardResponse,
-} from "@monkeytype/contracts/leaderboards";
-import { Configuration } from "@monkeytype/schemas/configuration";
+} from "@typeuz/contracts/leaderboards";
+import { Configuration } from "@typeuz/schemas/configuration";
 import {
   getCurrentDayTimestamp,
   getCurrentWeekTimestamp,
   MILLISECONDS_IN_DAY,
-} from "@monkeytype/util/date-and-time";
-import { MonkeyRequest } from "../types";
+} from "@typeuz/util/date-and-time";
+import { TypeUZRequest } from "../types";
 import { omit } from "../../utils/misc";
 
 export async function getLeaderboard(
-  req: MonkeyRequest<GetLeaderboardQuery>,
+  req: TypeUZRequest<GetLeaderboardQuery>,
 ): Promise<GetLeaderboardResponse> {
   const { language, mode, mode2, page, pageSize, friendsOnly, numbers } =
     req.query;
@@ -50,7 +50,7 @@ export async function getLeaderboard(
   );
 
   if (leaderboard === false) {
-    throw new MonkeyError(
+    throw new TypeUZError(
       503,
       "Leaderboard is currently updating. Please try again in a few seconds.",
     );
@@ -65,7 +65,7 @@ export async function getLeaderboard(
   );
   const normalizedLeaderboard = leaderboard.map((it) => omit(it, ["_id"]));
 
-  return new MonkeyResponse("Leaderboard retrieved", {
+  return new TypeUZResponse("Leaderboard retrieved", {
     count,
     entries: normalizedLeaderboard,
     pageSize,
@@ -73,7 +73,7 @@ export async function getLeaderboard(
 }
 
 export async function getRankFromLeaderboard(
-  req: MonkeyRequest<GetLeaderboardRankQuery>,
+  req: TypeUZRequest<GetLeaderboardRankQuery>,
 ): Promise<GetLeaderboardRankResponse> {
   const { language, mode, mode2, friendsOnly, numbers } = req.query;
   const { uid } = req.ctx.decodedToken;
@@ -88,17 +88,17 @@ export async function getRankFromLeaderboard(
     numbers,
   );
   if (data === false) {
-    throw new MonkeyError(
+    throw new TypeUZError(
       503,
       "Leaderboard is currently updating. Please try again in a few seconds.",
     );
   }
 
   if (data === null) {
-    return new MonkeyResponse("Rank retrieved", null);
+    return new TypeUZResponse("Rank retrieved", null);
   }
 
-  return new MonkeyResponse("Rank retrieved", omit(data, ["_id"]));
+  return new TypeUZResponse("Rank retrieved", omit(data, ["_id"]));
 }
 
 function getDailyLeaderboardWithError(
@@ -118,14 +118,14 @@ function getDailyLeaderboardWithError(
     customTimestamp,
   );
   if (!dailyLeaderboard) {
-    throw new MonkeyError(404, "There is no daily leaderboard for this mode");
+    throw new TypeUZError(404, "There is no daily leaderboard for this mode");
   }
 
   return dailyLeaderboard;
 }
 
 export async function getDailyLeaderboard(
-  req: MonkeyRequest<GetDailyLeaderboardQuery>,
+  req: TypeUZRequest<GetDailyLeaderboardQuery>,
 ): Promise<GetDailyLeaderboardResponse> {
   const { page, pageSize, friendsOnly } = req.query;
   const { uid } = req.ctx.decodedToken;
@@ -150,7 +150,7 @@ export async function getDailyLeaderboard(
     friendUids,
   );
 
-  return new MonkeyResponse("Daily leaderboard retrieved", {
+  return new TypeUZResponse("Daily leaderboard retrieved", {
     entries: results?.entries ?? [],
     count: results?.count ?? 0,
     minWpm: results?.minWpm ?? 0,
@@ -159,7 +159,7 @@ export async function getDailyLeaderboard(
 }
 
 export async function getDailyLeaderboardRank(
-  req: MonkeyRequest<GetDailyLeaderboardRankQuery>,
+  req: TypeUZRequest<GetDailyLeaderboardRankQuery>,
 ): Promise<GetLeaderboardDailyRankResponse> {
   const { friendsOnly } = req.query;
   const { uid } = req.ctx.decodedToken;
@@ -182,7 +182,7 @@ export async function getDailyLeaderboardRank(
     friendUids,
   );
 
-  return new MonkeyResponse("Daily leaderboard rank retrieved", rank);
+  return new TypeUZResponse("Daily leaderboard rank retrieved", rank);
 }
 
 function getWeeklyXpLeaderboardWithError(
@@ -196,14 +196,14 @@ function getWeeklyXpLeaderboardWithError(
 
   const weeklyXpLeaderboard = WeeklyXpLeaderboard.get(config, customTimestamp);
   if (!weeklyXpLeaderboard) {
-    throw new MonkeyError(404, "XP leaderboard for this week not found.");
+    throw new TypeUZError(404, "XP leaderboard for this week not found.");
   }
 
   return weeklyXpLeaderboard;
 }
 
 export async function getWeeklyXpLeaderboard(
-  req: MonkeyRequest<GetWeeklyXpLeaderboardQuery>,
+  req: TypeUZRequest<GetWeeklyXpLeaderboardQuery>,
 ): Promise<GetWeeklyXpLeaderboardResponse> {
   const { page, pageSize, weeksBefore, friendsOnly } = req.query;
 
@@ -228,7 +228,7 @@ export async function getWeeklyXpLeaderboard(
     friendUids,
   );
 
-  return new MonkeyResponse("Weekly xp leaderboard retrieved", {
+  return new TypeUZResponse("Weekly xp leaderboard retrieved", {
     entries: results?.entries ?? [],
     count: results?.count ?? 0,
     pageSize,
@@ -236,7 +236,7 @@ export async function getWeeklyXpLeaderboard(
 }
 
 export async function getWeeklyXpLeaderboardRank(
-  req: MonkeyRequest<GetWeeklyXpLeaderboardRankQuery>,
+  req: TypeUZRequest<GetWeeklyXpLeaderboardRankQuery>,
 ): Promise<GetWeeklyXpLeaderboardRankResponse> {
   const { friendsOnly } = req.query;
   const { uid } = req.ctx.decodedToken;
@@ -258,7 +258,7 @@ export async function getWeeklyXpLeaderboardRank(
     friendUids,
   );
 
-  return new MonkeyResponse("Weekly xp leaderboard rank retrieved", rankEntry);
+  return new TypeUZResponse("Weekly xp leaderboard rank retrieved", rankEntry);
 }
 
 async function getFriendsUids(
@@ -268,7 +268,7 @@ async function getFriendsUids(
 ): Promise<string[] | undefined> {
   if (uid !== "" && friendsOnly) {
     if (!friendsConfig.enabled) {
-      throw new MonkeyError(503, "This feature is currently unavailable.");
+      throw new TypeUZError(503, "This feature is currently unavailable.");
     }
     return await ConnectionsDal.getFriendsUids(uid);
   }
@@ -282,7 +282,7 @@ function getFriendsOnlyUid(
 ): string | undefined {
   if (uid !== "" && friendsOnly === true) {
     if (!friendsConfig.enabled) {
-      throw new MonkeyError(503, "This feature is currently unavailable.");
+      throw new TypeUZError(503, "This feature is currently unavailable.");
     }
     return uid;
   }

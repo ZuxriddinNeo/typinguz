@@ -1,4 +1,4 @@
-import type { XpBreakdown } from "@monkeytype/schemas/results";
+import type { XpBreakdown } from "@typeuz/schemas/results";
 
 import { onMount } from "solid-js";
 
