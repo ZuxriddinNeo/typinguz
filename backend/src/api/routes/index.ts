@@ -164,7 +164,11 @@ function applyDevApiRoutes(app: Application): void {
     app.post("/dev/login", async (req, res) => {
       try {
         const { username } = (req.body ?? {}) as { username?: unknown };
-        if (username === undefined || username === null || typeof username !== "string") {
+        if (
+          username === undefined ||
+          username === null ||
+          typeof username !== "string"
+        ) {
           res.status(400).json(new TypeUZResponse("Username required", null));
           return;
         }
@@ -182,9 +186,9 @@ function applyDevApiRoutes(app: Application): void {
         const uid = new ObjectId().toHexString();
         const email = `${username}@dev.local`;
         await UserDAL.addUser(username, email, uid);
-        res.status(200).json(
-          new TypeUZResponse("ok", { uid, email, name: username }),
-        );
+        res
+          .status(200)
+          .json(new TypeUZResponse("ok", { uid, email, name: username }));
       } catch (e) {
         Logger.error(`Dev login error: ${(e as Error).message}`);
         res.status(500).json(new TypeUZResponse("Dev login failed", null));
@@ -229,10 +233,6 @@ function applyApiRoutes(app: Application): void {
         version,
       }),
     );
-  });
-
-  app.get("/health", (_req, res) => {
-    res.status(200).json({ status: "ok", uptime: Date.now() - APP_START_TIME });
   });
 
   for (const [route, mapRouter] of Object.entries(API_ROUTE_MAP)) {

@@ -16,19 +16,29 @@ import { isDevEnvironment } from "./utils/misc";
 
 const etagFn = createETagGenerator({ weak: true });
 
+const APP_START_TIME = Date.now();
+
 function buildApp(): express.Application {
   const app = express();
+
+  app.get("/health", (_req, res) => {
+    res.status(200).json({ status: "ok", uptime: Date.now() - APP_START_TIME });
+  });
 
   app.use(urlencoded({ extended: true }));
   app.use(json());
 
   const allowedOriginsEnv = process.env["ALLOWED_ORIGINS"];
 
-  const corsOrigins: string | string[] = allowedOriginsEnv !== undefined && allowedOriginsEnv !== ""
-    ? allowedOriginsEnv.split(",").map((s) => s.trim()).filter(Boolean)
-    : isDevEnvironment()
-      ? "*"
-      : [];
+  const corsOrigins: string | string[] =
+    allowedOriginsEnv !== undefined && allowedOriginsEnv !== ""
+      ? allowedOriginsEnv
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : isDevEnvironment()
+        ? "*"
+        : [];
   app.use(
     cors({
       origin: corsOrigins,
