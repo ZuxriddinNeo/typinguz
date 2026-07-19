@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "oxlint . --type-aware --type-check",
     "lint-fast": "oxlint .",
-    "build": "pnpm gen-docs && tsc --build",
+    "build": "tsc --build",
     "watch": "tsc --build --watch",
     "clean": "tsc --build --clean",
     "ts-check": "tsc --noEmit",
@@ -17,7 +17,7 @@
     "dev": "concurrently -p none \"tsx watch --clear-screen=false --inspect ./src/server.ts\" \"tsc --preserveWatchOutput --noEmit --watch\"",
     "docker-db-only": "docker compose --env-file .env -f docker/compose.db-only.yml up",
     "docker": "docker compose --env-file .env -f docker/compose.yml up",
-    "gen-docs": "unset npm_config_store_dir npm_config_verify_deps_before_run npm_config__jsr_registry 2>/dev/null; tsx scripts/openapi.ts dist/static/api/openapi.json && redocly build-docs -o dist/static/api/internal.html internal@v2 && redocly bundle -o dist/static/api/public.json public-filter && redocly build-docs -o dist/static/api/public.html public@v2"
+    "gen-docs": "tsx scripts/openapi.ts dist/static/api/openapi.json && redocly build-docs -o dist/static/api/internal.html internal@v2 && redocly bundle -o dist/static/api/public.json public-filter && redocly build-docs -o dist/static/api/public.html public@v2"
   },
   "dependencies": {
     "@date-fns/utc": "1.2.0",
