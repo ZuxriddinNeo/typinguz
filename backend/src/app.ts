@@ -16,13 +16,14 @@ import { isDevEnvironment } from "./utils/misc";
 
 const etagFn = createETagGenerator({ weak: true });
 
-const APP_START_TIME = Date.now();
-
 function buildApp(): express.Application {
   const app = express();
 
+  app.get("/", (_req, res) => {
+    res.status(200).send("ok");
+  });
   app.get("/health", (_req, res) => {
-    res.status(200).json({ status: "ok", uptime: Date.now() - APP_START_TIME });
+    res.status(200).send("ok");
   });
 
   app.use(urlencoded({ extended: true }));
