@@ -218,11 +218,19 @@ export async function getAnalytics(
 
   if (isDevEnvironment()) {
     const cached = devGet<AdminAnalyticsResponse["data"]>("admin_analytics");
+    const byEmail =
+      devGet<Record<string, { uid: string; email: string; name: string }>>(
+        "users_by_email",
+      );
+    const userCount = byEmail !== null ? Object.keys(byEmail).length : 0;
     if (cached !== null) {
-      return new TypeUZResponse("Analytics retrieved", cached);
+      return new TypeUZResponse("Analytics retrieved", {
+        ...cached,
+        totalUsers: cached.totalUsers || userCount,
+      });
     }
     return new TypeUZResponse("Analytics retrieved", {
-      totalUsers: 0,
+      totalUsers: userCount,
       totalTestsStarted: 0,
       totalTestsCompleted: 0,
       totalTimeTyping: 0,
@@ -283,20 +291,13 @@ export async function searchUsers(
   const results: AdminSearchUsersResponse["data"] = [];
 
   if (isDevEnvironment()) {
-    const users = devGet<
-      Array<{
-        uid: string;
-        name: string;
-        email: string;
-        banned?: boolean;
-        addedAt?: number;
-        completedTests?: number;
-        timeTyping?: number;
-      }>
-    >("users");
-    if (users !== null) {
+    const byEmail =
+      devGet<Record<string, { uid: string; email: string; name: string }>>(
+        "users_by_email",
+      );
+    if (byEmail !== null) {
       const lower = q.toLowerCase();
-      const filtered = users.filter(
+      const filtered = Object.values(byEmail).filter(
         (u) =>
           u.uid.toLowerCase().includes(lower) ||
           u.name.toLowerCase().includes(lower) ||
