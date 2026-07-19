@@ -13,6 +13,7 @@
     "audit": "vite-bundle-visualizer",
     "dep-graph": "madge -c -i \"dep-graph.png\" ./src/ts",
     "ts-check": "tsc --noEmit",
+    "prebuild": "node scripts/gen-firebase-config.mjs",
     "build": "madge --circular --extensions ts ./src && vite build",
     "madge": " madge --circular --extensions ts ./src",
     "start": "vite preview --port 3000",
@@ -41,6 +42,11 @@
     "@tanstack/solid-query": "5.101.0",
     "@tanstack/solid-table": "8.21.3",
     "@ts-rest/core": "3.52.1",
+    "@typeuz/challenges": "workspace:*",
+    "@typeuz/contracts": "workspace:*",
+    "@typeuz/funbox": "workspace:*",
+    "@typeuz/schemas": "workspace:*",
+    "@typeuz/util": "workspace:*",
     "animejs": "4.2.2",
     "balloon-css": "1.2.0",
     "canvas-confetti": "1.9.4",
@@ -65,12 +71,7 @@
     "tailwind-merge": "3.6.0",
     "throttle-debounce": "5.0.2",
     "zod": "3.23.8",
-    "zod-urlsearchparams": "0.0.16",
-    "@typeuz/challenges": "workspace:*",
-    "@typeuz/contracts": "workspace:*",
-    "@typeuz/funbox": "workspace:*",
-    "@typeuz/schemas": "workspace:*",
-    "@typeuz/util": "workspace:*"
+    "zod-urlsearchparams": "0.0.16"
   },
   "devDependencies": {
     "@actions/core": "3.0.1",
@@ -94,6 +95,8 @@
     "@types/object-hash": "3.0.6",
     "@types/subset-font": "1.4.3",
     "@types/throttle-debounce": "5.0.2",
+    "@typeuz/oxlint-config": "workspace:*",
+    "@typeuz/typescript-config": "workspace:*",
     "@vitest/coverage-v8": "4.1.5",
     "autoprefixer": "10.4.27",
     "caniuse-lite": "1.0.30001778",
@@ -126,9 +129,7 @@
     "vite-plugin-minify": "2.1.0",
     "vite-plugin-pwa": "1.1.0",
     "vite-plugin-solid": "2.11.11",
-    "vitest": "4.1.0",
-    "@typeuz/oxlint-config": "workspace:*",
-    "@typeuz/typescript-config": "workspace:*"
+    "vitest": "4.1.0"
   },
   "lint-staged": {
     "*": [
