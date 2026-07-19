@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "oxlint . --type-aware --type-check",
     "lint-fast": "oxlint .",
-    "build": "pnpm gen-docs && tsc --build",
+    "build": "unset npm_config_store_dir npm_config_verify_deps_before_run npm_config__jsr_registry && pnpm gen-docs && tsc --build",
     "watch": "tsc --build --watch",
     "clean": "tsc --build --clean",
     "ts-check": "tsc --noEmit",
