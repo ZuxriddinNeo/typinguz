@@ -4,6 +4,7 @@ services:
     env: node
     buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm build-be
     startCommand: node backend/dist/server.js
+    healthCheckPath: /health
     envVars:
       - key: MODE
         value: dev
@@ -11,3 +12,19 @@ services:
         value: "10000"
       - key: NODE_ENV
         value: production
+      - key: BYPASS_FIREBASE
+        value: "true"
+      - key: BYPASS_ANTICHEAT
+        value: "true"
+      - key: BYPASS_EMAILCLIENT
+        value: "true"
+      - key: FRONTEND_URL
+        value: https://typeuz.uz
+      - key: ALLOWED_ORIGINS
+        value: https://typeuz.uz
+      - key: LOG_FOLDER_PATH
+        value: ./logs
+      - key: JWT_SECRET
+        sync: false
+      - key: RECAPTCHA_SECRET
+        sync: false
