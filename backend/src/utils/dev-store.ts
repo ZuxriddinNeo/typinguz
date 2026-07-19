@@ -2,7 +2,23 @@ import fs from "fs";
 import path from "path";
 import { isDevEnvironment } from "./misc";
 
-const DATA_DIR = path.join(process.cwd(), ".dev-data");
+function getDataDir(): string {
+  const dirs = [path.join(process.cwd(), ".dev-data"), "/tmp/.dev-data"];
+  for (const dir of dirs) {
+    try {
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      fs.accessSync(dir, fs.constants.W_OK);
+      return dir;
+    } catch {
+      continue;
+    }
+  }
+  return dirs[1] ?? "/tmp/.dev-data";
+}
+
+const DATA_DIR = getDataDir();
 
 function ensureDir(): void {
   if (!isDevEnvironment()) return;
