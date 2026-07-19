@@ -24,7 +24,6 @@ import { devGet, devSet } from "./utils/dev-store";
 import { isDevEnvironment } from "./utils/misc";
 
 async function seedDefaultAdmin(): Promise<void> {
-  if (!isDevEnvironment()) return;
   const ADMIN_CRED_KEY = "admin_credentials";
   const existing = devGet<Record<string, unknown>>(ADMIN_CRED_KEY);
   if (existing !== null && Object.keys(existing).length > 0) return;

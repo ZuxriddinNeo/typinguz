@@ -178,7 +178,7 @@ export function formatSeconds(
 }
 
 export function isDevEnvironment(): boolean {
-  return process.env["MODE"] === "dev";
+  return process.env["MODE"] !== "production";
 }
 
 export function getFrontendUrl(): string {
