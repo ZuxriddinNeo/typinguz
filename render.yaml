@@ -4,7 +4,6 @@ services:
     env: node
     buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm build-be
     startCommand: node backend/dist/server.js
-    healthCheckPath: /health
     envVars:
       - key: MODE
         value: dev
