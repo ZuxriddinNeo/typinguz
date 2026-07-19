@@ -1,8 +1,6 @@
 {
-  "installCommand": "cd .. && pnpm install --frozen-lockfile",
+  "installCommand": "cd .. && pnpm install --frozen-lockfile --filter @typeuz/frontend",
   "buildCommand": "cd .. && pnpm run build-fe",
   "outputDirectory": "dist",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
