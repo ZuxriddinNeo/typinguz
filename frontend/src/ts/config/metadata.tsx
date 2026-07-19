@@ -214,6 +214,9 @@ export const configMetadata: ConfigMetadataObject = {
       custom: {
         fa: { icon: "fa-wrench" },
       },
+      ai: {
+        fa: { icon: "fa-robot" },
+      },
     },
     group: "test",
     overrideConfig: ({ value }) => {

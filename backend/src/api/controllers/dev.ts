@@ -231,6 +231,7 @@ async function updateUser(uid: string): Promise<void> {
   const personalBests: PersonalBests = {
     time: {},
     custom: {},
+    ai: {},
     words: {},
     zen: {},
     quote: {},

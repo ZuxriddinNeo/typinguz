@@ -107,6 +107,7 @@ export async function addUser(
       quote: {},
       zen: {},
       custom: {},
+      ai: {},
     },
     testActivity: {},
     lastLoginAt: Date.now(),
@@ -138,6 +139,7 @@ export async function resetUser(uid: string): Promise<void> {
           quote: {},
           zen: {},
           custom: {},
+          ai: {},
         },
         lbPersonalBests: {
           time: {},
@@ -217,6 +219,7 @@ export async function clearPb(uid: string): Promise<void> {
           quote: {},
           zen: {},
           custom: {},
+          ai: {},
         },
         lbPersonalBests: {
           time: {},
@@ -308,7 +311,10 @@ export async function findByEmail(email: string): Promise<DBUser | undefined> {
 }
 
 export async function updateLastLoginAt(uid: string): Promise<void> {
-  await getUsersCollection().updateOne({ uid }, { $set: { lastLoginAt: Date.now() } });
+  await getUsersCollection().updateOne(
+    { uid },
+    { $set: { lastLoginAt: Date.now() } },
+  );
 }
 
 export async function isNameAvailable(
@@ -397,6 +403,7 @@ export async function addTag(uid: string, name: string): Promise<DBUserTag> {
       quote: {},
       zen: {},
       custom: {},
+      ai: {},
     },
   };
 
@@ -456,6 +463,7 @@ export async function removeTagPb(uid: string, _id: string): Promise<void> {
           quote: {},
           zen: {},
           custom: {},
+          ai: {},
         },
       },
     },
@@ -503,6 +511,7 @@ export async function checkIfPb(
   user.personalBests ??= {
     time: {},
     custom: {},
+    ai: {},
     quote: {},
     words: {},
     zen: {},
@@ -567,6 +576,7 @@ export async function checkIfTagPb(
       quote: {},
       zen: {},
       custom: {},
+      ai: {},
     };
 
     const tagpb = checkAndUpdatePb(tag.personalBests, undefined, result);
@@ -593,6 +603,7 @@ export async function resetPb(uid: string): Promise<void> {
           quote: {},
           zen: {},
           custom: {},
+          ai: {},
         },
       },
     },
@@ -972,10 +983,7 @@ export async function updateProfileDetails(
   uid: string,
   updates: Record<string, unknown>,
 ): Promise<void> {
-  await getUsersCollection().updateOne(
-    { uid },
-    { $set: updates },
-  );
+  await getUsersCollection().updateOne({ uid }, { $set: updates });
 }
 
 export async function getInbox(
@@ -1407,6 +1415,7 @@ function migrateUser<T extends { personalBests: PersonalBests }>(user: T): T {
     quote: {},
     zen: {},
     custom: {},
+    ai: {},
   };
 
   return user;

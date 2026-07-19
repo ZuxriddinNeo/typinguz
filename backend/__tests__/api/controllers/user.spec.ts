@@ -2137,6 +2137,7 @@ describe("user controller test", () => {
         quote: {},
         zen: {},
         custom: {},
+        ai: {},
       },
     };
 
@@ -2951,6 +2952,7 @@ describe("user controller test", () => {
           "42": [pb(42), pb(43)],
         },
         custom: {},
+        ai: {},
         zen: {},
         quote: {},
       },
@@ -3218,7 +3220,7 @@ describe("user controller test", () => {
           socialProfiles: {
             github: "github",
             twitter: "twitter",
-          website: "https://typeuz.uz",
+            website: "https://typeuz.uz",
           },
           showActivityOnPublicProfile: false,
         },

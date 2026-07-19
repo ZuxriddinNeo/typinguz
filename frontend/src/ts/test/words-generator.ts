@@ -15,7 +15,7 @@ import * as Strings from "../utils/strings";
 import * as Arrays from "../utils/arrays";
 import * as TestState from "../test/test-state";
 import * as GetText from "../utils/generate";
-import { FunboxWordOrder } from "../utils/json-data";
+import { cachedFetchJson, FunboxWordOrder } from "../utils/json-data";
 import {
   findSingleActiveFunboxWithFunction,
   getActiveFunboxes,
@@ -426,6 +426,9 @@ export function getLimit(): number {
   if (Config.mode === "zen") {
     return 0;
   }
+  if (Config.mode === "ai") {
+    return Config.words || 50;
+  }
 
   let limit = 100;
 
@@ -598,6 +601,11 @@ async function getQuoteWordList(
   return currentQuote.textSplit;
 }
 
+async function getAIWordList(): Promise<string[]> {
+  const data = await cachedFetchJson<{ words: string[] }>("/languages/ai.json");
+  return data.words;
+}
+
 let currentWordset: Wordset | null = null;
 let currentLanguage: LanguageObject | null = null;
 let isCurrentlyUsingFunboxSection = false;
@@ -647,6 +655,8 @@ export async function generateWords(
     wordList = await getQuoteWordList(language, wordOrder);
   } else if (Config.mode === "zen") {
     wordList = [];
+  } else if (Config.mode === "ai") {
+    wordList = await getAIWordList();
   }
 
   const customAndUsingPipeDelimiter =
@@ -1015,6 +1025,9 @@ export function appendCommitCharacter(word: string): string {
 export function areAllWordsGenerated(): boolean {
   return (
     (Config.mode === "words" &&
+      TestWords.words.length >= Config.words &&
+      Config.words > 0) ||
+    (Config.mode === "ai" &&
       TestWords.words.length >= Config.words &&
       Config.words > 0) ||
     (Config.mode === "custom" &&

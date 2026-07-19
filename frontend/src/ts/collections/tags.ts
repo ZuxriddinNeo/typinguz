@@ -133,7 +133,14 @@ const actions = {
       tagsCollection.insert({
         _id: tempId(),
         name: name.replace(/_/g, " "),
-        personalBests: { time: {}, words: {}, quote: {}, zen: {}, custom: {} },
+        personalBests: {
+          time: {},
+          words: {},
+          quote: {},
+          zen: {},
+          custom: {},
+          ai: {},
+        },
         active: false,
       });
     },
@@ -187,6 +194,7 @@ const actions = {
           quote: {},
           zen: {},
           custom: {},
+          ai: {},
         };
       });
     },
@@ -206,6 +214,7 @@ const actions = {
           quote: {},
           zen: {},
           custom: {},
+          ai: {},
         },
       });
     },
@@ -407,6 +416,7 @@ export function saveLocalTagPB<M extends Mode>(
     quote: {},
     zen: {},
     custom: {},
+    ai: {},
   };
 
   tag.personalBests[mode] ??= {
@@ -459,6 +469,7 @@ export function saveLocalTagPB<M extends Mode>(
       quote: {},
       zen: {},
       custom: {},
+      ai: {},
     };
     tag.personalBests[mode][mode2] = [
       {

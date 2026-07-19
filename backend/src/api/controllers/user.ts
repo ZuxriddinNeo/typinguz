@@ -113,8 +113,7 @@ async function verifyCaptcha(captcha: string): Promise<void> {
 export async function createNewUser(
   req: TypeUZRequest<undefined, CreateUserRequest>,
 ): Promise<TypeUZResponse> {
-  const { name, firstName, lastName, captcha, gender, age, avatar } =
-    req.body;
+  const { name, firstName, lastName, captcha, gender, age, avatar } = req.body;
   const { email, uid } = req.ctx.decodedToken;
 
   try {
@@ -134,7 +133,16 @@ export async function createNewUser(
       throw new TypeUZError(409, "Username or email blocked");
     }
 
-    await UserDAL.addUser(name, email, uid, gender, age, avatar, firstName, lastName);
+    await UserDAL.addUser(
+      name,
+      email,
+      uid,
+      gender,
+      age,
+      avatar,
+      firstName,
+      lastName,
+    );
     void addImportantLog("user_created", `${name} ${email}`, uid);
 
     return new TypeUZResponse("User created", null);
@@ -565,7 +573,9 @@ export async function getUser(req: TypeUZRequest): Promise<GetUserResponse> {
         );
       } catch (e) {
         // oxlint-disable-next-line no-unsafe-member-access
-        if ((e as Record<string, unknown>)?.["code"] === "auth/user-not-found") {
+        if (
+          (e as Record<string, unknown>)?.["code"] === "auth/user-not-found"
+        ) {
           throw new TypeUZError(
             404,
             "User not found in the database or the auth system. Please sign up again.",
@@ -587,6 +597,7 @@ export async function getUser(req: TypeUZRequest): Promise<GetUserResponse> {
     quote: {},
     zen: {},
     custom: {},
+    ai: {},
   };
 
   const agentLog = buildAgentLog(req);

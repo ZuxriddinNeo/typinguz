@@ -24,6 +24,7 @@ async function createDummyData(
       words: {},
       quote: {},
       custom: {},
+      ai: {},
       zen: {},
     },
   };

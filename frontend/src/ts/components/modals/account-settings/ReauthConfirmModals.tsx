@@ -126,6 +126,7 @@ export function showResetPersonalBestsModal(): void {
         quote: {},
         zen: {},
         custom: {},
+        ai: {},
       };
 
       return {

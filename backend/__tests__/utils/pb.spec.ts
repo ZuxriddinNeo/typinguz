@@ -45,6 +45,7 @@ describe("Pb Utils", () => {
         time: {},
         words: {},
         custom: {},
+        ai: {},
         quote: {},
         zen: {},
       };
@@ -92,6 +93,7 @@ describe("Pb Utils", () => {
         },
         words: {},
         custom: {},
+        ai: {},
         quote: {},
         zen: {},
       };
@@ -153,6 +155,7 @@ describe("Pb Utils", () => {
       },
       words: {},
       custom: {},
+      ai: {},
       quote: {},
       zen: {},
     };

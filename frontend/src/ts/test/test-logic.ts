@@ -636,7 +636,10 @@ export async function addWord(): Promise<void> {
       let wordCount = 0;
       for (let i = 0; i < section.words.length; i++) {
         const word = section.words[i] as string;
-        if (wordCount >= Config.words && Config.mode === "words") {
+        if (
+          wordCount >= Config.words &&
+          (Config.mode === "words" || Config.mode === "ai")
+        ) {
           break;
         }
         wordCount++;
@@ -936,6 +939,7 @@ export async function finish(difficultyFailed = false): Promise<void> {
     (Config.mode === "time" &&
       mode2Number === 0 &&
       completedEvent.testDuration < 15) ||
+    (Config.mode === "ai" && completedEvent.testDuration < 15) ||
     (Config.mode === "words" && mode2Number < 10 && mode2Number > 0) ||
     (Config.mode === "words" &&
       mode2Number === 0 &&
@@ -1322,7 +1326,7 @@ window.addEventListener("focus", () => {
   if (
     !isTestActive() &&
     !TestState.resultVisible &&
-    (Config.mode === "time" || Config.mode === "words")
+    (Config.mode === "time" || Config.mode === "words" || Config.mode === "ai")
   ) {
     restart({
       noAnim: true,
@@ -1336,7 +1340,7 @@ document.addEventListener("visibilitychange", () => {
   if (
     !isTestActive() &&
     !TestState.resultVisible &&
-    (Config.mode === "time" || Config.mode === "words")
+    (Config.mode === "time" || Config.mode === "words" || Config.mode === "ai")
   ) {
     restart({
       noAnim: true,

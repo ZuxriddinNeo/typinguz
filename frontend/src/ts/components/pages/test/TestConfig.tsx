@@ -3,15 +3,15 @@ import { For, JSXElement } from "solid-js";
 import { setConfig } from "../../../config/setters";
 import { getConfig } from "../../../config/store";
 import { restartTestEvent } from "../../../events/test";
-import { getFocus, getResultVisible } from "../../../states/test";
-import { showModal } from "../../../states/modals";
-import { cn } from "../../../utils/cn";
-import { SelectField } from "../../ui/form/SelectField";
 import {
   getContentType,
   setContentType,
   ContentType,
 } from "../../../states/content-type";
+import { showModal } from "../../../states/modals";
+import { getFocus, getResultVisible } from "../../../states/test";
+import { cn } from "../../../utils/cn";
+import { SelectField } from "../../ui/form/SelectField";
 
 const times = [15, 30, 60, 120] as const;
 
@@ -34,9 +34,7 @@ export function TestConfig(): JSXElement {
     <div
       class={cn(
         "flex flex-col items-center gap-4 py-6 transition-opacity duration-125",
-        getFocus() || getResultVisible()
-          ? "pointer-events-none opacity-0"
-          : "",
+        getFocus() || getResultVisible() ? "pointer-events-none opacity-0" : "",
       )}
       data-ui-element="testConfig"
     >
@@ -72,6 +70,22 @@ export function TestConfig(): JSXElement {
         >
           <i class="fas fa-sliders-h mr-1"></i>
           Custom
+        </button>
+        <button
+          type="button"
+          class={cn(
+            "min-w-[3rem] rounded-(--roundness) px-4 py-2 text-sm font-medium transition-all duration-125",
+            getConfig.mode === "ai"
+              ? "bg-main text-bg"
+              : "bg-sub-alt text-sub hover:bg-main hover:text-bg",
+          )}
+          onClick={() => {
+            setConfig("mode", "ai");
+            setConfig("words", 50);
+            restartTestEvent.dispatch();
+          }}
+        >
+          AI
         </button>
       </div>
 

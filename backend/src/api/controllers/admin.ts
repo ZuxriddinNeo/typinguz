@@ -404,9 +404,18 @@ export async function sendNotification(
   req: TypeUZRequest<undefined, SendNotificationRequest>,
 ): Promise<TypeUZResponse> {
   const { uid, subject, body } = req.body;
+  const sendToAll = uid === "*";
 
   try {
     if (isDevEnvironment()) {
+      const allUsers =
+        devGet<Record<string, { uid: string; email: string; name: string }>>(
+          "users_by_email",
+        ) ?? {};
+      const uids = sendToAll
+        ? Object.values(allUsers).map((u) => u.uid)
+        : [uid];
+
       const inbox =
         devGet<
           Array<{
@@ -418,27 +427,43 @@ export async function sendNotification(
             read: boolean;
           }>
         >("admin_notifications") ?? [];
-      inbox.push({
-        id: new ObjectId().toHexString(),
-        uid,
-        subject,
-        body,
-        timestamp: Date.now(),
-        read: false,
-      });
+
+      for (const targetUid of uids) {
+        inbox.push({
+          id: new ObjectId().toHexString(),
+          uid: targetUid,
+          subject,
+          body,
+          timestamp: Date.now(),
+          read: false,
+        });
+      }
       devSet("admin_notifications", inbox);
-      safeImportantLog("admin_notification_sent", { uid, subject }, uid);
-      return new TypeUZResponse("Notification sent", null);
+      safeImportantLog(
+        "admin_notification_sent",
+        { uid: sendToAll ? "*" : uid, subject, count: uids.length },
+        uid,
+      );
+      return new TypeUZResponse(
+        `Xabar ${sendToAll ? `barcha ${uids.length} foydalanuvchiga` : "yuborildi"}`,
+        null,
+      );
     }
 
-    const mail = buildMonkeyMail({ subject, body });
-    const config = { enabled: true, maxMail: 100 };
-    await UserDAL.addToInbox(uid, [mail], config).catch((_e: unknown) => {
-      void _e;
-    });
-    safeImportantLog("admin_notification_sent", { uid, subject }, uid);
+    if (!sendToAll) {
+      const mail = buildMonkeyMail({ subject, body });
+      const config = { enabled: true, maxMail: 100 };
+      await UserDAL.addToInbox(uid, [mail], config).catch((_e: unknown) => {
+        void _e;
+      });
+    }
+    safeImportantLog(
+      "admin_notification_sent",
+      { uid: sendToAll ? "*" : uid, subject },
+      uid,
+    );
 
-    return new TypeUZResponse("Notification sent", null);
+    return new TypeUZResponse("Xabar yuborildi", null);
   } catch (e) {
     throw new TypeUZError(
       500,

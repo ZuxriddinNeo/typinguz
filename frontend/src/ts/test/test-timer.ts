@@ -223,7 +223,7 @@ function checkIfTimeIsUp(): void {
   if (timerDebug) console.time("times up check");
   let maxTime = undefined;
 
-  if (Config.mode === "time") {
+  if (Config.mode === "time" || Config.mode === "ai") {
     maxTime = Config.time;
   } else if (Config.mode === "custom" && CustomText.getLimitMode() === "time") {
     maxTime = CustomText.getLimitValue();
@@ -246,7 +246,7 @@ function playTimeWarning(): void {
 
   let maxTime = undefined;
 
-  if (Config.mode === "time") {
+  if (Config.mode === "time" || Config.mode === "ai") {
     maxTime = Config.time;
   } else if (Config.mode === "custom" && CustomText.getLimitMode() === "time") {
     maxTime = CustomText.getLimitValue();
@@ -324,6 +324,7 @@ function checkIfTimerIsSlow(drift: number): void {
   if (!slowTimerFailEnabled) return;
   if (
     (Config.mode === "time" && Config.time < 130 && Config.time > 0) ||
+    (Config.mode === "ai" && Config.time < 130 && Config.time > 0) ||
     (Config.mode === "words" && Config.words < 250 && Config.words > 0)
   ) {
     if (drift > 125) {

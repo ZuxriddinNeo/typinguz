@@ -7,7 +7,8 @@ export function canQuickRestart(
   CustomText: CustomTextSettings,
   customTextIsLong: boolean,
 ): boolean {
-  const wordsLong = mode === "words" && (words >= 1000 || words === 0);
+  const wordsLong =
+    (mode === "words" || mode === "ai") && (words >= 1000 || words === 0);
   const timeLong = mode === "time" && (time >= 900 || time === 0);
   const customTextLong = mode === "custom" && customTextIsLong;
 

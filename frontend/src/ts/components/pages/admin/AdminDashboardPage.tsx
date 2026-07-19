@@ -86,6 +86,7 @@ export function AdminDashboardPage(): JSXElement {
     Array<{ uid: string; name: string; email: string; banned?: boolean }>
   >([]);
   const [notificationResult, setNotificationResult] = createSignal<string>("");
+  const [sendAll, setSendAll] = createSignal(false);
   const [pwdResult, setPwdResult] = createSignal("");
   const [pwdState, setPwdState] = createSignal<
     "idle" | "loading" | "success" | "error"
@@ -304,8 +305,15 @@ export function AdminDashboardPage(): JSXElement {
     defaultValues: { uid: "", subject: "", body: "" },
     onSubmit: async ({ value }) => {
       try {
-        await Ape.admin.sendNotification({ body: value });
-        setNotificationResult("Bildirishnoma yuborildi");
+        const uid = sendAll() ? "*" : value.uid;
+        await Ape.admin.sendNotification({
+          body: { uid, subject: value.subject, body: value.body },
+        });
+        setNotificationResult(
+          sendAll()
+            ? "Barcha foydalanuvchilarga yuborildi"
+            : "Bildirishnoma yuborildi",
+        );
         showSuccessNotification("Bildirishnoma yuborildi");
       } catch {
         showErrorNotification("Bildirishnoma yuborishda xatolik");
@@ -748,16 +756,38 @@ export function AdminDashboardPage(): JSXElement {
                   }}
                   class="flex flex-col gap-3"
                 >
-                  <notificationForm.Field name="uid">
-                    {(f) => (
+                  <div class="flex items-center gap-3">
+                    <label class="flex cursor-pointer items-center gap-2">
                       <input
-                        value={f().state.value}
-                        onInput={(e) => f().handleChange(e.currentTarget.value)}
-                        placeholder="Foydalanuvchi UID"
-                        class="w-full rounded-xl bg-sub-alt p-3 text-sm text-text ring-1 ring-sub/20 outline-none focus:ring-main"
+                        type="checkbox"
+                        checked={sendAll()}
+                        onChange={(e) => setSendAll(e.currentTarget.checked)}
+                        class="h-4 w-4 accent-main"
                       />
-                    )}
-                  </notificationForm.Field>
+                      <span class="text-sm text-text">Barchaga yuborish</span>
+                    </label>
+                  </div>
+                  <Show
+                    when={!sendAll()}
+                    fallback={
+                      <div class="rounded-lg bg-main/10 p-3 text-xs text-sub">
+                        Barcha ro'yxatdan o'tgan foydalanuvchilarga xabar ketadi
+                      </div>
+                    }
+                  >
+                    <notificationForm.Field name="uid">
+                      {(f) => (
+                        <input
+                          value={f().state.value}
+                          onInput={(e) =>
+                            f().handleChange(e.currentTarget.value)
+                          }
+                          placeholder="Foydalanuvchi UID"
+                          class="w-full rounded-xl bg-sub-alt p-3 text-sm text-text ring-1 ring-sub/20 outline-none focus:ring-main"
+                        />
+                      )}
+                    </notificationForm.Field>
+                  </Show>
                   <notificationForm.Field name="subject">
                     {(f) => (
                       <input
@@ -783,7 +813,7 @@ export function AdminDashboardPage(): JSXElement {
                     type="submit"
                     class="rounded-xl bg-main px-4 py-2 text-sm font-medium text-bg hover:opacity-90"
                   >
-                    Yuborish
+                    {sendAll() ? "Barchaga yuborish" : "Yuborish"}
                   </button>
                 </form>
                 <Show when={notificationResult()}>

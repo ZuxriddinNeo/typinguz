@@ -217,6 +217,7 @@ describe("UserDal", () => {
             quote: {},
             zen: {},
             custom: {},
+            ai: {},
           },
         },
       },
@@ -229,6 +230,7 @@ describe("UserDal", () => {
       words: {},
       quote: {},
       custom: {},
+      ai: {},
       zen: {},
     });
     // when
@@ -241,6 +243,7 @@ describe("UserDal", () => {
       words: {},
       quote: {},
       custom: {},
+      ai: {},
       zen: {},
     });
   });
@@ -422,6 +425,7 @@ describe("UserDal", () => {
         quote: {},
         zen: {},
         custom: {},
+        ai: {},
       };
       const { uid } = await UserTestData.createUser({
         tags: [
@@ -618,6 +622,7 @@ describe("UserDal", () => {
             quote: {},
             zen: {},
             custom: {},
+            ai: {},
           },
         },
         tagThree,
@@ -1133,6 +1138,7 @@ describe("UserDal", () => {
 
       expect(read.personalBests).toEqual({
         custom: {},
+        ai: {},
         quote: {},
         time: {},
         words: {},
@@ -1151,6 +1157,7 @@ describe("UserDal", () => {
 
       expect(read.personalBests).toEqual({
         custom: {},
+        ai: {},
         quote: {},
         time: {},
         words: {},
@@ -1217,6 +1224,7 @@ describe("UserDal", () => {
 
       expect(read.personalBests).toEqual({
         custom: {},
+        ai: {},
         quote: {},
         time: {},
         words: {},
@@ -1265,6 +1273,7 @@ describe("UserDal", () => {
         quote: {},
         zen: {},
         custom: {},
+        ai: {},
       });
     });
   });
@@ -1660,6 +1669,7 @@ describe("UserDal", () => {
       const read = await UserDAL.getUser(uid, "read");
       expect(read.lbMemory).toStrictEqual({
         custom: {},
+        ai: {},
         time: {
           "15": {
             english: 4711,

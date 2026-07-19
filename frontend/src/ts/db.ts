@@ -101,9 +101,10 @@ export async function initSnapshot(): Promise<Snapshot | false> {
       quote: {},
       zen: {},
       custom: {},
+      ai: {},
     };
 
-    for (const mode of ["time", "words", "quote", "zen", "custom"]) {
+    for (const mode of ["time", "words", "quote", "zen", "custom", "ai"]) {
       snap.personalBests[mode as keyof PersonalBests] ??= {};
     }
 
@@ -211,6 +212,7 @@ function saveLocalPB<M extends Mode>(
       quote: {},
       zen: {},
       custom: {},
+      ai: {},
     };
 
     dbSnapshot.personalBests[mode] ??= {
