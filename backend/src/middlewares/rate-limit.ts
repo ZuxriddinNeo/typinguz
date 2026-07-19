@@ -46,8 +46,7 @@ const getKey = (req: Request, _res: Response): string => {
     (req.headers["x-forwarded-for"] as string) ||
     (req.ip as string) ||
     "255.255.255.255";
-  const key = ipKeyGenerator(ip);
-  return key;
+  return ipKeyGenerator(ip);
 };
 
 const getKeyWithUid = (

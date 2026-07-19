@@ -48,7 +48,9 @@ async function savePwDoc(doc: PwDoc): Promise<void> {
   if (isDevEnvironment()) {
     devSet(`pw_${doc.uid}`, doc);
   } else {
-    await collection("user-passwords").insertOne(doc as unknown as WithId<PwDoc>);
+    await collection("user-passwords").insertOne(
+      doc as unknown as WithId<PwDoc>,
+    );
   }
 }
 
@@ -96,7 +98,17 @@ router.post("/email/register", async (req: Request, res: Response) => {
       age?: number;
       avatar?: string;
     };
-    const { email, password, name, firstName, lastName, captcha: _captcha, gender, age, avatar } = body;
+    const {
+      email,
+      password,
+      name,
+      firstName,
+      lastName,
+      captcha: _captcha,
+      gender,
+      age,
+      avatar,
+    } = body;
 
     if (
       email === undefined ||
@@ -106,18 +118,31 @@ router.post("/email/register", async (req: Request, res: Response) => {
       name === undefined ||
       name === ""
     ) {
-      res.status(400).json(new TypeUZResponse("Email, parol va username majburiy", null));
+      res
+        .status(400)
+        .json(new TypeUZResponse("Email, parol va username majburiy", null));
       return;
     }
 
     if (password.length < 8) {
-      res.status(400).json(new TypeUZResponse("Parol kamida 8 belgidan iborat bo'lishi kerak", null));
+      res
+        .status(400)
+        .json(
+          new TypeUZResponse(
+            "Parol kamida 8 belgidan iborat bo'lishi kerak",
+            null,
+          ),
+        );
       return;
     }
 
     const existing = await findUserByEmail(email);
     if (existing !== null) {
-      res.status(409).json(new TypeUZResponse("Bu email allaqachon ro'yxatdan o'tgan", null));
+      res
+        .status(409)
+        .json(
+          new TypeUZResponse("Bu email allaqachon ro'yxatdan o'tgan", null),
+        );
       return;
     }
 
@@ -125,10 +150,23 @@ router.post("/email/register", async (req: Request, res: Response) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     if (!isDevEnvironment()) {
-      await UserDAL.addUser(name, email, uid, gender as Gender, age, avatar, firstName, lastName);
+      await UserDAL.addUser(
+        name,
+        email,
+        uid,
+        gender as Gender,
+        age,
+        avatar,
+        firstName,
+        lastName,
+      );
     }
     await saveUserMeta({ uid, email, name });
-    await savePwDoc({ uid, passwordHash: hashedPassword, createdAt: Date.now() });
+    await savePwDoc({
+      uid,
+      passwordHash: hashedPassword,
+      createdAt: Date.now(),
+    });
 
     const token = signToken({ uid, email });
 
@@ -142,7 +180,9 @@ router.post("/email/register", async (req: Request, res: Response) => {
     );
   } catch (e) {
     Logger.error(`Register error: ${(e as Error).message}`);
-    res.status(500).json(new TypeUZResponse("Ro'yxatdan o'tishda xatolik", null));
+    res
+      .status(500)
+      .json(new TypeUZResponse("Ro'yxatdan o'tishda xatolik", null));
   }
 });
 
@@ -159,26 +199,38 @@ router.post("/email/login", async (req: Request, res: Response) => {
       password === undefined ||
       password === ""
     ) {
-      res.status(400).json(new TypeUZResponse("Email yoki username va parol majburiy", null));
+      res
+        .status(400)
+        .json(
+          new TypeUZResponse("Email yoki username va parol majburiy", null),
+        );
       return;
     }
 
     const isEmail = email.includes("@");
-    const user = isEmail ? await findUserByEmail(email) : await findUserByName(email);
+    const user = isEmail
+      ? await findUserByEmail(email)
+      : await findUserByName(email);
     if (user === null) {
-      res.status(401).json(new TypeUZResponse("Email/username yoki parol noto'g'ri", null));
+      res
+        .status(401)
+        .json(new TypeUZResponse("Email/username yoki parol noto'g'ri", null));
       return;
     }
 
     const pwDoc = await getPwDoc(user.uid);
     if (pwDoc === null) {
-      res.status(401).json(new TypeUZResponse("Email/username yoki parol noto'g'ri", null));
+      res
+        .status(401)
+        .json(new TypeUZResponse("Email/username yoki parol noto'g'ri", null));
       return;
     }
 
     const match = await bcrypt.compare(password, pwDoc.passwordHash);
     if (!match) {
-      res.status(401).json(new TypeUZResponse("Email/username yoki parol noto'g'ri", null));
+      res
+        .status(401)
+        .json(new TypeUZResponse("Email/username yoki parol noto'g'ri", null));
       return;
     }
 
@@ -236,13 +288,21 @@ router.post("/google", async (req: Request, res: Response) => {
     const { idToken } = req.body as { idToken?: string };
 
     if (idToken === undefined || idToken === "") {
-      res.status(400).json(new TypeUZResponse("Google ID token majburiy", null));
+      res
+        .status(400)
+        .json(new TypeUZResponse("Google ID token majburiy", null));
       return;
     }
 
     const googleInfo = await verifyGoogleToken(idToken);
-    if (googleInfo === null || googleInfo.email === undefined || googleInfo.email === "") {
-      res.status(401).json(new TypeUZResponse("Google token tasdiqlanmadi", null));
+    if (
+      googleInfo === null ||
+      googleInfo.email === undefined ||
+      googleInfo.email === ""
+    ) {
+      res
+        .status(401)
+        .json(new TypeUZResponse("Google token tasdiqlanmadi", null));
       return;
     }
 
@@ -262,7 +322,9 @@ router.post("/google", async (req: Request, res: Response) => {
     }
 
     if (user === null) {
-      res.status(500).json(new TypeUZResponse("Foydalanuvchi yaratishda xatolik", null));
+      res
+        .status(500)
+        .json(new TypeUZResponse("Foydalanuvchi yaratishda xatolik", null));
       return;
     }
 
@@ -285,7 +347,9 @@ router.post("/google", async (req: Request, res: Response) => {
     );
   } catch (e) {
     Logger.error(`Google auth error: ${(e as Error).message}`);
-    res.status(500).json(new TypeUZResponse("Google orqali kirishda xatolik", null));
+    res
+      .status(500)
+      .json(new TypeUZResponse("Google orqali kirishda xatolik", null));
   }
 });
 
@@ -294,37 +358,51 @@ router.post("/github", async (req: Request, res: Response) => {
     const { code } = req.body as { code?: string };
 
     if (code === undefined || code === "") {
-      res.status(400).json(new TypeUZResponse("GitHub authorization code majburiy", null));
+      res
+        .status(400)
+        .json(new TypeUZResponse("GitHub authorization code majburiy", null));
       return;
     }
 
     const GITHUB_CLIENT_ID = process.env["GITHUB_CLIENT_ID"] ?? "dev";
     const GITHUB_CLIENT_SECRET = process.env["GITHUB_CLIENT_SECRET"] ?? "dev";
 
-    const tokenResp = await fetch("https://github.com/login/oauth/access_token", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
+    const tokenResp = await fetch(
+      "https://github.com/login/oauth/access_token",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          client_id: GITHUB_CLIENT_ID,
+          client_secret: GITHUB_CLIENT_SECRET,
+          code,
+        }),
       },
-      body: JSON.stringify({
-        client_id: GITHUB_CLIENT_ID,
-        client_secret: GITHUB_CLIENT_SECRET,
-        code,
-      }),
-    });
+    );
 
-    const tokenData = (await tokenResp.json()) as { access_token?: string; error?: string };
+    const tokenData = (await tokenResp.json()) as {
+      access_token?: string;
+      error?: string;
+    };
 
     if (tokenData.access_token === undefined || tokenData.access_token === "") {
-      res.status(401).json(new TypeUZResponse("GitHub token olishda xatolik", null));
+      res
+        .status(401)
+        .json(new TypeUZResponse("GitHub token olishda xatolik", null));
       return;
     }
 
     const userResp = await fetch("https://api.github.com/user", {
       headers: { Authorization: `Bearer ${tokenData.access_token}` },
     });
-    const ghUser = (await userResp.json()) as { login?: string; email?: string; id?: number };
+    const ghUser = (await userResp.json()) as {
+      login?: string;
+      email?: string;
+      id?: number;
+    };
 
     const email = ghUser.email ?? `${ghUser.login ?? "gh_user"}@github.dev`;
 
@@ -341,7 +419,9 @@ router.post("/github", async (req: Request, res: Response) => {
     }
 
     if (user === null) {
-      res.status(500).json(new TypeUZResponse("Foydalanuvchi yaratishda xatolik", null));
+      res
+        .status(500)
+        .json(new TypeUZResponse("Foydalanuvchi yaratishda xatolik", null));
       return;
     }
 
@@ -364,7 +444,9 @@ router.post("/github", async (req: Request, res: Response) => {
     );
   } catch (e) {
     Logger.error(`GitHub auth error: ${(e as Error).message}`);
-    res.status(500).json(new TypeUZResponse("GitHub orqali kirishda xatolik", null));
+    res
+      .status(500)
+      .json(new TypeUZResponse("GitHub orqali kirishda xatolik", null));
   }
 });
 
@@ -398,13 +480,26 @@ router.get("/github/callback", async (req: Request, res: Response) => {
     const GITHUB_CLIENT_ID = process.env["GITHUB_CLIENT_ID"] ?? "dev";
     const GITHUB_CLIENT_SECRET = process.env["GITHUB_CLIENT_SECRET"] ?? "dev";
 
-    const tokenResp = await fetch("https://github.com/login/oauth/access_token", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({ client_id: GITHUB_CLIENT_ID, client_secret: GITHUB_CLIENT_SECRET, code }),
-    });
+    const tokenResp = await fetch(
+      "https://github.com/login/oauth/access_token",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          client_id: GITHUB_CLIENT_ID,
+          client_secret: GITHUB_CLIENT_SECRET,
+          code,
+        }),
+      },
+    );
 
-    const tokenData = (await tokenResp.json()) as { access_token?: string; error?: string };
+    const tokenData = (await tokenResp.json()) as {
+      access_token?: string;
+      error?: string;
+    };
     if (tokenData.access_token === undefined || tokenData.access_token === "") {
       res.redirect(`${feUrl()}?auth_error=token_exchange_failed`);
       return;
@@ -413,7 +508,11 @@ router.get("/github/callback", async (req: Request, res: Response) => {
     const userResp = await fetch("https://api.github.com/user", {
       headers: { Authorization: `Bearer ${tokenData.access_token}` },
     });
-    const ghUser = (await userResp.json()) as { login?: string; email?: string; id?: number };
+    const ghUser = (await userResp.json()) as {
+      login?: string;
+      email?: string;
+      id?: number;
+    };
     const email = ghUser.email ?? `${ghUser.login ?? "gh_user"}@github.dev`;
 
     let user = await findUserByEmail(email);
@@ -433,7 +532,9 @@ router.get("/github/callback", async (req: Request, res: Response) => {
     }
 
     const token = signToken({ uid: user.uid, email: user.email });
-    res.redirect(`${feUrl()}?auth_token=${token}&auth_uid=${user.uid}&auth_email=${encodeURIComponent(user.email)}&auth_name=${encodeURIComponent(user.name)}`);
+    res.redirect(
+      `${feUrl()}?auth_token=${token}&auth_uid=${user.uid}&auth_email=${encodeURIComponent(user.email)}&auth_name=${encodeURIComponent(user.name)}`,
+    );
   } catch (e) {
     Logger.error(`GitHub callback error: ${(e as Error).message}`);
     res.redirect(`${feUrl()}?auth_error=internal_error`);
@@ -481,6 +582,7 @@ const adminLoginLimiter = rateLimit({
   message: { message: "Ko'p urinishlar, keyinroq urinib ko'ring" },
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { keyGeneratorIpFallback: false, xForwardedForHeader: false },
   keyGenerator: (req) => {
     const ip =
       (req.headers["cf-connecting-ip"] as string) ??
@@ -491,44 +593,59 @@ const adminLoginLimiter = rateLimit({
   },
 });
 
-router.post("/admin/login", adminLoginLimiter, async (req: Request, res: Response) => {
-  try {
-    const { username, password } = req.body as {
-      username?: string;
-      password?: string;
-    };
-    if (username === undefined || username === "" || password === undefined || password === "") {
-      res.status(400).json(new TypeUZResponse("Username va parol majburiy", null));
-      return;
+router.post(
+  "/admin/login",
+  adminLoginLimiter,
+  async (req: Request, res: Response) => {
+    try {
+      const { username, password } = req.body as {
+        username?: string;
+        password?: string;
+      };
+      if (
+        username === undefined ||
+        username === "" ||
+        password === undefined ||
+        password === ""
+      ) {
+        res
+          .status(400)
+          .json(new TypeUZResponse("Username va parol majburiy", null));
+        return;
+      }
+
+      const credDoc = await getAdminCredDoc(username);
+      if (!credDoc) {
+        res
+          .status(401)
+          .json(new TypeUZResponse("Username yoki parol noto'g'ri", null));
+        return;
+      }
+
+      const match = await bcrypt.compare(password, credDoc.passwordHash);
+      if (!match) {
+        res
+          .status(401)
+          .json(new TypeUZResponse("Username yoki parol noto'g'ri", null));
+        return;
+      }
+
+      const token = signToken({
+        uid: credDoc.username,
+        email: `${credDoc.username}@admin.typeuz.uz`,
+        admin: true,
+      });
+
+      Logger.info(`Admin login: ${credDoc.username}`);
+      res
+        .status(200)
+        .json(new TypeUZResponse("Admin kirish muvaffaqiyatli", { token }));
+    } catch (e) {
+      Logger.error(`Admin login error: ${(e as Error).message}`);
+      res.status(500).json(new TypeUZResponse("Admin kirishda xatolik", null));
     }
-
-    const credDoc = await getAdminCredDoc(username);
-    if (!credDoc) {
-      res.status(401).json(new TypeUZResponse("Username yoki parol noto'g'ri", null));
-      return;
-    }
-
-    const match = await bcrypt.compare(password, credDoc.passwordHash);
-    if (!match) {
-      res.status(401).json(new TypeUZResponse("Username yoki parol noto'g'ri", null));
-      return;
-    }
-
-    const token = signToken({
-      uid: credDoc.username,
-      email: `${credDoc.username}@admin.typeuz.uz`,
-      admin: true,
-    });
-
-    Logger.info(`Admin login: ${credDoc.username}`);
-    res.status(200).json(
-      new TypeUZResponse("Admin kirish muvaffaqiyatli", { token }),
-    );
-  } catch (e) {
-    Logger.error(`Admin login error: ${(e as Error).message}`);
-    res.status(500).json(new TypeUZResponse("Admin kirishda xatolik", null));
-  }
-});
+  },
+);
 
 router.post("/admin/change-password", async (req: Request, res: Response) => {
   try {
@@ -537,19 +654,35 @@ router.post("/admin/change-password", async (req: Request, res: Response) => {
       newPassword?: string;
     };
 
-    if (currentPassword === undefined || currentPassword === "" || newPassword === undefined || newPassword === "") {
-      res.status(400).json(new TypeUZResponse("Joriy va yangi parol majburiy", null));
+    if (
+      currentPassword === undefined ||
+      currentPassword === "" ||
+      newPassword === undefined ||
+      newPassword === ""
+    ) {
+      res
+        .status(400)
+        .json(new TypeUZResponse("Joriy va yangi parol majburiy", null));
       return;
     }
 
     if (newPassword.length < 8) {
-      res.status(400).json(new TypeUZResponse("Yangi parol kamida 8 belgidan iborat bo'lishi kerak", null));
+      res
+        .status(400)
+        .json(
+          new TypeUZResponse(
+            "Yangi parol kamida 8 belgidan iborat bo'lishi kerak",
+            null,
+          ),
+        );
       return;
     }
 
     const authHeader = req.headers.authorization;
     if (authHeader === undefined || !authHeader.startsWith("Bearer ")) {
-      res.status(401).json(new TypeUZResponse("Avtorizatsiya talab qilinadi", null));
+      res
+        .status(401)
+        .json(new TypeUZResponse("Avtorizatsiya talab qilinadi", null));
       return;
     }
 
@@ -563,7 +696,14 @@ router.post("/admin/change-password", async (req: Request, res: Response) => {
     }
 
     if (!decoded.admin) {
-      res.status(403).json(new TypeUZResponse("Faqat adminlar parolni o'zgartirishi mumkin", null));
+      res
+        .status(403)
+        .json(
+          new TypeUZResponse(
+            "Faqat adminlar parolni o'zgartirishi mumkin",
+            null,
+          ),
+        );
       return;
     }
 
@@ -585,10 +725,14 @@ router.post("/admin/change-password", async (req: Request, res: Response) => {
     await saveAdminCredDoc(credDoc);
 
     Logger.info(`Admin password changed: ${username}`);
-    res.status(200).json(new TypeUZResponse("Parol muvaffaqiyatli o'zgartirildi", null));
+    res
+      .status(200)
+      .json(new TypeUZResponse("Parol muvaffaqiyatli o'zgartirildi", null));
   } catch (e) {
     Logger.error(`Admin change-password error: ${(e as Error).message}`);
-    res.status(500).json(new TypeUZResponse("Parolni o'zgartirishda xatolik", null));
+    res
+      .status(500)
+      .json(new TypeUZResponse("Parolni o'zgartirishda xatolik", null));
   }
 });
 
