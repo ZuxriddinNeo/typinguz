@@ -33,7 +33,7 @@ export const BASE_CONFIGURATION: Configuration = {
     maxFavorites: 0,
   },
   admin: {
-    endpointsEnabled: false,
+    endpointsEnabled: true,
   },
   ads: {
     enabled: false,
