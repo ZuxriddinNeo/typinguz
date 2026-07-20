@@ -986,3 +986,150 @@ export async function getLoginsByWeek(
     .sort((a, b) => a.week.localeCompare(b.week));
   return new TypeUZResponse("Logins per week", data);
 }
+
+// --- Notification History ---
+const NOTIFICATIONS_KEY = "admin_notifications";
+
+export async function getNotifications(_req: TypeUZRequest): Promise<
+  TypeUZResponse<
+    Array<{
+      id: string;
+      uid: string;
+      subject: string;
+      body: string;
+      timestamp: number;
+      read: boolean;
+    }>
+  >
+> {
+  if (isDevEnvironment()) {
+    const list =
+      devGet<
+        Array<{
+          id: string;
+          uid: string;
+          subject: string;
+          body: string;
+          timestamp: number;
+          read: boolean;
+        }>
+      >(NOTIFICATIONS_KEY) ?? [];
+    return new TypeUZResponse("Notifications retrieved", list.reverse());
+  }
+  return new TypeUZResponse("Notifications retrieved", []);
+}
+
+// --- Legal Content ---
+const LEGAL_CONTENT_KEY = "legal_content";
+
+const defaultLegalContent = {
+  privacy: {
+    title: "Maxfiylik siyosati",
+    content:
+      "Ushbu Maxfiylik siyosati TypeUZ.uz platformasi foydalanuvchilarning shaxsiy ma'lumotlarini qanday to'plashi, saqlashi va himoya qilishini belgilaydi.",
+  },
+  terms: {
+    title: "Foydalanish shartlari",
+    content:
+      "Ushbu Foydalanish shartlari TypeUZ.uz platformasidan foydalanish qoidalarini belgilaydi. Platformadan foydalanish orqali siz ushbu shartlarga rozilik bildirasiz.",
+  },
+  security: {
+    title: "Xavfsizlik siyosati",
+    content:
+      "TypeUZ.uz platformasi foydalanuvchilar ma'lumotlarining xavfsizligini ta'minlash uchun barcha zarur choralarni ko'radi.",
+  },
+};
+
+export async function getLegalContent(
+  _req: TypeUZRequest,
+): Promise<TypeUZResponse<typeof defaultLegalContent>> {
+  if (isDevEnvironment()) {
+    const saved = devGet<typeof defaultLegalContent>(LEGAL_CONTENT_KEY);
+    return new TypeUZResponse(
+      "Legal content retrieved",
+      saved ?? defaultLegalContent,
+    );
+  }
+  return new TypeUZResponse("Legal content retrieved", defaultLegalContent);
+}
+
+export async function updateLegalContent(
+  req: TypeUZRequest<undefined, typeof defaultLegalContent>,
+): Promise<TypeUZResponse> {
+  if (isDevEnvironment()) {
+    devSet(LEGAL_CONTENT_KEY, req.body);
+  }
+  return new TypeUZResponse("Legal content updated", null);
+}
+
+// --- List Users (paginated) ---
+type ListUserRecord = {
+  uid: string;
+  name: string;
+  email: string;
+  banned: boolean;
+  addedAt?: number;
+  pbs?: Record<string, number>;
+  completedTests?: number;
+  timeTyping?: number;
+  streak?: number;
+  lastLoginAt?: number;
+};
+
+export async function listUsers(
+  req: TypeUZRequest<{ skip: number; limit: number }>,
+): Promise<TypeUZResponse<{ total: number; users: ListUserRecord[] }>> {
+  if (isDevEnvironment()) {
+    const allUsers = devGet<Array<Record<string, unknown>>>("users") ?? [];
+    const total = allUsers.length;
+    const page = allUsers.slice(
+      req.query.skip,
+      req.query.skip + req.query.limit,
+    );
+    return new TypeUZResponse("Users listed", {
+      total,
+      users: page.map((u: Record<string, unknown>) => ({
+        uid: (u["uid"] as string) ?? "",
+        name: (u["name"] as string) ?? "",
+        email: (u["email"] as string) ?? "",
+        banned: (u["banned"] as boolean) ?? false,
+        addedAt: u["addedAt"] as number | undefined,
+        completedTests: u["completedTests"] as number | undefined,
+      })),
+    });
+  }
+  try {
+    const total = await collection("users").countDocuments();
+    const projection = {
+      uid: 1,
+      name: 1,
+      email: 1,
+      banned: 1,
+      addedAt: 1,
+      pbs: 1,
+      completedTests: 1,
+      timeTyping: 1,
+      streak: 1,
+      lastLoginAt: 1,
+    };
+    const rawUsers = (await collection("users")
+      .find({}, { projection } as never)
+      .skip(req.query.skip)
+      .limit(req.query.limit)
+      .toArray()) as Record<string, unknown>[];
+    return new TypeUZResponse("Users listed", {
+      total,
+      users: rawUsers.map((u: Record<string, unknown>) => ({
+        uid: (u["uid"] as string) ?? "",
+        name: (u["name"] as string) ?? "",
+        email: (u["email"] as string) ?? "",
+        banned: (u["banned"] as boolean) ?? false,
+        addedAt: u["addedAt"] as number | undefined,
+        completedTests: u["completedTests"] as number | undefined,
+        timeTyping: u["timeTyping"] as number | undefined,
+      })),
+    });
+  } catch {
+    return new TypeUZResponse("Users listed", { total: 0, users: [] });
+  }
+}

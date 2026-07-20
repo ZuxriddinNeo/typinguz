@@ -1,7 +1,14 @@
-// oxlint-disable react/no-unescaped-entities, solid/prefer-show, typescript/no-explicit-any, typescript/strict-boolean-expressions, curly
+// oxlint-disable react/no-unescaped-entities, solid/prefer-show, typescript/no-explicit-any, typescript/strict-boolean-expressions, curly, dot-notation, no-unnecessary-type-assertion
 import { createForm } from "@tanstack/solid-form";
 import { createMutation, createQuery } from "@tanstack/solid-query";
-import { JSXElement, Show, createSignal, For, createEffect } from "solid-js";
+import {
+  JSXElement,
+  Show,
+  createSignal,
+  For,
+  createEffect,
+  onMount,
+} from "solid-js";
 import { envConfig } from "virtual:env-config";
 
 import type { FaSolidIcon } from "../../../types/font-awesome";
@@ -110,6 +117,42 @@ export function AdminDashboardPage(): JSXElement {
   const [footerTagline, setFooterTagline] = createSignal("");
   const [footerTelegram, setFooterTelegram] = createSignal("");
 
+  // --- Legal content state ---
+  const [legalPrivacy, setLegalPrivacy] = createSignal("");
+  const [legalTerms, setLegalTerms] = createSignal("");
+  const [legalSecurity, setLegalSecurity] = createSignal("");
+
+  // --- Notification history ---
+  const [notifHistory, setNotifHistory] = createSignal<
+    Array<{
+      id: string;
+      uid: string;
+      subject: string;
+      body: string;
+      timestamp: number;
+      read: boolean;
+    }>
+  >([]);
+
+  // --- User list ---
+  const [userList, setUserList] = createSignal<
+    Array<{
+      uid: string;
+      name: string;
+      email: string;
+      banned?: boolean;
+      addedAt?: number;
+      completedTests?: number;
+      timeTyping?: number;
+    }>
+  >([]);
+  const [userListTotal, setUserListTotal] = createSignal(0);
+  const [userListSkip, setUserListSkip] = createSignal(0);
+  const [selectedUser, setSelectedUser] = createSignal<Record<
+    string,
+    unknown
+  > | null>(null);
+
   // --- Theme editor state ---
   const [accentColor, setAccentColor] = createSignal("#ff5a1f");
   const [isDark, setIsDark] = createSignal(true);
@@ -120,6 +163,7 @@ export function AdminDashboardPage(): JSXElement {
     { id: "content", label: "Kontent", icon: "fa-pencil-alt" },
     { id: "appearance", label: "Ko'rinish", icon: "fa-palette" },
     { id: "ai", label: "AI tahlil", icon: "fa-brain" },
+    { id: "ads", label: "Reklama", icon: "fa-ad" },
     { id: "settings", label: "Sozlamalar", icon: "fa-cog" },
   ];
 
@@ -232,6 +276,68 @@ export function AdminDashboardPage(): JSXElement {
       if (d.accentColor) setAccentColor(d.accentColor);
       if (d.isDark !== undefined) setIsDark(d.isDark);
     }
+  });
+
+  // --- Legal content query ---
+  const legalQuery = createQuery(() => ({
+    queryKey: ["admin", "legal"],
+    queryFn: async () => {
+      const res = await Ape.admin.getLegalContent();
+      if (res.status === 200) return res.body.data;
+      return null;
+    },
+  }));
+
+  createEffect(() => {
+    const l = legalQuery.data;
+    if (l !== undefined && l !== null) {
+      const d = l as {
+        privacy?: { content?: string };
+        terms?: { content?: string };
+        security?: { content?: string };
+      };
+      if (d.privacy?.content) setLegalPrivacy(d.privacy.content);
+      if (d.terms?.content) setLegalTerms(d.terms.content);
+      if (d.security?.content) setLegalSecurity(d.security.content);
+    }
+  });
+
+  // --- Notification history query ---
+  const notifHistoryQuery = createQuery(() => ({
+    queryKey: ["admin", "notifications"],
+    queryFn: async () => {
+      const res = await Ape.admin.getNotifications();
+      if (res.status === 200) return res.body.data ?? [];
+      return [];
+    },
+  }));
+
+  createEffect(() => {
+    const n = notifHistoryQuery.data;
+    if (n !== undefined && Array.isArray(n)) setNotifHistory(n as never);
+  });
+
+  // --- User list query ---
+  const loadUsers = async (skip: number) => {
+    try {
+      const res = await Ape.admin.listUsers({ query: { skip, limit: 25 } });
+      if (res.status === 200) {
+        const d = res.body.data as
+          | { total: number; users: Array<Record<string, unknown>> }
+          | undefined;
+        if (d) {
+          setUserList(d.users as never);
+          setUserListTotal(d.total);
+          setUserListSkip(skip);
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+  };
+
+  onMount(() => {
+    void loadUsers(0);
   });
 
   // --- Ad config ---
@@ -357,6 +463,22 @@ export function AdminDashboardPage(): JSXElement {
       showErrorNotification("AI server xatosi");
     } finally {
       setAiLoading(false);
+    }
+  };
+
+  // --- Save legal content ---
+  const saveLegalContent = async () => {
+    try {
+      await Ape.admin.updateLegalContent({
+        body: {
+          privacy: { title: "Maxfiylik siyosati", content: legalPrivacy() },
+          terms: { title: "Foydalanish shartlari", content: legalTerms() },
+          security: { title: "Xavfsizlik siyosati", content: legalSecurity() },
+        },
+      });
+      showSuccessNotification("Yuridik kontent saqlandi");
+    } catch {
+      showErrorNotification("Yuridik kontentni saqlashda xatolik");
     }
   };
 
@@ -821,6 +943,204 @@ export function AdminDashboardPage(): JSXElement {
                 </Show>
               </Card>
             </div>
+
+            {/* Notification history */}
+            <Card title="Bildirishnomalar tarixi">
+              <button
+                type="button"
+                onClick={() => void notifHistoryQuery.refetch()}
+                class="mb-4 rounded-xl bg-sub-alt px-4 py-2 text-sm text-sub hover:text-text"
+              >
+                <Fa icon="fa-sync" class="mr-1" /> Yangilash
+              </button>
+              <Show
+                when={notifHistory().length > 0}
+                fallback={
+                  <p class="text-sm text-sub">Hali bildirishnomalar yo'q</p>
+                }
+              >
+                <div class="max-h-80 space-y-2 overflow-y-auto">
+                  <For each={notifHistory()}>
+                    {(n) => (
+                      <div class="rounded-lg bg-sub-alt/30 p-3 text-xs">
+                        <div class="flex items-center justify-between">
+                          <span class="font-medium text-text">{n.subject}</span>
+                          <span class="text-sub">
+                            {new Date(n.timestamp).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <p class="mt-1 text-sub">
+                          {n.body.slice(0, 120)}
+                          {n.body.length > 120 ? "..." : ""}
+                        </p>
+                        <div class="mt-1 text-sub/50">
+                          UID: {n.uid.slice(0, 12)}...
+                        </div>
+                      </div>
+                    )}
+                  </For>
+                </div>
+              </Show>
+            </Card>
+
+            {/* User table */}
+            <div class="grid gap-6">
+              <Card title={`Foydalanuvchilar (jami: ${userListTotal()})`}>
+                <Show
+                  when={userList().length > 0}
+                  fallback={
+                    <p class="text-sm text-sub">
+                      Foydalanuvchilar yuklanmoqda...
+                    </p>
+                  }
+                >
+                  <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                      <thead>
+                        <tr class="border-b border-sub/10 text-sub">
+                          <th class="p-2 font-medium">Ism</th>
+                          <th class="p-2 font-medium">Email</th>
+                          <th class="p-2 font-medium">Status</th>
+                          <th class="p-2 font-medium">Testlar</th>
+                          <th class="p-2 font-medium">Qo'shilgan</th>
+                          <th class="p-2 font-medium"></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <For each={userList()}>
+                          {(u) => (
+                            <tr class="border-b border-sub/10 text-text transition-colors hover:bg-sub-alt/20">
+                              <td class="p-2">
+                                {(u["name"] as string) ?? "—"}
+                              </td>
+                              <td class="p-2 text-sub">
+                                {(u["email"] as string) ?? "—"}
+                              </td>
+                              <td class="p-2">
+                                <span
+                                  class={`rounded-full px-2 py-0.5 text-xs ${u["banned"] ? "bg-error/20 text-error" : "bg-green-500/20 text-green-400"}`}
+                                >
+                                  {u["banned"] ? "Bloklangan" : "Faol"}
+                                </span>
+                              </td>
+                              <td class="p-2 text-sub">
+                                {(u["completedTests"] as number) ?? 0}
+                              </td>
+                              <td class="p-2 text-sub">
+                                {u["addedAt"]
+                                  ? new Date(
+                                      u["addedAt"] as number,
+                                    ).toLocaleDateString()
+                                  : "—"}
+                              </td>
+                              <td class="p-2">
+                                <button
+                                  type="button"
+                                  onClick={() => setSelectedUser(u)}
+                                  class="rounded-lg bg-main/20 px-2 py-1 text-xs text-main hover:bg-main hover:text-bg"
+                                >
+                                  Batafsil
+                                </button>
+                              </td>
+                            </tr>
+                          )}
+                        </For>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="mt-4 flex items-center justify-between">
+                    <button
+                      type="button"
+                      disabled={userListSkip() === 0}
+                      onClick={() =>
+                        void loadUsers(Math.max(0, userListSkip() - 25))
+                      }
+                      class="rounded-xl bg-sub-alt px-4 py-2 text-sm text-sub hover:text-text disabled:opacity-40"
+                    >
+                      Oldingi
+                    </button>
+                    <span class="text-xs text-sub">
+                      {userListSkip() + 1}–
+                      {Math.min(userListSkip() + 25, userListTotal())} /{" "}
+                      {userListTotal()}
+                    </span>
+                    <button
+                      type="button"
+                      disabled={userListSkip() + 25 >= userListTotal()}
+                      onClick={() => void loadUsers(userListSkip() + 25)}
+                      class="rounded-xl bg-sub-alt px-4 py-2 text-sm text-sub hover:text-text disabled:opacity-40"
+                    >
+                      Keyingi
+                    </button>
+                  </div>
+                </Show>
+              </Card>
+
+              {/* User detail */}
+              <Show when={selectedUser() !== null}>
+                <Card title="Foydalanuvchi tafsilotlari">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedUser(null)}
+                    class="mb-4 rounded-lg bg-error/20 px-3 py-1.5 text-xs text-error hover:bg-error hover:text-bg"
+                  >
+                    <Fa icon="fa-times" class="mr-1" /> Yopish
+                  </button>
+                  <div class="grid gap-2 text-sm">
+                    <div>
+                      <span class="text-sub">UID: </span>
+                      <span class="text-text">
+                        {(selectedUser()?.["uid"] as string) ?? "—"}
+                      </span>
+                    </div>
+                    <div>
+                      <span class="text-sub">Ism: </span>
+                      <span class="text-text">
+                        {(selectedUser()?.["name"] as string) ?? "—"}
+                      </span>
+                    </div>
+                    <div>
+                      <span class="text-sub">Email: </span>
+                      <span class="text-text">
+                        {(selectedUser()?.["email"] as string) ?? "—"}
+                      </span>
+                    </div>
+                    <div>
+                      <span class="text-sub">Holat: </span>
+                      <span class="text-text">
+                        {selectedUser()?.["banned"] ? "Bloklangan" : "Faol"}
+                      </span>
+                    </div>
+                    <div>
+                      <span class="text-sub">Testlar: </span>
+                      <span class="text-text">
+                        {(selectedUser()?.["completedTests"] as number) ?? 0}
+                      </span>
+                    </div>
+                    <div>
+                      <span class="text-sub">Vaqt: </span>
+                      <span class="text-text">
+                        {Math.round(
+                          ((selectedUser()?.["timeTyping"] as number) ?? 0) /
+                            60,
+                        )}{" "}
+                        min
+                      </span>
+                    </div>
+                    <div>
+                      <span class="text-sub">Qo'shilgan: </span>
+                      <span class="text-text">
+                        {selectedUser()?.["addedAt"]
+                          ? new Date(
+                              selectedUser()?.["addedAt"] as number,
+                            ).toLocaleDateString()
+                          : "—"}
+                      </span>
+                    </div>
+                  </div>
+                </Card>
+              </Show>
+            </div>
           </Show>
 
           {/* ===== TAB: Content ===== */}
@@ -961,6 +1281,56 @@ export function AdminDashboardPage(): JSXElement {
                 Kontentni saqlash
               </button>
             </div>
+
+            <Card title="Yuridik sahifalar">
+              <p class="mb-4 text-sm text-sub">
+                Quyidagi matnlar Maxfiylik, Foydalanish shartlari va Xavfsizlik
+                siyosati sahifalarida ko'rsatiladi.
+              </p>
+              <div class="flex flex-col gap-4">
+                <div>
+                  <label class="mb-1 block text-sm font-medium text-text">
+                    Maxfiylik siyosati
+                  </label>
+                  <textarea
+                    value={legalPrivacy()}
+                    onInput={(e) => setLegalPrivacy(e.currentTarget.value)}
+                    rows={6}
+                    class="w-full resize-y rounded-xl bg-sub-alt p-3 text-sm text-text ring-1 ring-sub/20 outline-none focus:ring-main"
+                  ></textarea>
+                </div>
+                <div>
+                  <label class="mb-1 block text-sm font-medium text-text">
+                    Foydalanish shartlari
+                  </label>
+                  <textarea
+                    value={legalTerms()}
+                    onInput={(e) => setLegalTerms(e.currentTarget.value)}
+                    rows={6}
+                    class="w-full resize-y rounded-xl bg-sub-alt p-3 text-sm text-text ring-1 ring-sub/20 outline-none focus:ring-main"
+                  ></textarea>
+                </div>
+                <div>
+                  <label class="mb-1 block text-sm font-medium text-text">
+                    Xavfsizlik siyosati
+                  </label>
+                  <textarea
+                    value={legalSecurity()}
+                    onInput={(e) => setLegalSecurity(e.currentTarget.value)}
+                    rows={6}
+                    class="w-full resize-y rounded-xl bg-sub-alt p-3 text-sm text-text ring-1 ring-sub/20 outline-none focus:ring-main"
+                  ></textarea>
+                </div>
+                <button
+                  type="button"
+                  onClick={saveLegalContent}
+                  class="self-start rounded-xl bg-main px-6 py-3 text-sm font-bold text-bg hover:opacity-90"
+                >
+                  <Fa icon="fa-save" class="mr-2" />
+                  Yuridik kontentni saqlash
+                </button>
+              </div>
+            </Card>
           </Show>
 
           {/* ===== TAB: Appearance ===== */}
@@ -1290,7 +1660,7 @@ export function AdminDashboardPage(): JSXElement {
               <Card title="Ma'lumot">
                 <div class="space-y-2 text-sm text-sub">
                   <p>Admin endpointlari himoyalangan. So'rovlar cheklangan.</p>
-                  <p class="text-xs text-sub/60">Dev login: admin / 12345</p>
+                  <p class="text-xs text-sub/60">Dev login: admin / admin123</p>
                 </div>
               </Card>
             </div>

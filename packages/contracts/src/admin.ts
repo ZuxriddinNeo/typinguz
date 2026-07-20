@@ -84,9 +84,7 @@ export const AdminSearchUsersQuerySchema = z
     q: z.string().min(1).max(100),
   })
   .strict();
-export type AdminSearchUsersQuery = z.infer<
-  typeof AdminSearchUsersQuerySchema
->;
+export type AdminSearchUsersQuery = z.infer<typeof AdminSearchUsersQuerySchema>;
 
 export const AdminUserSchema = z.object({
   uid: z.string(),
@@ -126,8 +124,80 @@ export type AdminActivityResponseData = z.infer<
 export const AdminActivityResponseSchema = responseWithData(
   AdminActivityResponseDataSchema,
 );
-export type AdminActivityResponse = z.infer<
-  typeof AdminActivityResponseSchema
+export type AdminActivityResponse = z.infer<typeof AdminActivityResponseSchema>;
+
+// --- Notification History ---
+export const AdminNotificationRecordSchema = z.object({
+  id: z.string(),
+  uid: z.string(),
+  subject: z.string(),
+  body: z.string(),
+  timestamp: z.number(),
+  read: z.boolean(),
+});
+export type AdminNotificationRecord = z.infer<
+  typeof AdminNotificationRecordSchema
+>;
+
+export const AdminNotificationsResponseSchema = responseWithData(
+  z.array(AdminNotificationRecordSchema),
+);
+export type AdminNotificationsResponse = z.infer<
+  typeof AdminNotificationsResponseSchema
+>;
+
+// --- Legal Content ---
+export const AdminLegalContentResponseDataSchema = z.object({
+  privacy: z.object({ title: z.string(), content: z.string() }),
+  terms: z.object({ title: z.string(), content: z.string() }),
+  security: z.object({ title: z.string(), content: z.string() }),
+});
+export type AdminLegalContentResponseData = z.infer<
+  typeof AdminLegalContentResponseDataSchema
+>;
+
+export const AdminLegalContentResponseSchema = responseWithData(
+  AdminLegalContentResponseDataSchema,
+);
+export type AdminLegalContentResponse = z.infer<
+  typeof AdminLegalContentResponseSchema
+>;
+
+export const AdminUpdateLegalContentRequestSchema =
+  AdminLegalContentResponseDataSchema;
+export type AdminUpdateLegalContentRequest = z.infer<
+  typeof AdminUpdateLegalContentRequestSchema
+>;
+
+// --- List Users (paginated) ---
+export const AdminListUsersQuerySchema = z.object({
+  skip: z.coerce.number().int().nonnegative().default(0),
+  limit: z.coerce.number().int().min(1).max(100).default(25),
+});
+export type AdminListUsersQuery = z.infer<typeof AdminListUsersQuerySchema>;
+
+export const AdminListUserRecordSchema = z.object({
+  uid: z.string(),
+  name: z.string(),
+  email: z.string(),
+  banned: z.boolean().optional(),
+  addedAt: z.number().optional(),
+  pbs: z.record(z.string(), z.number()).optional(),
+  completedTests: z.number().optional(),
+  timeTyping: z.number().optional(),
+  streak: z.number().optional(),
+  lastLoginAt: z.number().optional(),
+});
+export type AdminListUserRecord = z.infer<typeof AdminListUserRecordSchema>;
+
+export const AdminListUsersResponseSchema = responseWithData(
+  z.object({
+    total: z.number(),
+    users: z.array(AdminListUserRecordSchema),
+  }),
+);
+export type AdminListUsersResponse = z.infer<
+  typeof AdminListUsersResponseSchema
 >;
 
 // --- Send Notification ---
@@ -173,9 +243,7 @@ export type AdminAdConfigResponseData = z.infer<
 export const AdminAdConfigResponseSchema = responseWithData(
   AdminAdConfigResponseDataSchema,
 );
-export type AdminAdConfigResponse = z.infer<
-  typeof AdminAdConfigResponseSchema
->;
+export type AdminAdConfigResponse = z.infer<typeof AdminAdConfigResponseSchema>;
 
 export const UpdateAdConfigRequestSchema = z
   .object({
@@ -185,9 +253,7 @@ export const UpdateAdConfigRequestSchema = z
     creatives: z.array(AdminCreativeSchema),
   })
   .strict();
-export type UpdateAdConfigRequest = z.infer<
-  typeof UpdateAdConfigRequestSchema
->;
+export type UpdateAdConfigRequest = z.infer<typeof UpdateAdConfigRequestSchema>;
 
 // --- Add Creative ---
 export const AddCreativeRequestSchema = z
@@ -198,9 +264,7 @@ export const AddCreativeRequestSchema = z
   .strict();
 export type AddCreativeRequest = z.infer<typeof AddCreativeRequestSchema>;
 
-export const AddCreativeResponseSchema = responseWithData(
-  AdminCreativeSchema,
-);
+export const AddCreativeResponseSchema = responseWithData(AdminCreativeSchema);
 export type AddCreativeResponse = z.infer<typeof AddCreativeResponseSchema>;
 
 // --- Delete Creative ---
@@ -209,9 +273,7 @@ export const DeleteCreativeParamsSchema = z
     id: z.string(),
   })
   .strict();
-export type DeleteCreativeParams = z.infer<
-  typeof DeleteCreativeParamsSchema
->;
+export type DeleteCreativeParams = z.infer<typeof DeleteCreativeParamsSchema>;
 
 const c = initContract();
 export const adminContract = c.router(
@@ -359,12 +421,34 @@ export const adminContract = c.router(
       method: "GET",
       path: "/content",
       responses: {
-        200: responseWithData(z.object({
-          hero: z.object({ title: z.string(), subtitle: z.string(), description: z.string() }),
-          features: z.array(z.object({ icon: z.string(), title: z.string(), description: z.string() })),
-          aboutCards: z.array(z.object({ icon: z.string(), title: z.string(), description: z.string() })),
-          footer: z.object({ brandName: z.string(), tagline: z.string(), telegram: z.string() }),
-        })),
+        200: responseWithData(
+          z.object({
+            hero: z.object({
+              title: z.string(),
+              subtitle: z.string(),
+              description: z.string(),
+            }),
+            features: z.array(
+              z.object({
+                icon: z.string(),
+                title: z.string(),
+                description: z.string(),
+              }),
+            ),
+            aboutCards: z.array(
+              z.object({
+                icon: z.string(),
+                title: z.string(),
+                description: z.string(),
+              }),
+            ),
+            footer: z.object({
+              brandName: z.string(),
+              tagline: z.string(),
+              telegram: z.string(),
+            }),
+          }),
+        ),
       },
     },
     updateSiteContent: {
@@ -372,10 +456,30 @@ export const adminContract = c.router(
       method: "PUT",
       path: "/content",
       body: z.object({
-        hero: z.object({ title: z.string(), subtitle: z.string(), description: z.string() }),
-        features: z.array(z.object({ icon: z.string(), title: z.string(), description: z.string() })),
-        aboutCards: z.array(z.object({ icon: z.string(), title: z.string(), description: z.string() })),
-        footer: z.object({ brandName: z.string(), tagline: z.string(), telegram: z.string() }),
+        hero: z.object({
+          title: z.string(),
+          subtitle: z.string(),
+          description: z.string(),
+        }),
+        features: z.array(
+          z.object({
+            icon: z.string(),
+            title: z.string(),
+            description: z.string(),
+          }),
+        ),
+        aboutCards: z.array(
+          z.object({
+            icon: z.string(),
+            title: z.string(),
+            description: z.string(),
+          }),
+        ),
+        footer: z.object({
+          brandName: z.string(),
+          tagline: z.string(),
+          telegram: z.string(),
+        }),
       }),
       responses: { 200: TypeUZResponseSchema },
     },
@@ -386,17 +490,22 @@ export const adminContract = c.router(
       method: "GET",
       path: "/theme",
       responses: {
-        200: responseWithData(z.object({
-          accentColor: z.string(),
-          isDark: z.boolean().optional(),
-        })),
+        200: responseWithData(
+          z.object({
+            accentColor: z.string(),
+            isDark: z.boolean().optional(),
+          }),
+        ),
       },
     },
     updateThemeSettings: {
       summary: "update theme settings",
       method: "PUT",
       path: "/theme",
-      body: z.object({ accentColor: z.string(), isDark: z.boolean().optional() }),
+      body: z.object({
+        accentColor: z.string(),
+        isDark: z.boolean().optional(),
+      }),
       responses: { 200: TypeUZResponseSchema },
     },
 
@@ -406,7 +515,9 @@ export const adminContract = c.router(
       method: "GET",
       path: "/analytics/signups",
       responses: {
-        200: responseWithData(z.array(z.object({ date: z.string(), count: z.number() }))),
+        200: responseWithData(
+          z.array(z.object({ date: z.string(), count: z.number() })),
+        ),
       },
     },
     getLoginsByDay: {
@@ -414,7 +525,9 @@ export const adminContract = c.router(
       method: "GET",
       path: "/analytics/logins",
       responses: {
-        200: responseWithData(z.array(z.object({ date: z.string(), count: z.number() }))),
+        200: responseWithData(
+          z.array(z.object({ date: z.string(), count: z.number() })),
+        ),
       },
     },
     getLoginsByWeek: {
@@ -422,7 +535,43 @@ export const adminContract = c.router(
       method: "GET",
       path: "/analytics/logins/weekly",
       responses: {
-        200: responseWithData(z.array(z.object({ week: z.string(), count: z.number() }))),
+        200: responseWithData(
+          z.array(z.object({ week: z.string(), count: z.number() })),
+        ),
+      },
+    },
+    getNotifications: {
+      summary: "get notification history",
+      method: "GET",
+      path: "/notifications",
+      responses: {
+        200: AdminNotificationsResponseSchema,
+      },
+    },
+    getLegalContent: {
+      summary: "get legal page content",
+      method: "GET",
+      path: "/content/legal",
+      responses: {
+        200: AdminLegalContentResponseSchema,
+      },
+    },
+    updateLegalContent: {
+      summary: "update legal page content",
+      method: "PUT",
+      path: "/content/legal",
+      body: AdminUpdateLegalContentRequestSchema,
+      responses: {
+        200: TypeUZResponseSchema,
+      },
+    },
+    listUsers: {
+      summary: "list all users (paginated)",
+      method: "GET",
+      path: "/users/list",
+      query: AdminListUsersQuerySchema,
+      responses: {
+        200: AdminListUsersResponseSchema,
       },
     },
   },

@@ -35,15 +35,13 @@ export default s.router(adminContract, {
     handler: async (r) => callController(AdminController.getActivity)(r),
   },
   sendNotification: {
-    handler: async (r) =>
-      callController(AdminController.sendNotification)(r),
+    handler: async (r) => callController(AdminController.sendNotification)(r),
   },
   getAdConfig: {
     handler: async (r) => callController(AdminController.getAdConfig)(r),
   },
   updateAdConfig: {
-    handler: async (r) =>
-      callController(AdminController.updateAdConfig)(r),
+    handler: async (r) => callController(AdminController.updateAdConfig)(r),
   },
   addCreative: {
     handler: async (r) => callController(AdminController.addCreative)(r),
@@ -61,7 +59,8 @@ export default s.router(adminContract, {
     handler: async (r) => callController(AdminController.getThemeSettings)(r),
   },
   updateThemeSettings: {
-    handler: async (r) => callController(AdminController.updateThemeSettings)(r),
+    handler: async (r) =>
+      callController(AdminController.updateThemeSettings)(r),
   },
   getSignupsByDay: {
     handler: async (r) => callController(AdminController.getSignupsByDay)(r),
@@ -71,5 +70,17 @@ export default s.router(adminContract, {
   },
   getLoginsByWeek: {
     handler: async (r) => callController(AdminController.getLoginsByWeek)(r),
+  },
+  getNotifications: {
+    handler: async (r) => callController(AdminController.getNotifications)(r),
+  },
+  getLegalContent: {
+    handler: async (r) => callController(AdminController.getLegalContent)(r),
+  },
+  updateLegalContent: {
+    handler: async (r) => callController(AdminController.updateLegalContent)(r),
+  },
+  listUsers: {
+    handler: async (r) => callController(AdminController.listUsers)(r),
   },
 });

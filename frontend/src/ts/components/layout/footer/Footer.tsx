@@ -1,12 +1,17 @@
 import { JSXElement, Show } from "solid-js";
 
-import { getIsScreenshotting } from "../../../states/core";
+import { getActivePage, getIsScreenshotting } from "../../../states/core";
 import { isTestActive as getIsTestActive } from "../../../states/test";
 import { cn } from "../../../utils/cn";
 
 export function Footer(): JSXElement {
+  const showFooter = () =>
+    !getIsTestActive() &&
+    getActivePage() !== "adminLogin" &&
+    getActivePage() !== "adminDashboard";
+
   return (
-    <Show when={!getIsTestActive()}>
+    <Show when={showFooter()}>
       <footer
         class={cn("border-t border-sub/10 px-8 py-12 text-base text-sub", {
           "opacity-0": getIsScreenshotting(),
