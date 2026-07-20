@@ -126,6 +126,14 @@ import { nthElementFromArray } from "../utils/arrays";
 
 let failReason = "";
 
+function lockBodyScroll(): void {
+  document.body.style.overflow = "hidden";
+}
+
+function unlockBodyScroll(): void {
+  document.body.style.overflow = "";
+}
+
 export function startTest(now: number): boolean {
   if (PageTransition.get()) {
     return false;
@@ -138,6 +146,7 @@ export function startTest(now: number): boolean {
   }
 
   setTestActive(true);
+  lockBodyScroll();
   Time.set(0);
   TestTimer.clear();
 
@@ -280,6 +289,7 @@ export function restart(options = {} as RestartOptions): void {
     PractiseWords.resetBefore();
   }
 
+  unlockBodyScroll();
   resetTestEvents();
   TestTimer.clear();
   setIsTestInvalid(false);
@@ -313,6 +323,7 @@ export function restart(options = {} as RestartOptions): void {
     source = "testPage";
   }
 
+  qs(".pageTest")?.removeClass("resultVisible");
   TestState.setResultVisible(false);
   TestState.setTestRestarting(true);
 
@@ -859,9 +870,11 @@ export async function finish(difficultyFailed = false): Promise<void> {
 
   forceReleaseAllKeys();
 
+  qs(".pageTest")?.addClass("resultVisible");
   setResultVisible(true);
   TestState.setResultVisible(true);
   setTestActive(false);
+  unlockBodyScroll();
 
   cleanupData();
 

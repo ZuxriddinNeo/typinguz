@@ -10,6 +10,7 @@ export const page = new Page({
   path: "/",
   beforeHide: async (): Promise<void> => {
     blurInputElement();
+    document.body.style.overflow = "";
   },
   afterHide: async (): Promise<void> => {
     TestLogic.restart({

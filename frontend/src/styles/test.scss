@@ -191,7 +191,7 @@
 
 #words {
   height: fit-content;
-  padding-bottom: 0.5em; // to account for hints of the bottom line
+  padding: 0.5em 0;
   display: flex;
   flex-wrap: wrap;
   width: 100%;
@@ -599,9 +599,9 @@
 
 .word {
   position: relative;
-  font-size: 1.15em;
-  line-height: 1em;
-  margin: 0.25em 0.3em;
+  font-size: 1.35em;
+  line-height: 1.2em;
+  margin: 0.3em 0.35em 0.3em 0;
   font-variant: no-common-ligatures;
   border-bottom: 2px solid transparent;
   letter {
@@ -1342,6 +1342,10 @@
   height: 100%;
   display: grid;
   grid-template-rows: 1fr auto 1fr;
+
+  &.resultVisible {
+    grid-template-rows: auto;
+  }
 }
 
 .pageTest {
