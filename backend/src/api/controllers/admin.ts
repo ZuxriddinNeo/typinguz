@@ -31,6 +31,167 @@ import { devGet, devSet } from "../../utils/dev-store";
 import { collection } from "../../init/db";
 import { ObjectId } from "mongodb";
 
+// --- Analytics Helpers ---
+function getUsersArray(): Array<Record<string, unknown>> {
+  return devGet<Array<Record<string, unknown>>>("users") ?? [];
+}
+
+export async function getDau(
+  _req: TypeUZRequest,
+): Promise<TypeUZResponse<Array<{ date: string; count: number }>>> {
+  const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+  const log = (
+    devGet<Array<{ uid: string; timestamp: number }>>("login_log") ?? []
+  ).filter((e) => e.timestamp >= thirtyDaysAgo);
+  const dayMap = new Map<string, number>();
+  for (const e of log) {
+    const d = new Date(e.timestamp).toISOString().slice(0, 10);
+    dayMap.set(d, (dayMap.get(d) ?? 0) + 1);
+  }
+  const data = Array.from(dayMap.entries())
+    .map(([date, count]) => ({ date, count }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+  return new TypeUZResponse("DAU data", data);
+}
+
+export async function getRetention(
+  _req: TypeUZRequest,
+): Promise<TypeUZResponse<{ day1: number; day7: number; day30: number }>> {
+  const users = getUsersArray();
+  const now = Date.now();
+  let returned1 = 0;
+  let returned7 = 0;
+  let returned30 = 0;
+  let totalOld1 = 0;
+  let totalOld7 = 0;
+  let totalOld30 = 0;
+  for (const u of users) {
+    const addedAt = u["addedAt"] as number | undefined;
+    if (addedAt === undefined) continue;
+    const daysSinceJoin = (now - addedAt) / (24 * 60 * 60 * 1000);
+    const lastLogin = (u["lastLoginAt"] as number) ?? addedAt;
+    if (daysSinceJoin >= 1) {
+      totalOld1++;
+      if (lastLogin > addedAt + 86400000) returned1++;
+    }
+    if (daysSinceJoin >= 7) {
+      totalOld7++;
+      if (lastLogin > addedAt + 7 * 86400000) returned7++;
+    }
+    if (daysSinceJoin >= 30) {
+      totalOld30++;
+      if (lastLogin > addedAt + 30 * 86400000) returned30++;
+    }
+  }
+  return new TypeUZResponse("Retention data", {
+    day1: totalOld1 > 0 ? Math.round((returned1 / totalOld1) * 100) : 0,
+    day7: totalOld7 > 0 ? Math.round((returned7 / totalOld7) * 100) : 0,
+    day30: totalOld30 > 0 ? Math.round((returned30 / totalOld30) * 100) : 0,
+  });
+}
+
+export async function getWpmDistribution(
+  _req: TypeUZRequest,
+): Promise<TypeUZResponse<Array<{ range: string; count: number }>>> {
+  const users = getUsersArray();
+  const buckets = new Map<string, number>();
+  const ranges = ["0-20", "21-40", "41-60", "61-80", "81-100", "100+"];
+  for (const r of ranges) buckets.set(r, 0);
+  for (const u of users) {
+    const pbs = u["pbs"] as Record<string, unknown> | undefined;
+    if (pbs === undefined) continue;
+    for (const val of Object.values(pbs)) {
+      const wpm = (val as { wpm?: number })?.wpm ?? 0;
+      if (wpm <= 20) {
+        buckets.set("0-20", (buckets.get("0-20") ?? 0) + 1);
+      } else if (wpm <= 40) {
+        buckets.set("21-40", (buckets.get("21-40") ?? 0) + 1);
+      } else if (wpm <= 60) {
+        buckets.set("41-60", (buckets.get("41-60") ?? 0) + 1);
+      } else if (wpm <= 80) {
+        buckets.set("61-80", (buckets.get("61-80") ?? 0) + 1);
+      } else if (wpm <= 100) {
+        buckets.set("81-100", (buckets.get("81-100") ?? 0) + 1);
+      } else {
+        buckets.set("100+", (buckets.get("100+") ?? 0) + 1);
+      }
+      break;
+    }
+  }
+  const data = Array.from(buckets.entries()).map(([range, count]) => ({
+    range,
+    count,
+  }));
+  return new TypeUZResponse("WPM distribution", data);
+}
+
+export async function getTopUsers(
+  _req: TypeUZRequest,
+): Promise<
+  TypeUZResponse<
+    Array<{
+      uid: string;
+      name: string;
+      wpm: number;
+      accuracy?: number;
+      tests: number;
+    }>
+  >
+> {
+  const users = getUsersArray();
+  const scored = users
+    .map((u) => {
+      const pbs = u["pbs"] as
+        | Record<string, { wpm?: number; accuracy?: number }>
+        | undefined;
+      let bestWpm = 0;
+      let bestAcc = 0;
+      if (pbs) {
+        for (const val of Object.values(pbs)) {
+          if ((val.wpm ?? 0) > bestWpm) {
+            bestWpm = val.wpm ?? 0;
+            bestAcc = val.accuracy ?? 0;
+          }
+        }
+      }
+      return {
+        uid: (u["uid"] as string) ?? "",
+        name: (u["name"] as string) ?? "",
+        wpm: bestWpm,
+        accuracy: bestAcc || undefined,
+        tests: (u["completedTests"] as number) ?? 0,
+      };
+    })
+    .filter((u) => u.wpm > 0)
+    .sort((a, b) => b.wpm - a.wpm)
+    .slice(0, 20);
+  return new TypeUZResponse("Top users", scored);
+}
+
+export async function getUserGrowth(
+  _req: TypeUZRequest,
+): Promise<
+  TypeUZResponse<Array<{ date: string; total: number; newUsers: number }>>
+> {
+  const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+  const users = getUsersArray().filter(
+    (u) => ((u["addedAt"] as number) ?? 0) >= thirtyDaysAgo,
+  );
+  const dayMap = new Map<string, { total: number; newUsers: number }>();
+  let runningTotal = users.length;
+  for (const u of users.reverse()) {
+    const d = new Date((u["addedAt"] as number) ?? 0)
+      .toISOString()
+      .slice(0, 10);
+    const prev = dayMap.get(d) ?? { total: 0, newUsers: 0 };
+    dayMap.set(d, { total: runningTotal--, newUsers: prev.newUsers + 1 });
+  }
+  const data = Array.from(dayMap.entries())
+    .map(([date, val]) => ({ date, total: val.total, newUsers: val.newUsers }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+  return new TypeUZResponse("User growth", data);
+}
+
 function safeImportantLog(
   event: string,
   msg: Record<string, unknown>,

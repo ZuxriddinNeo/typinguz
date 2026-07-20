@@ -115,6 +115,48 @@ const routes: Route[] = [
     },
   },
   {
+    path: "/admin/users",
+    load: async (_params, options) => {
+      await PageController.change("adminUsers", options);
+    },
+  },
+  {
+    path: "/admin/content",
+    load: async (_params, options) => {
+      await PageController.change("adminContent", options);
+    },
+  },
+  {
+    path: "/admin/analytics",
+    load: async (_params, options) => {
+      await PageController.change("adminAnalytics", options);
+    },
+  },
+  {
+    path: "/admin/ai",
+    load: async (_params, options) => {
+      await PageController.change("adminAi", options);
+    },
+  },
+  {
+    path: "/admin/notifications",
+    load: async (_params, options) => {
+      await PageController.change("adminNotifications", options);
+    },
+  },
+  {
+    path: "/admin/ads",
+    load: async (_params, options) => {
+      await PageController.change("adminAds", options);
+    },
+  },
+  {
+    path: "/admin/settings",
+    load: async (_params, options) => {
+      await PageController.change("adminSettings", options);
+    },
+  },
+  {
     path: "/onboarding",
     load: async (_params, options) => {
       if (!isAuthAvailable() && !isDevEnvironment()) {

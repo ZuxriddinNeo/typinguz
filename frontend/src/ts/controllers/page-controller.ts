@@ -29,7 +29,6 @@ import * as TodayTracker from "../test/today-tracker";
 import { isResultsReady, waitForResultsReady } from "../collections/results";
 import { updateSeo } from "../constants/seo";
 
-
 type ChangeOptions = {
   force?: boolean;
   params?: Record<string, string>;
@@ -73,6 +72,13 @@ const pages = {
   login: solidPage("login"),
   adminLogin: solidPage("adminLogin"),
   adminDashboard: solidPage("adminDashboard"),
+  adminUsers: solidPage("adminUsers"),
+  adminContent: solidPage("adminContent"),
+  adminAnalytics: solidPage("adminAnalytics"),
+  adminAi: solidPage("adminAi"),
+  adminNotifications: solidPage("adminNotifications"),
+  adminAds: solidPage("adminAds"),
+  adminSettings: solidPage("adminSettings"),
   onboarding: solidPage("onboarding"),
   profile: solidPage("profile", {
     beforeShow: async (options) => {
@@ -101,7 +107,10 @@ const pages = {
   }),
 };
 
-function updateSeoForPage(nextPage: { id: string; display?: string }, params?: Record<string, string>): void {
+function updateSeoForPage(
+  nextPage: { id: string; display?: string },
+  params?: Record<string, string>,
+): void {
   const pageName = nextPage.id as PageName;
   if (pageName === "test") {
     updateSeo("test");

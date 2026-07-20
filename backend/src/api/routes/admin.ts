@@ -71,6 +71,21 @@ export default s.router(adminContract, {
   getLoginsByWeek: {
     handler: async (r) => callController(AdminController.getLoginsByWeek)(r),
   },
+  getDau: {
+    handler: async (r) => callController(AdminController.getDau)(r),
+  },
+  getRetention: {
+    handler: async (r) => callController(AdminController.getRetention)(r),
+  },
+  getWpmDistribution: {
+    handler: async (r) => callController(AdminController.getWpmDistribution)(r),
+  },
+  getTopUsers: {
+    handler: async (r) => callController(AdminController.getTopUsers)(r),
+  },
+  getUserGrowth: {
+    handler: async (r) => callController(AdminController.getUserGrowth)(r),
+  },
   getNotifications: {
     handler: async (r) => callController(AdminController.getNotifications)(r),
   },

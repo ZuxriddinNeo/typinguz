@@ -5,6 +5,7 @@ import { render } from "solid-js/web";
 import { queryClient } from "../queries";
 import { qsa } from "../utils/dom";
 import { Theme } from "./core/Theme";
+import { CommandlineHotkey } from "./hotkeys/CommandlineHotkey";
 import { Footer } from "./layout/footer/Footer";
 import { Header } from "./layout/header/Header";
 import { Overlays } from "./layout/overlays/Overlays";
@@ -13,26 +14,39 @@ import { NotFoundPage } from "./pages/404Page";
 import { AboutPage } from "./pages/AboutPage";
 import { AccountPage } from "./pages/account/AccountPage";
 import { MyProfile } from "./pages/account/MyProfile";
-import { LeaderboardPage } from "./pages/leaderboard/LeaderboardPage";
+import { AdminAdsPage } from "./pages/admin/AdminAdsPage";
+import { AdminAIPage } from "./pages/admin/AdminAIPage";
+import { AdminAnalyticsPage } from "./pages/admin/AdminAnalyticsPage";
+import { AdminContentPage } from "./pages/admin/AdminContentPage";
 import { AdminDashboardPage } from "./pages/admin/AdminDashboardPage";
+import { AdminNotificationsPage } from "./pages/admin/AdminNotificationsPage";
+import { AdminSettingsPage } from "./pages/admin/AdminSettingsPage";
+import { AdminUsersPage } from "./pages/admin/AdminUsersPage";
+import { LandingPage } from "./pages/landing/LandingPage";
+import { LeaderboardPage } from "./pages/leaderboard/LeaderboardPage";
+import { PrivacyPolicyPage } from "./pages/legal/PrivacyPolicyPage";
+import { SecurityPolicyPage } from "./pages/legal/SecurityPolicyPage";
+import { TermsOfServicePage } from "./pages/legal/TermsOfServicePage";
 import { AdminLoginPage } from "./pages/login/AdminLoginPage";
 import { LoginPage } from "./pages/login/LoginPage";
+import { OnboardingPage } from "./pages/onboarding/OnboardingPage";
 import { ProfilePage } from "./pages/profile/ProfilePage";
 import { Keymap } from "./pages/test/Keymap";
+import { LiveStatsBar } from "./pages/test/LiveStatsBar";
 import { TestModesNotice } from "./pages/test/modes-notice/TestModesNotice";
 import { Monkey } from "./pages/test/Monkey";
 import { TestConfig } from "./pages/test/TestConfig";
-import { LiveStatsBar } from "./pages/test/LiveStatsBar";
-import { CommandlineHotkey } from "./hotkeys/CommandlineHotkey";
 import { Popups } from "./popups/Popups";
-import { LandingPage } from "./pages/landing/LandingPage";
-import { OnboardingPage } from "./pages/onboarding/OnboardingPage";
-import { PrivacyPolicyPage } from "./pages/legal/PrivacyPolicyPage";
-import { TermsOfServicePage } from "./pages/legal/TermsOfServicePage";
-import { SecurityPolicyPage } from "./pages/legal/SecurityPolicyPage";
 
 const components: Record<string, () => JSXElement> = {
   admindashboardpage: () => <AdminDashboardPage />,
+  adminuserspage: () => <AdminUsersPage />,
+  admincontentpage: () => <AdminContentPage />,
+  adminanalyticspage: () => <AdminAnalyticsPage />,
+  adminalipage: () => <AdminAIPage />,
+  adminnotificationspage: () => <AdminNotificationsPage />,
+  adminadspage: () => <AdminAdsPage />,
+  adminsettingspage: () => <AdminSettingsPage />,
   adminloginpage: () => <AdminLoginPage />,
   landingpage: () => <LandingPage />,
   footer: () => <Footer />,

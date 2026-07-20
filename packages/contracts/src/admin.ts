@@ -200,6 +200,72 @@ export type AdminListUsersResponse = z.infer<
   typeof AdminListUsersResponseSchema
 >;
 
+// --- Daily Active Users ---
+export const AdminDauPointSchema = z.object({
+  date: z.string(),
+  count: z.number(),
+});
+export type AdminDauPoint = z.infer<typeof AdminDauPointSchema>;
+export const AdminDauResponseSchema = responseWithData(
+  z.array(AdminDauPointSchema),
+);
+export type AdminDauResponse = z.infer<typeof AdminDauResponseSchema>;
+
+// --- User Retention ---
+export const AdminRetentionDataSchema = z.object({
+  day1: z.number(),
+  day7: z.number(),
+  day30: z.number(),
+});
+export type AdminRetentionData = z.infer<typeof AdminRetentionDataSchema>;
+export const AdminRetentionResponseSchema = responseWithData(
+  AdminRetentionDataSchema,
+);
+export type AdminRetentionResponse = z.infer<
+  typeof AdminRetentionResponseSchema
+>;
+
+// --- WPM Distribution ---
+export const AdminWpmBucketSchema = z.object({
+  range: z.string(),
+  count: z.number(),
+});
+export type AdminWpmBucket = z.infer<typeof AdminWpmBucketSchema>;
+export const AdminWpmDistributionResponseSchema = responseWithData(
+  z.array(AdminWpmBucketSchema),
+);
+export type AdminWpmDistributionResponse = z.infer<
+  typeof AdminWpmDistributionResponseSchema
+>;
+
+// --- Top Users ---
+export const AdminTopUserSchema = z.object({
+  uid: z.string(),
+  name: z.string(),
+  wpm: z.number(),
+  accuracy: z.number().optional(),
+  tests: z.number(),
+});
+export type AdminTopUser = z.infer<typeof AdminTopUserSchema>;
+export const AdminTopUsersResponseSchema = responseWithData(
+  z.array(AdminTopUserSchema),
+);
+export type AdminTopUsersResponse = z.infer<typeof AdminTopUsersResponseSchema>;
+
+// --- User Growth ---
+export const AdminUserGrowthPointSchema = z.object({
+  date: z.string(),
+  total: z.number(),
+  newUsers: z.number(),
+});
+export type AdminUserGrowthPoint = z.infer<typeof AdminUserGrowthPointSchema>;
+export const AdminUserGrowthResponseSchema = responseWithData(
+  z.array(AdminUserGrowthPointSchema),
+);
+export type AdminUserGrowthResponse = z.infer<
+  typeof AdminUserGrowthResponseSchema
+>;
+
 // --- Send Notification ---
 export const SendNotificationRequestSchema = z
   .object({
@@ -539,6 +605,36 @@ export const adminContract = c.router(
           z.array(z.object({ week: z.string(), count: z.number() })),
         ),
       },
+    },
+    getDau: {
+      summary: "daily active users (last 30 days)",
+      method: "GET",
+      path: "/analytics/dau",
+      responses: { 200: AdminDauResponseSchema },
+    },
+    getRetention: {
+      summary: "user retention (day 1, 7, 30)",
+      method: "GET",
+      path: "/analytics/retention",
+      responses: { 200: AdminRetentionResponseSchema },
+    },
+    getWpmDistribution: {
+      summary: "WPM distribution buckets",
+      method: "GET",
+      path: "/analytics/wpm-distribution",
+      responses: { 200: AdminWpmDistributionResponseSchema },
+    },
+    getTopUsers: {
+      summary: "top users by WPM",
+      method: "GET",
+      path: "/analytics/top-users",
+      responses: { 200: AdminTopUsersResponseSchema },
+    },
+    getUserGrowth: {
+      summary: "cumulative user growth",
+      method: "GET",
+      path: "/analytics/user-growth",
+      responses: { 200: AdminUserGrowthResponseSchema },
     },
     getNotifications: {
       summary: "get notification history",
