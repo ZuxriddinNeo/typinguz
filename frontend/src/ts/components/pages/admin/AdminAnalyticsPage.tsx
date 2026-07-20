@@ -6,20 +6,21 @@ import Ape from "../../../ape";
 import { AdminLayout } from "./AdminLayout";
 
 function BarChart(props: {
-  data: any[];
+  data: any[] | undefined;
   labelKey: string;
   valueKey: string;
   color?: string;
 }): JSXElement {
+  const resolved = () => props.data ?? [];
   const maxVal = () =>
-    Math.max(1, ...props.data.map((d) => d[props.valueKey] ?? 0));
+    Math.max(1, ...resolved().map((d) => d[props.valueKey] ?? 0));
   return (
     <Show
-      when={props.data.length > 0}
+      when={resolved().length > 0}
       fallback={<p class="text-xs text-sub">Ma'lumot yo'q</p>}
     >
       <div class="flex items-end gap-0.5" style={{ height: "120px" }}>
-        <For each={props.data}>
+        <For each={resolved()}>
           {(d) => {
             const v = d[props.valueKey] ?? 0;
             return (
