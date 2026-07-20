@@ -78,15 +78,17 @@ export async function connect(): Promise<void> {
 export const getDb = (): Db | undefined => db;
 
 function createMockCollection<T>(): Collection<WithId<T>> {
+  const mockCursor = {
+    toArray: async () => [],
+    sort: () => mockCursor,
+    limit: () => mockCursor,
+    skip: () => mockCursor,
+    next: async () => null,
+  };
   return new Proxy({}, {
     get(_target, prop) {
       if (prop === "find" || prop === "findOne" || prop === "aggregate") {
-        return () => ({
-          toArray: async () => [],
-          sort: () => ({ toArray: async () => [], limit: () => ({ toArray: async () => [] }) }),
-          limit: () => ({ toArray: async () => [] }),
-          next: async () => null,
-        });
+        return () => mockCursor;
       }
       if (prop === "insertOne" || prop === "updateOne" || prop === "replaceOne" || prop === "deleteOne") {
         return async () => ({ acknowledged: true, insertedId: null, modifiedCount: 0, deletedCount: 0 });

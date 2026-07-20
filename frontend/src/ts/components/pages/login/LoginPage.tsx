@@ -4,6 +4,7 @@ import { getLoginPageInputsEnabled } from "../../../states/login";
 import { Page } from "../../common/Page";
 import { Login } from "./Login";
 import { Register } from "./Register";
+import { Fa } from "../../common/Fa";
 import { devLogin } from "../../../utils/dev-auth";
 import { setUserId } from "../../../states/core";
 import { isDevEnvironment } from "../../../utils/env";
@@ -35,7 +36,7 @@ export function LoginPage(): JSXElement {
     <Page id="login">
       <Show when={!getLoginPageInputsEnabled()}>
         <div class="fixed top-1/2 left-1/2 z-1 -translate-x-1/2 -translate-y-1/2 text-3xl text-main transition-opacity duration-250">
-          <i class="fas fa-fw fa-spin fa-circle-notch"></i>
+          <Fa icon="fa-circle-notch" fixedWidth spin />
         </div>
       </Show>
       <Show

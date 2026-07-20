@@ -150,8 +150,8 @@ export function AdminNotificationsPage(): JSXElement {
                       </span>
                     </div>
                     <p class="mt-1 text-sub">
-                      {n.body.slice(0, 150)}
-                      {n.body.length > 150 ? "..." : ""}
+                      {n.body?.slice(0, 150) ?? ""}
+                      {n.body?.length > 150 ? "..." : ""}
                     </p>
                     <div class="mt-1 text-sub/40">
                       UID: {(n.uid ?? "").slice(0, 12)}...

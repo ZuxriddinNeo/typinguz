@@ -109,7 +109,7 @@ export function Register(): JSXElement {
     },
     onSubmit: async ({ value }) => {
       disableLoginPageInputs();
-      let captchaToken: string | undefined = "";
+      let captchaToken: string | undefined;
       if (isCaptchaEnabled) {
         captchaToken = await showRegisterCaptchaModal();
         if (captchaToken === undefined || captchaToken === "") {
@@ -123,7 +123,7 @@ export function Register(): JSXElement {
           value.username,
           value.email,
           value.password,
-          captchaToken,
+          captchaToken ?? "",
           (value.gender || undefined) as Gender,
           value.age !== undefined && value.age !== ""
             ? Number(value.age)

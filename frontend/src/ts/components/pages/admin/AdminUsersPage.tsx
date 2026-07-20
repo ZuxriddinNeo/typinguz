@@ -54,9 +54,11 @@ export function AdminUsersPage(): JSXElement {
 
   const banMutation = createMutation(() => ({
     mutationFn: async (uid: string) => Ape.admin.toggleBan({ body: { uid } }),
-    onSuccess: (data: any) => {
-      setBanResult(data?.data?.banned ? "Bloklandi" : "Blokdan ochildi");
+    onSuccess: (res: any) => {
+      const d = res?.body?.data as any;
+      setBanResult(d?.banned ? "Bloklandi" : "Blokdan ochildi");
       showSuccessNotification("Holat o'zgartirildi");
+      void loadUsers(skip());
     },
     onError: () => showErrorNotification("Xatolik"),
   }));
@@ -189,8 +191,8 @@ export function AdminUsersPage(): JSXElement {
                         </button>
                         <button
                           type="button"
-                          onClick={() => {
-                            void Ape.admin.toggleBan({ body: { uid: u.uid } });
+                          onClick={async () => {
+                            await Ape.admin.toggleBan({ body: { uid: u.uid } });
                             void loadUsers(skip());
                           }}
                           class="rounded-lg bg-error/20 px-2.5 py-1.5 text-[10px] text-error hover:bg-error hover:text-bg"
@@ -363,11 +365,14 @@ export function AdminUsersPage(): JSXElement {
             <div class="mt-6 flex gap-3">
               <button
                 type="button"
-                onClick={() => {
-                  void Ape.admin.toggleBan({
+                onClick={async () => {
+                  const res = await Ape.admin.toggleBan({
                     body: { uid: selectedUser()?.uid },
                   });
-                  showSuccessNotification("Holat o'zgartirildi");
+                  if (res.status === 200) {
+                    showSuccessNotification("Holat o'zgartirildi");
+                    void loadUsers(skip());
+                  }
                 }}
                 class="flex-1 rounded-xl bg-error/20 py-2.5 text-sm font-medium text-error hover:bg-error hover:text-bg"
               >
