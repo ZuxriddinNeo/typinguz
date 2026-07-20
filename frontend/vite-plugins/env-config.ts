@@ -48,6 +48,18 @@ export function envConfig(options: {
           clientVersion: options.clientVersion,
         };
 
+        if (
+          !options.isDevelopment &&
+          (options.env["BACKEND_URL"] === undefined ||
+            options.env["BACKEND_URL"] === "")
+        ) {
+          console.warn(
+            "\x1b[33m%s\x1b[0m",
+            "WARNING: BACKEND_URL not set. Defaulting to https://api.typeuz.uz. " +
+              "Set BACKEND_URL env var to point to your backend (e.g. https://your-app.railway.app).",
+          );
+        }
+
         const envConfig = options.isDevelopment ? devConfig : prodConfig;
         return `
           export const envConfig = ${JSON.stringify(envConfig)};

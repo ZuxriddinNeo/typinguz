@@ -4,6 +4,7 @@ import { addApiRoutes } from "./api/routes";
 import express, { urlencoded, json } from "express";
 import contextMiddleware from "./middlewares/context";
 import errorHandlingMiddleware from "./middlewares/error";
+import Logger from "./utils/logger";
 import {
   badAuthRateLimiterHandler,
   rootRateLimiter,
@@ -37,9 +38,13 @@ function buildApp(): express.Application {
           .split(",")
           .map((s) => s.trim())
           .filter(Boolean)
-      : isDevEnvironment()
-        ? "*"
-        : [];
+      : "*";
+
+  if (!isDevEnvironment() && corsOrigins === "*") {
+    Logger.warning(
+      "ALLOWED_ORIGINS not set — allowing all origins. Set it to a comma-separated list of allowed origins in production.",
+    );
+  }
   app.use(
     cors({
       origin: corsOrigins,

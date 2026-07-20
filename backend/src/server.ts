@@ -109,6 +109,12 @@ async function bootServer(port: number): Promise<Server> {
 
     if (isDevEnvironment()) {
       await seedDefaultAdmin();
+    } else {
+      try {
+        await seedDefaultAdmin();
+      } catch {
+        Logger.warning("Failed to seed default admin (non-fatal)");
+      }
     }
 
     recordServerVersion(version);
