@@ -1,6 +1,6 @@
 {
   "rootDirectory": "frontend",
-  "installCommand": "cd .. && pnpm install --frozen-lockfile --ignore-scripts",
+  "installCommand": "cd .. && pnpm install --no-frozen-lockfile",
   "buildCommand": "cd .. && pnpm run build-fe",
   "outputDirectory": "dist",
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
