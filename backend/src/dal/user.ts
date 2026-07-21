@@ -8,7 +8,13 @@ import {
   type UpdateFilter,
   type Filter,
 } from "mongodb";
-import { flattenObjectDeep, isPlainObject, WithObjectId } from "../utils/misc";
+import {
+  flattenObjectDeep,
+  isPlainObject,
+  WithObjectId,
+  isDevEnvironment,
+} from "../utils/misc";
+import { devGet as devGetUser } from "../utils/dev-store";
 import { getCachedConfiguration } from "../init/configuration";
 import { getDayOfYear } from "date-fns";
 import { UTCDate } from "@date-fns/utc";
@@ -265,6 +271,33 @@ export async function updateEmail(
 }
 
 export async function getUser(uid: string, stack: string): Promise<DBUser> {
+  // Dev mode without MongoDB: try dev-store first for real user data
+  if (isDevEnvironment()) {
+    const allUsers =
+      devGetUser<Record<string, { uid: string; email: string; name: string }>>(
+        "users_by_email",
+      ) ?? {};
+    const userMeta = Object.values(allUsers).find((u) => u.uid === uid);
+    if (userMeta !== undefined) {
+      return {
+        _id: new ObjectId(),
+        name: userMeta.name,
+        email: userMeta.email ?? "",
+        uid: userMeta.uid,
+        addedAt: Date.now(),
+        personalBests: {
+          time: {},
+          words: {},
+          quote: {},
+          zen: {},
+          custom: {},
+          ai: {},
+        },
+        testActivity: {},
+        lastLoginAt: Date.now(),
+      };
+    }
+  }
   const user = await getUsersCollection().findOne({ uid });
   if (!user) throw new TypeUZError(404, "User not found", stack);
   return migrateUser(user);
@@ -297,6 +330,34 @@ export async function getPartialUser<K extends keyof DBUser>(
 }
 
 export async function findByName(name: string): Promise<DBUser | undefined> {
+  // Dev mode without MongoDB: use dev-store
+  if (isDevEnvironment()) {
+    const usersByName =
+      devGetUser<Record<string, { uid: string; email: string; name: string }>>(
+        "users_by_name",
+      ) ?? {};
+    const meta = usersByName[name.toLowerCase()];
+    if (meta !== undefined) {
+      return {
+        _id: new ObjectId(),
+        name: meta.name,
+        email: meta.email ?? "",
+        uid: meta.uid,
+        addedAt: Date.now(),
+        personalBests: {
+          time: {},
+          words: {},
+          quote: {},
+          zen: {},
+          custom: {},
+          ai: {},
+        },
+        testActivity: {},
+        lastLoginAt: Date.now(),
+      };
+    }
+    return undefined;
+  }
   const found = await getUsersCollection().findOne(
     { name },
     { collation: { locale: "en", strength: 1 } },
@@ -306,6 +367,34 @@ export async function findByName(name: string): Promise<DBUser | undefined> {
 }
 
 export async function findByEmail(email: string): Promise<DBUser | undefined> {
+  // Dev mode without MongoDB: use dev-store
+  if (isDevEnvironment()) {
+    const usersByEmail =
+      devGetUser<Record<string, { uid: string; email: string; name: string }>>(
+        "users_by_email",
+      ) ?? {};
+    const meta = usersByEmail[email.toLowerCase()];
+    if (meta !== undefined) {
+      return {
+        _id: new ObjectId(),
+        name: meta.name,
+        email: meta.email ?? "",
+        uid: meta.uid,
+        addedAt: Date.now(),
+        personalBests: {
+          time: {},
+          words: {},
+          quote: {},
+          zen: {},
+          custom: {},
+          ai: {},
+        },
+        testActivity: {},
+        lastLoginAt: Date.now(),
+      };
+    }
+    return undefined;
+  }
   const found = await getUsersCollection().findOne({ email });
   return found ?? undefined;
 }

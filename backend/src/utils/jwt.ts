@@ -4,7 +4,9 @@ import TypeUZError from "./error";
 const getSecret = (): string => {
   const secret = process.env["JWT_SECRET"];
   if (secret === undefined || secret === null || secret === "") {
-    return "typeuz-dev-jwt-secret-2024";
+    throw new Error(
+      "JWT_SECRET environment variable is not set! Set a strong random secret.",
+    );
   }
   return secret;
 };

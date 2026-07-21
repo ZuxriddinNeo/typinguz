@@ -29,6 +29,7 @@ import {
   static as expressStatic,
 } from "express";
 import { isDevEnvironment } from "../../utils/misc";
+import { devGet, devSet } from "../../utils/dev-store";
 import { getLiveConfiguration } from "../../init/configuration";
 import Logger from "../../utils/logger";
 import { createExpressEndpoints, initServer } from "@ts-rest/express";
@@ -172,6 +173,18 @@ function applyDevApiRoutes(app: Application): void {
           res.status(400).json(new TypeUZResponse("Username required", null));
           return;
         }
+        // Dev mode: check dev-store first
+        if (isDevEnvironment()) {
+          const usersByName =
+            devGet<
+              Record<string, { uid: string; email: string; name: string }>
+            >("users_by_name") ?? {};
+          const found = usersByName[username.toLowerCase()];
+          if (found) {
+            res.status(200).json(new TypeUZResponse("ok", found));
+            return;
+          }
+        }
         const existing = await UserDAL.findByName(username);
         if (existing) {
           res.status(200).json(
@@ -186,6 +199,20 @@ function applyDevApiRoutes(app: Application): void {
         const uid = new ObjectId().toHexString();
         const email = `${username}@dev.local`;
         await UserDAL.addUser(username, email, uid);
+        if (isDevEnvironment()) {
+          const usersByName =
+            devGet<
+              Record<string, { uid: string; email: string; name: string }>
+            >("users_by_name") ?? {};
+          usersByName[username.toLowerCase()] = { uid, email, name: username };
+          devSet("users_by_name", usersByName);
+          const usersByEmail =
+            devGet<
+              Record<string, { uid: string; email: string; name: string }>
+            >("users_by_email") ?? {};
+          usersByEmail[email.toLowerCase()] = { uid, email, name: username };
+          devSet("users_by_email", usersByEmail);
+        }
         res
           .status(200)
           .json(new TypeUZResponse("ok", { uid, email, name: username }));

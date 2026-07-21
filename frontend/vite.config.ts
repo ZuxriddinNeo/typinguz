@@ -165,7 +165,9 @@ function getPlugins({
                   return "";
                 }
               })();
-              const isApi = backendHostname !== "" && options.url.hostname === backendHostname;
+              const isApi =
+                backendHostname !== "" &&
+                options.url.hostname === backendHostname;
               return options.sameOrigin && !isApi;
             },
             handler: "NetworkFirst",
@@ -340,7 +342,10 @@ export default defineConfig(({ mode }): UserConfig => {
   const isDevelopment = mode !== "production";
 
   if (!isDevelopment) {
-    if (env["RECAPTCHA_SITE_KEY"] === undefined || env["RECAPTCHA_SITE_KEY"] === "") {
+    if (
+      env["RECAPTCHA_SITE_KEY"] === undefined ||
+      env["RECAPTCHA_SITE_KEY"] === ""
+    ) {
       console.warn(`${mode}: RECAPTCHA_SITE_KEY not set — CAPTCHA disabled`);
       env["RECAPTCHA_SITE_KEY"] = "";
     }
@@ -351,6 +356,7 @@ export default defineConfig(({ mode }): UserConfig => {
     build: getBuildOptions({ enableSourceMaps: useSentry }),
     css: getCssOptions({ isDevelopment }),
     server: {
+      allowedHosts: true,
       open: env["SERVER_OPEN"] !== "false",
       port: 3000,
       host: env["BACKEND_URL"] !== undefined,
@@ -365,7 +371,10 @@ export default defineConfig(({ mode }): UserConfig => {
         ? [
             {
               find: /^@typeuz\/(util|schemas|contracts|funbox|challenges)$/,
-              replacement: path.resolve(__dirname, "../packages/$1/src/index.ts"),
+              replacement: path.resolve(
+                __dirname,
+                "../packages/$1/src/index.ts",
+              ),
             },
             {
               find: /^@typeuz\/(util|schemas|contracts|funbox|challenges)\/(.+)$/,
