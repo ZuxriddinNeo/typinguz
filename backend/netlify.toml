@@ -1,0 +1,19 @@
+[build]
+command = "cd .. && pnpm build-pkg"
+publish = "."
+
+[functions]
+directory = "netlify/functions"
+node_bundler = "esbuild"
+external_node_modules = [
+  "@typeuz/contracts",
+  "@typeuz/schemas",
+  "@typeuz/util",
+  "@typeuz/challenges",
+  "@typeuz/funbox",
+]
+
+[[redirects]]
+from = "/api/*"
+to = "/.netlify/functions/api/:splat"
+status = 200

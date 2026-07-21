@@ -9,7 +9,17 @@
     {
       "files": ["src/**/*.ts"],
       "rules": {
-        "import/no-cycle": "off" //todo: fix cycles and turn this on
+        "import/no-cycle": "off"
+      }
+    },
+    {
+      "files": ["netlify/**/*.ts"],
+      "rules": {
+        "no-unsafe-assignment": "off",
+        "no-unsafe-argument": "off",
+        "typescript/no-unsafe-assignment": "off",
+        "typescript/no-unsafe-argument": "off",
+        "ban-ts-comment": "off"
       }
     }
   ]
