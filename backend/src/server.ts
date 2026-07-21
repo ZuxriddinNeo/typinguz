@@ -57,6 +57,10 @@ async function seedDefaultAdmin(): Promise<void> {
 }
 
 async function bootServer(port: number): Promise<Server> {
+  const server = app.listen(port, "0.0.0.0", () => {
+    Logger.success(`API server listening on port ${port}`);
+  });
+
   try {
     Logger.info(`Starting server version ${version}`);
     Logger.info(`Starting server in ${process.env["MODE"]} mode`);
@@ -137,16 +141,12 @@ async function bootServer(port: number): Promise<Server> {
 
     recordServerVersion(version);
   } catch (error) {
-    Logger.error("Failed to boot server");
+    Logger.error("Failed to initialize server services");
     const message = getErrorMessage(error);
     Logger.error(message ?? "Unknown error");
-    console.error(error);
-    return process.exit(1);
   }
 
-  return app.listen(port, "0.0.0.0", () => {
-    Logger.success(`API server listening on port ${port}`);
-  });
+  return server;
 }
 
 const PORT = parseInt(process.env["PORT"] ?? "5005", 10);
