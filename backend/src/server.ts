@@ -25,16 +25,34 @@ import { isDevEnvironment } from "./utils/misc";
 
 async function seedDefaultAdmin(): Promise<void> {
   const ADMIN_CRED_KEY = "admin_credentials";
-  const existing = devGet<Record<string, unknown>>(ADMIN_CRED_KEY);
-  if (existing !== null && Object.keys(existing).length > 0) return;
   const hash = await bcrypt.hash("admin123", 10);
-  devSet(ADMIN_CRED_KEY, {
-    admin: {
-      username: "admin",
-      passwordHash: hash,
-      createdAt: Date.now(),
-    },
-  });
+  if (isDevEnvironment()) {
+    const existing = devGet<Record<string, unknown>>(ADMIN_CRED_KEY);
+    if (existing !== null && Object.keys(existing).length > 0) return;
+    devSet(ADMIN_CRED_KEY, {
+      admin: {
+        username: "admin",
+        passwordHash: hash,
+        createdAt: Date.now(),
+      },
+    });
+  } else {
+    const existing = await db
+      .collection<{ username: string }>(ADMIN_CRED_KEY)
+      .findOne({ username: "admin" });
+    if (existing !== null) return;
+    await db.collection(ADMIN_CRED_KEY).updateOne(
+      { username: "admin" },
+      {
+        $set: {
+          username: "admin",
+          passwordHash: hash,
+          createdAt: Date.now(),
+        },
+      },
+      { upsert: true },
+    );
+  }
   Logger.success("Default admin created: admin / admin123");
 }
 
